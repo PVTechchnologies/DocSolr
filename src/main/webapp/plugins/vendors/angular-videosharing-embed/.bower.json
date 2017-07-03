@@ -1,0 +1,24 @@
+{
+  "author": "erost",
+  "name": "ng-videosharing-embed",
+  "description": "Embed videos using AngularJS directives",
+  "homepage": "https://github.com/erost/ng-videosharing-embed",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/erost/ng-videosharing-embed.git"
+  },
+  "main": "./build/ng-videosharing-embed.min.js",
+  "dependencies": {
+    "angular": ">= 1.2.0"
+  },
+  "_release": "bd15704ec0",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "bd15704ec052788a872e73e5b51169abd586517c"
+  },
+  "_source": "git://github.com/erost/ng-videosharing-embed.git",
+  "_target": "*",
+  "_originalSource": "angular-videosharing-embed",
+  "_direct": true
+}

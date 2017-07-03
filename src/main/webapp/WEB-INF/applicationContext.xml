@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:ehcache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   		http://www.springframework.org/schema/beans/spring-beans.xsd
+	   		http://www.springframework.org/schema/context
+	   		http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/mvc 
+			http://www.springframework.org/schema/mvc/spring-mvc.xsd
+			http://www.springframework.org/schema/aop
+			http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/cache
+			http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+	<!-- Enable AspectJ style of Spring AOP -->
+	<aop:aspectj-autoproxy />
+	<bean name="genericAspect" class="com.docsolr.aspect.GenericAspect" />
+	<bean name="transactionAspect" class="com.docsolr.aspect.TransactionAspect" />
+
+	<context:property-placeholder
+		properties-ref="deployProperties" />
+	<bean id="mailProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+		p:location="classpath:mail.properties" />
+
+	<mvc:resources mapping="/app/**" location="/app/" />
+	<mvc:resources mapping="/css/**" location="/css/" />
+	<mvc:resources mapping="/fonts/**" location="/fonts/" />
+	<mvc:resources mapping="/images/**" location="/images/" />
+	<mvc:resources mapping="/plugins/**" location="/plugins/" />
+	<mvc:resources mapping="/scripts/**" location="/scripts/" />
+	<mvc:resources mapping="/styles/**" location="/styles/" />
+	<mvc:resources mapping="/js/**" location="/js/" />
+
+	<!-- Activates various annotations to be detected in bean classes -->
+	<context:annotation-config />
+
+	<!-- Scans the classpath for annotated components that will be auto-registered 
+		as Spring beans. For example @Controller and @Service. Make sure to set the 
+		correct base-package -->
+	<context:component-scan base-package="com.docsolr" />
+
+	<!-- Configures the annotation-driven Spring MVC Controller programming 
+		model. Note that, with Spring 3.0, this tag works in Servlet MVC only! -->
+	<mvc:annotation-driven />
+
+	<!-- Provides internationalization of messages -->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource"
+		p:basename="messages" />
+
+	<import resource="spring-security.xml" />
+
+
+	<!-- Imports datasource configuration -->
+	<import resource="spring-data.xml" />
+
+	<!-- <ehcache:annotation-driven cache-manager="cacheManager" /> <bean id="cacheManager" 
+		class="org.springframework.cache.ehcache.EhCacheCacheManager" scope="singleton" 
+		primary="true" > <property name="cacheManager" ref="ehcache" /> </bean> <bean 
+		id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" 
+		> <property name="configLocation" value="classpath:ehcache-new.xml" /> </bean> -->
+	<bean id="deployProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+		p:location="classpath:spring.properties" />
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+		<!-- one of the properties available; the maximum file size in bytes -->
+		<!-- <property name="maxUploadSize" value="${image.maxSize}"/> -->
+	</bean>
+
+	<bean class="com.docsolr.dto.CurrentUserVO" scope="request"></bean>
+	<bean id="applicationContextProvder" class="com.docsolr.configuration.ApplicationContextProvider" />
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/jsp/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+		<property name="order" value="1" />
+	</bean>
+</beans>

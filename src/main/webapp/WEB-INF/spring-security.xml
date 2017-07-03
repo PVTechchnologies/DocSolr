@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security 
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+	<http pattern="/app/**" security="none" />
+	<http pattern="/scripts/**" security="none" />
+	<http pattern="/jsp/**" security="none" />
+	<http pattern="/plugins/**" security="none" />
+	<http pattern="/js/**" security="none" />
+	<http pattern="/css/**" security="none" />
+	<http pattern="/images/**" security="none" />
+	<http pattern="/styles/**" security="none" />
+	<http pattern="/fonts/**" security="none" />
+	<http pattern="/*.html" security="none" />
+	<http pattern="/*.jsp" security="none" />
+	<http pattern="/*.js" security="none" />
+	<http pattern="/*.css" security="none" />
+
+	<http pattern="/api/signup" security="none" />
+	<http pattern="/api/create" security="none" />
+
+
+	<!-- ================== Multi Tenant Url Authentication Configuration -->
+
+	<beans:bean id="forceFullySessionClearFilter"
+		class="com.docsolr.web.filter.ForceFullySessionClearFilter" />
+
+	<http auto-config="true" pattern="/api/**" use-expressions="true"
+		disable-url-rewriting="true" create-session="stateless"
+		authentication-manager-ref="tenantedAuthenticationManager"
+		security-context-repository-ref="restHttpSessionSecurityContextRepository"
+		entry-point-ref="restAuthenticationEntryPoint">
+		<intercept-url pattern="/api/**" access="hasRole('ROLE_CUSTOMER')" />
+		<access-denied-handler ref="restAccessDeniedHandler" />
+		<!-- <custom-filter ref="forceFullySessionClearFilter" after="SECURITY_CONTEXT_FILTER"/> -->
+		<custom-filter ref="restPreAuthenticatedProcessingFilter"
+			after="FORM_LOGIN_FILTER" />
+		<custom-filter ref="restUsernameAndPasswordAuthenticationFilter"
+			before="FORM_LOGIN_FILTER" />
+	</http>
+	<beans:bean id="restPreAuthenticatedProcessingFilter"
+		class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
+		<beans:property name="principalRequestHeader" value="X-AUTH-TOKEN" />
+		<beans:property name="authenticationManager" ref="tenantedAuthenticationManager" />
+	</beans:bean>
+
+	<beans:bean id="restHttpSessionSecurityContextRepository"
+		class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
+		<beans:property name='allowSessionCreation' value='false' />
+	</beans:bean>
+
+	<beans:bean id="afterLoginAuthenticatedProcessingFilter"
+		class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
+		<beans:property name="principalRequestHeader" value="X-AUTH-TOKEN" />
+		<beans:property name="authenticationManager" ref="tenantedAuthenticationManager" />
+	</beans:bean>
+	<beans:bean id="restUsernameAndPasswordAuthenticationFilter"
+		class="com.docsolr.security.rest.RestUsernameAndPasswordAuthenticationFilter">
+		<beans:property name="authenticationManager" ref="tenantedAuthenticationManager" />
+		<beans:property name="authenticationSuccessHandler"
+			ref="restAuthenticationSuccessHandler" />
+		<beans:property name="authenticationFailureHandler"
+			ref="restAuthenticationFailureHandler" />
+		<beans:property name="sessionAuthenticationStrategy"
+			ref="sessionAuthenticationStrategy" />
+	</beans:bean>
+
+	<beans:bean id="beforeLoginUsernameAndPasswordAuthenticationFilter"
+		class="com.docsolr.security.rest.RestUsernameAndPasswordAuthenticationFilter">
+		<beans:property name="authenticationManager" ref="tenantedAuthenticationManager" />
+		<beans:property name="authenticationSuccessHandler"
+			ref="restAuthenticationSuccessHandler" />
+		<beans:property name="authenticationFailureHandler"
+			ref="restAuthenticationFailureHandler" />
+		<beans:property name="sessionAuthenticationStrategy"
+			ref="sessionAuthenticationStrategy" />
+	</beans:bean>
+
+	<beans:bean id="restAuthenticationProvider"
+		class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="userDetailService"></beans:property>
+	</beans:bean>
+
+	<beans:bean id="restPreAuthenticatedAuthenticationProvider"
+		class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+		<beans:property name="preAuthenticatedUserDetailsService"
+			ref="authenticationTokenService"></beans:property>
+	</beans:bean>
+
+	<beans:bean id="authenticationTokenService"
+		class="com.docsolr.service.AuthenticationTokenService" />
+
+	<authentication-manager id="userAuthenticationManager"
+		erase-credentials="true">
+		<authentication-provider ref="restAuthenticationProvider" />
+		<authentication-provider ref="restPreAuthenticatedAuthenticationProvider" />
+	</authentication-manager>
+
+	<beans:bean id="restAuthenticationSuccessHandler"
+		class="com.docsolr.security.rest.RestAuthenticationSuccessHandler" />
+	<beans:bean id="sessionAuthenticationStrategy"
+		class="com.docsolr.security.rest.RestSessionAuthenticationStrategy" />
+
+
+	<!-- ============ Simple Url Authentication Configuration ================== -->
+	<http auto-config="true" use-expressions="true"
+		disable-url-rewriting="true" authentication-manager-ref="simpleAuthenticationManager">
+		<!-- <intercept-url pattern="/**" access="hasRole('ROLE_USER')" /> <form-login 
+			login-processing-url="/j_spring_security_check" login-page="/login#/login" 
+			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
+			authentication-failure-url="/loginfailed" /> <csrf disabled="true" /> <logout 
+			logout-success-url="/login" /> -->
+	</http>
+
+	<authentication-manager id="simpleAuthenticationManager">
+		<authentication-provider user-service-ref='userDetailService'>
+			<!-- <password-encoder ref="encoder"></password-encoder> -->
+		</authentication-provider>
+	</authentication-manager>
+	<!-- <beans:bean id="simpleUrlAuthenticationSuccessHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler"> 
+		<beans:property name="defaultTargetUrl" value="/signin" /> <beans:property 
+		name="targetUrlParameter" value="redirect" /> </beans:bean> -->
+	<beans:bean id="userDetailService" class="com.docsolr.service.UserDetailsServiceImpl" />
+	<!-- For hashing and salting user passwords -->
+	<!-- <beans:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" 
+		/> <beans:bean id="userDetailService" class="com.docsolr.service.UserDetailsServiceImpl" 
+		/> <authentication-manager id="simpleAuthenticationManager"> <authentication-provider 
+		user-service-ref='userDetailService'> <password-encoder ref="encoder"></password-encoder> 
+		</authentication-provider> </authentication-manager> -->
+	<authentication-manager id="tenantedAuthenticationManager"
+		erase-credentials="true">
+		<authentication-provider ref="restAuthenticationProvider" />
+		<authentication-provider ref="restPreAuthenticatedAuthenticationProvider" />
+	</authentication-manager>
+</beans:beans>
