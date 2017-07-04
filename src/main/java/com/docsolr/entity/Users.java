@@ -55,7 +55,7 @@ public class Users extends BaseEntity {
 		this.id = userId;
 	}
 
-	public Users(String email, String password, String firstName, String lastName, Boolean isActive) {
+	public Users(String firstName, String lastName,String email, String password,  Boolean isActive) {
 		this();
 		this.email = email;
 		this.password = password;
