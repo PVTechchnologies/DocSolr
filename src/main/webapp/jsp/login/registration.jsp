@@ -5,8 +5,9 @@
 
 
 		<!-- Website CSS style -->
-		<!-- <link href="css/registration/registration.css" rel="stylesheet"> -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link href="css/registration/register.css" rel="stylesheet">
+	<!-- 
+	
 		<!-- Website Font style -->
 	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
 		<link rel="stylesheet" href="style.css">
@@ -14,9 +15,9 @@
 		<link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
 		<link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 
-		<title>Admin</title>
+		<title>Docsolr</title>
 		
-		<style>
+	<!-- 	<style>
 		body, html{
      height: 100%;
  	background-repeat: no-repeat;
@@ -25,7 +26,10 @@
 	    background-size: cover;
 }
 
-		</style>
+		</style> -->
+		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	</head>
 	<body>
 		<div class="container">
@@ -81,19 +85,14 @@
 								</div>
 							</div>
 						</div>
-						<br>
 						<div class="form-group ">
-							<button type="submit"  value = "Submit" class="btn btn-primary">Signup</button>
+							<button type="submit"  value = "Submit" type="button" id="button" class="btn btn-primary btn-lg btn-block login-button">Register</button>
 						</div>
 						
 					</form>
 				</div>
 			</div>
 		</div>
-
-		 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+ 
 	</body>
 </html>
