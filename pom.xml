@@ -301,6 +301,31 @@
 			<version>1.5.5</version>
 		</dependency>
 		<!-- email -->
+
+	<!-- Apache Tikka Dependency -->
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-core</artifactId>
+		<version>1.6</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-parsers</artifactId>
+		<version>1.6</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.springframework.social</groupId>
+		<artifactId>spring-social-web</artifactId>
+		<version>1.1.4.RELEASE</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.springframework.social</groupId>
+		<artifactId>spring-social-facebook</artifactId>
+		<version>2.0.3.RELEASE</version>
+	</dependency>
+	
 	</dependencies>
 	<build>
 		<plugins>
