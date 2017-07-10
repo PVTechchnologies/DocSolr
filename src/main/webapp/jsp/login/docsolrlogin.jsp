@@ -62,7 +62,7 @@
 							<label for="password" class="cols-sm-2 control-label">Password</label>
 							<div class="cols-sm-10">
 								<div class="input-group">
-									<span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+									<span class="input-group-addon"><i class="fa fa-key fa" aria-hidden="true"></i></span>
 									<input type="password" class="form-control" name="password" id="password"  placeholder="Enter your Password"/>
 								</div>
 							</div>
@@ -72,8 +72,7 @@
 						<div class="form-group ">
 							<button type="submit"  value = "Submit" type="button" id="button" class="btn btn-primary btn-lg btn-block login-button">Login</button>
 						</div>
-						
-					</form>
+					</form>	
 				</div>
 			</div>
 		</div>

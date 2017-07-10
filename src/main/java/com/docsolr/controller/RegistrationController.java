@@ -1,5 +1,11 @@
 package com.docsolr.controller;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +21,18 @@ import com.docsolr.dto.Status;
 import com.docsolr.dto.UserVO;
 import com.docsolr.entity.Users;
 import com.docsolr.service.common.GenericService;
+import com.docsolr.entity.UserAuthority;
+import com.docsolr.entity.UserAuthority.Roles;
+import com.docsolr.enums.Access;
 
 @Controller
 public class RegistrationController {
 
 	@Autowired
 	public GenericService<Users> userService;
+	
+	@Autowired
+	GenericService<UserAuthority> userAuthGenericService;
 	
 	@RequestMapping("/signup")
 	public String signnup(HttpSession session)
@@ -35,13 +47,22 @@ public class RegistrationController {
 	}
 	 @RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	 @ResponseBody
-	 public String addUser(@ModelAttribute("SpringWeb")UserVO user,  ModelMap model) {
+	 public String addUser(@ModelAttribute("newUserSignup")UserVO userVo,  ModelMap model) {
 			      
 		 /*model.addAttribute("name", user.getName());*/
-		 Users users = new Users(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), true);
-		 userService.saveEntity(users);
-		 return "result";
-		 
+		 Users user = new Users(userVo.getFirstName(), userVo.getLastName(), userVo.getEmail(), userVo.getPassword(), true,true);
+		 UserAuthority userAuthority = new UserAuthority(Roles.ROLE_USER);
+			Map authRestrictionMap = new HashMap();
+			authRestrictionMap.put("authority", userAuthority.getAuthority());
+			List<UserAuthority> userAuthorityList = userAuthGenericService.findLimitedEntity(UserAuthority.class, 0, authRestrictionMap, null);
+			if(!userAuthorityList.isEmpty()){
+				Set<UserAuthority> setOfAuthority = new HashSet<UserAuthority>();
+				setOfAuthority.add(userAuthorityList.get(0));
+				user.setAuthorities(setOfAuthority);
+				user.setEnabled(true);
+			}
+			userService.saveEntity(user);
+			return "result";
 	 }
 	 
 	 

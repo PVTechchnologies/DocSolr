@@ -55,7 +55,7 @@ public class Users extends BaseEntity {
 		this.id = userId;
 	}
 
-	public Users(String firstName, String lastName,String email, String password,  Boolean isActive) {
+	public Users(String firstName, String lastName,String email, String password, boolean enabled,  Boolean isActive) {
 		this();
 		this.email = email;
 		this.password = password;
@@ -131,6 +131,7 @@ public class Users extends BaseEntity {
 	@JoinTable(name = "usersuserauthority", joinColumns = {
 			@JoinColumn(name = "userId", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "authoritieId", nullable = false, updatable = false) })
+	
 	public Set<UserAuthority> getAuthorities() {
 		return authorities;
 	}

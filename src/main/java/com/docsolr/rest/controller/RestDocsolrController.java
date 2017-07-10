@@ -33,7 +33,7 @@ public class RestDocsolrController {
 	@ResponseBody
 	public  Status createNewUser(@RequestBody UserVO user) {
 		try {
-			Users users = new Users(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), true);
+			Users users = new Users(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(),true, true);
 			userService.saveEntity(users);
 			return new Status(1, "Added Successfully !");
 		} catch (Exception e) {
