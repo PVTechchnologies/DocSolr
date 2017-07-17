@@ -12,18 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.docsolr.dto.Status;
 import com.docsolr.dto.UserVO;
-import com.docsolr.entity.Users;
-import com.docsolr.service.common.GenericService;
 import com.docsolr.entity.UserAuthority;
 import com.docsolr.entity.UserAuthority.Roles;
-import com.docsolr.enums.Access;
+import com.docsolr.entity.Users;
+import com.docsolr.service.common.GenericService;
+
 
 @Controller
 public class RegistrationController {
@@ -34,17 +32,21 @@ public class RegistrationController {
 	@Autowired
 	GenericService<UserAuthority> userAuthGenericService;
 	
+
+	
 	@RequestMapping("/signup")
 	public String signnup(HttpSession session)
 	{
 		
 		return "login/registration";
 	}
+	
 	@RequestMapping("/docsolrlogin")
 	public String login(HttpSession session)
 	{
 		return "login/docsolrlogin";
 	}
+	
 	 @RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	 @ResponseBody
 	 public String addUser(@ModelAttribute("newUserSignup")UserVO userVo,  ModelMap model) {

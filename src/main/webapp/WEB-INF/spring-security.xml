@@ -10,6 +10,7 @@
 		http://www.springframework.org/schema/util/spring-util.xsd">
 
 
+
 	<http pattern="/app/**" security="none" />
 	<http pattern="/scripts/**" security="none" />
 	<http pattern="/jsp/**" security="none" />
@@ -26,7 +27,13 @@
 
 	<http pattern="/api/signup" security="none" />
 	<http pattern="/api/create" security="none" />
-
+	<http pattern="/addUser" security="none" />
+	<http pattern="/docsolrlogin" security="none" />
+	<http pattern="/signup" security="none" />
+	<http pattern="/social/facebook/**" security="none" />
+	<http pattern="/connect/**" security="none" />
+	<http pattern="/signin/**" security="none" />
+	
 
 	<!-- ================== Multi Tenant Url Authentication Configuration -->
 
@@ -113,11 +120,12 @@
 	<!-- ============ Simple Url Authentication Configuration ================== -->
 	<http auto-config="true" use-expressions="true"
 		disable-url-rewriting="true" authentication-manager-ref="simpleAuthenticationManager">
-		<!-- <intercept-url pattern="/**" access="hasRole('ROLE_USER')" /> <form-login 
-			login-processing-url="/j_spring_security_check" login-page="/login#/login" 
+		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" /> <form-login 
+			login-processing-url="/j_spring_security_check" login-page="/docsolrlogin" 
 			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
-			authentication-failure-url="/loginfailed" /> <csrf disabled="true" /> <logout 
-			logout-success-url="/login" /> -->
+			authentication-failure-url="/docsolrlogin?error=fail" /> <csrf disabled="true" /> <logout 
+			logout-success-url="/docsolrlogin" />
+			
 	</http>
 
 	<authentication-manager id="simpleAuthenticationManager">
@@ -125,9 +133,9 @@
 			<!-- <password-encoder ref="encoder"></password-encoder> -->
 		</authentication-provider>
 	</authentication-manager>
-	<!-- <beans:bean id="simpleUrlAuthenticationSuccessHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler"> 
-		<beans:property name="defaultTargetUrl" value="/signin" /> <beans:property 
-		name="targetUrlParameter" value="redirect" /> </beans:bean> -->
+	<beans:bean id="simpleUrlAuthenticationSuccessHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler"> 
+		<beans:property name="defaultTargetUrl" value="/user" /> <beans:property 
+		name="targetUrlParameter" value="redirect" /> </beans:bean>
 	<beans:bean id="userDetailService" class="com.docsolr.service.UserDetailsServiceImpl" />
 	<!-- For hashing and salting user passwords -->
 	<!-- <beans:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" 

@@ -23,6 +23,7 @@
 
 	<context:property-placeholder properties-ref="deployProperties" />
 
+
 	<tx:annotation-driven transaction-manager="transactionManager" />	
 	<!-- Activate Spring Data JPA repository support -->
   	<jpa:repositories base-package="com.docsolr.entity" />

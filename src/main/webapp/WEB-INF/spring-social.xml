@@ -18,43 +18,77 @@
 	<context:property-placeholder location="/WEB-INF/spring.properties" ignore-unresolvable="true" order="1" />
 	
 	
-	<bean id="connectionFactoryLocator" class="org.springframework.social.connect.support.ConnectionFactoryRegistry">
+	<bean id="connectionFactoryRegistry"
+		class="org.springframework.social.connect.support.ConnectionFactoryRegistry">
 		<property name="connectionFactories">
 			<list>
-				<bean class="org.springframework.social.facebook.connect.FacebookConnectionFactory">
-					<constructor-arg value="${facebook.clientId}" />
-					<constructor-arg value="${facebook.clientSecret}" />				
+				<bean
+					class="org.springframework.social.facebook.connect.FacebookConnectionFactory">
+					<constructor-arg value="${app.config.oauth.facebook.apikey}" />
+					<constructor-arg value="${app.config.oauth.facebook.apisecret}" />
+					<property name="scope" value="email"/>
 				</bean>
+
+				
 			</list>
 		</property>
 	</bean>
 	
+	<bean id="facebookServiceProvider" class="com.docsolr.service.OAuthServiceProvider">
+		<constructor-arg name="config" ref="facebookServiceConfig" />
+	</bean>
 
+	<bean id="facebookServiceConfig" class="com.docsolr.service.OAuthServiceConfig">
+		<constructor-arg value="${app.config.oauth.facebook.apikey}" />
+		<constructor-arg value="${app.config.oauth.facebook.apisecret}" />
+		<constructor-arg value="${app.config.oauth.facebook.callback}" />
+		<constructor-arg value="com.docsolr.controller.ExtendsDefaultApi20" />
+	</bean>
+
+	<bean id="oAuth2Parameters" class="org.springframework.social.oauth2.OAuth2Parameters">
+		<constructor-arg>
+			<map>
+				<entry key="redirect_uri" value="${app.config.oauth.facebook.callback}"></entry>
+				<entry key="scope" value="${app.config.oauth.facebook.scope}"></entry>
+			</map>
+		</constructor-arg>
+	</bean>
 	
 	<bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" 
 		factory-method="noOpText" />
+
 	
-	<bean id="usersConnectionRepository" class="org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository">
+	
+	<!-- <bean id="usersConnectionRepository" class="org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository">
 	    <constructor-arg ref="dataSource" />
-	    <constructor-arg ref="connectionFactoryLocator" />
+	    <constructor-arg ref="connectionFactoryRegistry" />
 	    <constructor-arg ref="textEncryptor" />
+	</bean> -->
+	
+	<bean id="usersConnectionRepository" class="com.docsolr.dao.SocialJdbcConnectionRepository">
+	 	<constructor-arg value="test@social.com" />
+	    <constructor-arg ref="dataSource" />
+	    <constructor-arg ref="connectionFactoryRegistry" />
+	    <constructor-arg ref="textEncryptor" />
+	    <constructor-arg value="" />
 	</bean>
 	
-	<bean id="connectionRepository" factory-method="createConnectionRepository" 
+	<!-- <bean id="connectionRepository" factory-method="createConnectionRepository" 
 			factory-bean="usersConnectionRepository" scope="request">
-	    <constructor-arg value="test" />
+	    <constructor-arg value="facebookuseridtobeupdated@facebook.com" />
 	    <aop:scoped-proxy proxy-target-class="false"/>
+	</bean> -->
+	
+	<bean id="userSocialSignInController" class="com.docsolr.controller.FacebookController">
+		<constructor-arg ref="connectionFactoryRegistry"/>
+		<constructor-arg ref="usersConnectionRepository"/>
 	</bean>
 	
-	<!-- <bean class="org.springframework.social.connect.web.ConnectController"
-		p:applicationUrl="${application.url}"/> -->
-		
-		
-	<bean id="popupDialogConnectInterceptor" class="com.maverick.controller.PopupDialogConnectInterceptor"></bean>
 	
-	<bean id="userSocialSignInController" class="com.maverick.controller.UserSocialSignInController">
-		<constructor-arg ref="connectionFactoryLocator"/>
-		<constructor-arg ref="connectionRepository"/>
-		<constructor-arg ref="popupDialogConnectInterceptor"></constructor-arg>
-	</bean>
+	<!-- 	<bean id="facebookSignInAdapter" class="com.docsolr.controller.FacebookSignInAdapter" /> 
+	<bean id="userSocialSignInControllerSignup" class="com.docsolr.controller.FacebookControllerSingin">
+		<constructor-arg ref="connectionFactoryRegistry"/>
+		<constructor-arg ref="usersConnectionRepository"/>
+		<constructor-arg ref="facebookSignInAdapter"/>
+	</bean> -->
 </beans>

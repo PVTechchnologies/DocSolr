@@ -38,6 +38,8 @@ public class UserConnection{
 	
 	private String accessToken;
 	
+	private String email;
+	
 	@Id
 	@Column(name="userId")
 	public String getUserId() {
@@ -136,5 +138,16 @@ public class UserConnection{
 
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		if(email != null){
+			this.userId = email;
+		}
+		this.email = email;
 	}
 }

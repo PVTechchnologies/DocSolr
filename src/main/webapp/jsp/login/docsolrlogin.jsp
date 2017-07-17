@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <!DOCTYPE html>
 
 <html lang="en">
@@ -12,7 +13,7 @@
 	
 		<!-- Website Font style -->
 	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
-		<link rel="stylesheet" href="style.css">
+		<!-- <link rel="stylesheet" href="style.css"> -->
 		<!-- Google Fonts -->
 		<link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
 		<link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
@@ -32,9 +33,14 @@
 		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  	
+  	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+  	<script type="text/javascript" src="js/app.js"></script>
+  	<%-- <spring:url value="/js/app.js" var="appJsUrl" htmlEscape="true" /> --%>
+  	<script src="${appJsUrl}"></script>
 	</head>
-	<body>
-		<div class="container">
+	<body ng-app="enterprise"> 
+		<div class="container" >
 			<div class="row main">
 				<div class="main-login main-center">
 				<h2>Log In</h2><br>
@@ -68,11 +74,19 @@
 							</div>
 						</div>
 
-						
 						<div class="form-group ">
 							<button type="submit"  value = "Submit" type="button" id="button" class="btn btn-primary btn-lg btn-block login-button">Login</button>
 						</div>
+						
 					</form>	
+					<a href="connect/facebook/">Facebook</a>
+					<form action="connect/facebook" method="POST">
+							<input type="hidden" name="scope" value="public_profile,email" />
+							<button class="btn btn-lg btn-block kpx_btn-facebook" type="submit"
+								data-toggle="tooltip" data-placement="top" title="Facebook">
+								<i class="fa fa-facebook fa-2x"></i> <span class="hidden-xs"></span>
+							</button>
+						</form>
 				</div>
 			</div>
 		</div>

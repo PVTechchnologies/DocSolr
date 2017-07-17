@@ -45,6 +45,7 @@ public class Users extends BaseEntity {
 	
 	private boolean enabled;
 	
+	private boolean SocialFacebook;
 	
 	public Users() {
 		super();
@@ -171,6 +172,14 @@ public class Users extends BaseEntity {
 
 	public void setAccount(Account account) {
 		this.account = account;
+	}
+
+	public boolean isSocialFacebook() {
+		return SocialFacebook;
+	}
+
+	public void setSocialFacebook(boolean socialFacebook) {
+		SocialFacebook = socialFacebook;
 	}
 
 }
