@@ -33,6 +33,7 @@
 	<http pattern="/social/facebook/**" security="none" />
 	<http pattern="/connect/**" security="none" />
 	<http pattern="/signin/**" security="none" />
+	<http pattern="/populatePersonData" security="none" />
 	
 
 	<!-- ================== Multi Tenant Url Authentication Configuration -->
