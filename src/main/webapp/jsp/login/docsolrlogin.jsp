@@ -35,11 +35,12 @@
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   	
   	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
-  	<script type="text/javascript" src="js/app.js"></script>
+<!--   	<script type="text/javascript" src="js/app.js"></script> -->
+  	<script type="text/javascript" src="js/userlogindropdown.js"></script>
   	<%-- <spring:url value="/js/app.js" var="appJsUrl" htmlEscape="true" /> --%>
   	<script src="${appJsUrl}"></script>
 	</head>
-	<body ng-app="enterprise"> 
+	<body ng-app="MyApp" ng-controller="UserloginController"> 
 		<div class="container" >
 			<div class="row main">
 				<div class="main-login main-center">
@@ -65,6 +66,21 @@
 						</div>
 
 						<div class="form-group">
+							<label for="corporate" class="cols-sm-2 control-label">Corporate ID</label>
+						 	<div class="cols-sm-10" ng-init="getCorporateList()"> 
+							<div class="input-group">
+							<span class="input-group-addon"><i class="fa fa-home fa" aria-hidden="true"></i></span>
+							
+								<select class="form-control" id="val" >
+								
+        							<option value="" label="Select any Company"></option>
+        							<option ng-repeat="val in CompanyList.data" value="val.id">{{val.name}}</option>
+    							</select>
+    						</div>	
+							</div>
+						</div>
+						
+						<div class="form-group">
 							<label for="password" class="cols-sm-2 control-label">Password</label>
 							<div class="cols-sm-10">
 								<div class="input-group">
@@ -74,19 +90,24 @@
 							</div>
 						</div>
 
+						
+						
 						<div class="form-group ">
 							<button type="submit"  value = "Submit" type="button" id="button" class="btn btn-primary btn-lg btn-block login-button">Login</button>
 						</div>
 						
+						
+						
 					</form>	
-					<a href="connect/facebook/">Facebook</a>
 					<form action="connect/facebook" method="POST">
 							<input type="hidden" name="scope" value="public_profile,email" />
 							<button class="btn btn-lg btn-block kpx_btn-facebook" type="submit"
 								data-toggle="tooltip" data-placement="top" title="Facebook">
 								<i class="fa fa-facebook fa-2x"></i> <span class="hidden-xs"></span>
 							</button>
-						</form>
+					</form>
+						
+						
 				</div>
 			</div>
 		</div>
