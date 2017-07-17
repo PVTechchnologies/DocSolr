@@ -27,9 +27,7 @@
 					<constructor-arg value="${app.config.oauth.facebook.apikey}" />
 					<constructor-arg value="${app.config.oauth.facebook.apisecret}" />
 					<property name="scope" value="email"/>
-				</bean>
-
-				
+				</bean>	
 			</list>
 		</property>
 	</bean>
@@ -57,14 +55,6 @@
 	<bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" 
 		factory-method="noOpText" />
 
-	
-	
-	<!-- <bean id="usersConnectionRepository" class="org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository">
-	    <constructor-arg ref="dataSource" />
-	    <constructor-arg ref="connectionFactoryRegistry" />
-	    <constructor-arg ref="textEncryptor" />
-	</bean> -->
-	
 	<bean id="usersConnectionRepository" class="com.docsolr.dao.SocialJdbcConnectionRepository">
 	 	<constructor-arg value="test@social.com" />
 	    <constructor-arg ref="dataSource" />
@@ -73,17 +63,25 @@
 	    <constructor-arg value="" />
 	</bean>
 	
-	<!-- <bean id="connectionRepository" factory-method="createConnectionRepository" 
-			factory-bean="usersConnectionRepository" scope="request">
-	    <constructor-arg value="facebookuseridtobeupdated@facebook.com" />
-	    <aop:scoped-proxy proxy-target-class="false"/>
-	</bean> -->
-	
 	<bean id="userSocialSignInController" class="com.docsolr.controller.FacebookController">
 		<constructor-arg ref="connectionFactoryRegistry"/>
 		<constructor-arg ref="usersConnectionRepository"/>
 	</bean>
 	
+	
+	<!-- Content put in spare for different way of facebook integeration -->
+		
+	<!-- <bean id="usersConnectionRepository" class="org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository">
+	    <constructor-arg ref="dataSource" />
+	    <constructor-arg ref="connectionFactoryRegistry" />
+	    <constructor-arg ref="textEncryptor" />
+	</bean> -->
+	
+	<!-- <bean id="connectionRepository" factory-method="createConnectionRepository" 
+			factory-bean="usersConnectionRepository" scope="request">
+	    <constructor-arg value="facebookuseridtobeupdated@facebook.com" />
+	    <aop:scoped-proxy proxy-target-class="false"/>
+	</bean> -->
 	
 	<!-- 	<bean id="facebookSignInAdapter" class="com.docsolr.controller.FacebookSignInAdapter" /> 
 	<bean id="userSocialSignInControllerSignup" class="com.docsolr.controller.FacebookControllerSingin">
@@ -91,4 +89,6 @@
 		<constructor-arg ref="usersConnectionRepository"/>
 		<constructor-arg ref="facebookSignInAdapter"/>
 	</bean> -->
+	
+	
 </beans>
