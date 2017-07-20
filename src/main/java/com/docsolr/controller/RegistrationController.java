@@ -52,6 +52,11 @@ public class RegistrationController {
 		return "login/docsolrlogin";
 	}
 	
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	public String logout(ModelMap model) {
+		return "login/docsolrlogin";
+	}
+	
 	 @RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	 @ResponseBody
 	 public String addUser(@ModelAttribute("newUserSignup")UserVO userVo,  ModelMap model) {

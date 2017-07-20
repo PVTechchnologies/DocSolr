@@ -34,6 +34,8 @@
 	<http pattern="/connect/**" security="none" />
 	<http pattern="/signin/**" security="none" />
 	<http pattern="/populatePersonData" security="none" />
+	<http pattern="/logout" security="none" />
+	
 	
 
 	<!-- ================== Multi Tenant Url Authentication Configuration -->
@@ -125,7 +127,7 @@
 			login-processing-url="/j_spring_security_check" login-page="/docsolrlogin" 
 			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
 			authentication-failure-url="/docsolrlogin?error=fail" /> <csrf disabled="true" /> <logout 
-			logout-success-url="/docsolrlogin" />
+			logout-success-url="/docsolrlogin" logout-url="/j_spring_security_logout"/>
 			
 	</http>
 
