@@ -1,30 +1,43 @@
-package com.docsolr.entity;
+package com.docsolr.service.common.Impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AbstractParser;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.microsoft.ooxml.OOXMLParser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
-	public class MSOfficeParse {
 
-	   public static void main(final String[] args) throws IOException, TikaException {
+@Service
+public class DocsolrParser {
+	@Autowired
+	GiveParserInstance<AbstractParser> abparser;
+	
+	
+	 public void parser( MultipartFile file) throws IOException, TikaException {
 	      
+		  byte[] bytes = file.getBytes();
+		  InputStream myInputStream = new ByteArrayInputStream(bytes); 
+		  
+		  
 	      //detecting the file type
 	      BodyContentHandler handler = new BodyContentHandler();
 	      Metadata metadata = new Metadata();
-	      FileInputStream inputstream = new FileInputStream(new File("C:/Users/Yadav/Desktop/demo.docx"));
+	      //FileInputStream inputstream = new FileInputStream(new File("C:/Users/Yadav/Desktop/demo.docx"));
 	      ParseContext pcontext = new ParseContext();
 	      
-	      //OOXml parser
-	      OOXMLParser  msofficeparser = new OOXMLParser (); 
+	      AbstractParser  genericparser = abparser.getInstance(file.getContentType()); 
 	      try {
-			msofficeparser.parse(inputstream, handler, metadata,pcontext);
+	    	  genericparser.parse(myInputStream, handler, metadata,pcontext);
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -37,5 +50,4 @@ import org.xml.sax.SAXException;
 	         System.out.println(name + ": " + metadata.get(name));
 	      }
 	   }
-	}
-
+}

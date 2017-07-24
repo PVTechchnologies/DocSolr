@@ -1,4 +1,4 @@
-package com.docsolr.entity;
+package com.docsolr.service.common;
 
 public interface IGiveParserInstance<T> {
 	

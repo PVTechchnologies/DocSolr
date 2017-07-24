@@ -1,4 +1,4 @@
-package com.docsolr.entity;
+package com.docsolr.service.common.Impl;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.parser.AbstractParser;
@@ -7,6 +7,8 @@ import org.apache.tika.parser.jpeg.JpegParser;
 import org.apache.tika.parser.microsoft.ooxml.OOXMLParser;
 import org.apache.tika.parser.pdf.PDFParser;
 import org.springframework.stereotype.Service;
+
+import com.docsolr.service.common.IGiveParserInstance;
 
 @Service
 public class GiveParserInstance<T> implements IGiveParserInstance<T> {

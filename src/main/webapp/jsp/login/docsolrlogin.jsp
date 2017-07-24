@@ -99,15 +99,26 @@
 						
 						
 					</form>	
-					<form action="connect/facebook" method="POST">
+					<form action="connect/facebook" method="POST" class="ng-pristine ng-valid">
 							<input type="hidden" name="scope" value="public_profile,email" />
 							<button class="btn btn-lg btn-block kpx_btn-facebook" type="submit"
 								data-toggle="tooltip" data-placement="top" title="Facebook">
 								<i class="fa fa-facebook fa-2x"></i> <span class="hidden-xs"></span>
 							</button>
 					</form>
-						
-						
+					
+					</br>
+					
+					
+					<form action="auth/salesforce" method="POST">
+							<input type="hidden" name="scope" value="public_profile,email" />
+							<button class="btn btn-lg btn-block kpx_btn-facebook" type="submit"
+								data-toggle="tooltip" data-placement="top" title="Facebook">
+								<i class="fa fa-Salesforce fa-2x">Salesforce</i> <span class="hidden-xs"></span>
+							</button>
+					</form>
+					
+					
 				</div>
 			</div>
 		</div>

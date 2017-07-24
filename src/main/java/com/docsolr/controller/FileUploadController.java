@@ -1,8 +1,6 @@
 package com.docsolr.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
@@ -15,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.docsolr.entity.DocsolrParser;
-import com.docsolr.entity.GiveParserInstance;
+import com.docsolr.service.common.Impl.DocsolrParser;
+import com.docsolr.service.common.Impl.GiveParserInstance;
+
+
 
 /**
  * Handles requests for the application file upload requests
