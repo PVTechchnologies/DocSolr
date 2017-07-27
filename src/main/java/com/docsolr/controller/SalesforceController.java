@@ -6,6 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,10 +27,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.docsolr.entity.UserAuthority;
+import com.docsolr.entity.UserAuthority.Roles;
+import com.docsolr.entity.UserConnection;
+import com.docsolr.entity.Users;
+import com.docsolr.service.common.GenericService;
+import com.docsolr.util.SecurityUtil;
 
 
 @Controller
@@ -42,6 +55,16 @@ public class SalesforceController  {
 	private static String environment = "https://login.salesforce.com";
 	private String authUrl = null;
 	private String tokenUrl = null;
+	
+	@Autowired
+	GenericService<UserAuthority> userAuthGenericService;
+	
+	@Autowired
+	public GenericService<Users> userService;
+	
+	@Autowired
+	public GenericService<UserConnection> userConnectionService;
+	
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@ResponseBody
@@ -75,13 +98,16 @@ public class SalesforceController  {
 	
 	@RequestMapping(value = "/auth/salesforce/callback")
 	@ResponseBody
-	public String authenticateCallback(HttpServletRequest request,
+	public void authenticateCallback(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		String accessToken = (String) request.getSession().getAttribute(
 				ACCESS_TOKEN);
 		
 		if(accessToken == null) {
 			String instanceUrl = null;
+			String Url = null;
+			String token_type=null;
+			
 			
 			tokenUrl = environment + "/services/oauth2/token";
 			
@@ -108,7 +134,22 @@ public class SalesforceController  {
 
 					accessToken = authResponse.getString("access_token");
 					instanceUrl = authResponse.getString("instance_url");
+					Url = authResponse.getString("id");
+					token_type = authResponse.getString("token_type");
 
+				     GetMethod Get=new GetMethod(Url);
+				     Get.addRequestHeader("Authorization", token_type + " "+ accessToken);
+				     httpclient.executeMethod(Get);
+				     
+				     JSONObject fullDetail = new JSONObject(
+								new JSONTokener(new InputStreamReader(
+										Get.getResponseBodyAsStream())));
+						System.out.println("Auth response: "
+								+ fullDetail.toString(2));
+					
+						addConnection(fullDetail,authResponse);
+						
+						
 				} catch (JSONException e) {
 					e.printStackTrace();
 					throw new ServletException(e);
@@ -124,10 +165,8 @@ public class SalesforceController  {
 			// in the session too
 			request.getSession().setAttribute(INSTANCE_URL, instanceUrl);
 		}
-
-		return "Logged in! <a href=\"logout\">Log out</a> | "
-				+ "<a href=\"/accounts\">Get accounts</a> | "
-				+ "Got access token: " + accessToken;
+		response.sendRedirect("/docsolr/user");
+		//return new ModelAndView("redirect:/user");//new RedirectView("docsolr/user",false);
 	}
 	
 	@RequestMapping(value = "/auth/salesforce/logout")
@@ -216,4 +255,70 @@ public class SalesforceController  {
 		
 		return writer.toString();
 	}
+	
+	
+	public void addConnection( JSONObject fullDetail,JSONObject response) {
+		
+		String fname=fullDetail.getString("first_name");
+		String lname=fullDetail.getString("last_name");
+		String mail=fullDetail.getString("email");
+	
+		Users user=new Users();
+		UserConnection userConnection=new UserConnection();
+		
+		if(mail!=null)
+		{
+			/*For user table*/
+			
+			Map restrictionMap  = new HashMap();
+			restrictionMap.put("email", mail);
+				
+			List<Users> users = userService.findEntityByRestriction(Users.class, restrictionMap);
+			if(users != null && users.size() == 1){
+				user = users.get(0);
+			}else{
+				user = null;
+			}
+			if(user == null)
+			{
+			 user = new Users(fname, lname, mail,null, true,true);
+			 user.setSocialSalesforce(true);
+			 UserAuthority userAuthority = new UserAuthority(Roles.ROLE_USER);
+				Map authRestrictionMap = new HashMap();
+				authRestrictionMap.put("authority", userAuthority.getAuthority());
+				List<UserAuthority> userAuthorityList = userAuthGenericService.findLimitedEntity(UserAuthority.class, 0, authRestrictionMap, null);
+				if(!userAuthorityList.isEmpty()){
+					Set<UserAuthority> setOfAuthority = new HashSet<UserAuthority>();
+					setOfAuthority.add(userAuthorityList.get(0));
+					user.setAuthorities(setOfAuthority);
+					user.setEnabled(true);
+				}
+				userService.saveEntity(user);
+			}
+			
+			
+			/*For User Connection Table*/
+			
+			
+			restrictionMap  = new HashMap();
+			restrictionMap.put("userId", mail);
+			
+			List<UserConnection> connections= userConnectionService.findEntityByRestriction(UserConnection.class, restrictionMap);
+			if(connections != null && connections.size() == 1){
+				userConnection = connections.get(0);
+			}else{
+				userConnection = null;
+			}
+			
+			if(userConnection == null)
+			{
+			userConnection = new UserConnection(mail,null, null, fullDetail.getString("display_name"),null,null,null,null,null,null,response.getString("access_token"),null);
+			
+			userConnectionService.saveEntity(userConnection);
+			}
+			
+		}
+		SecurityUtil.signInUser(user);
+	}
+	
 }

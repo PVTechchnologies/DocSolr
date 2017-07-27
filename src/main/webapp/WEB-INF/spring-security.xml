@@ -35,7 +35,10 @@
 	<http pattern="/signin/**" security="none" />
 	<http pattern="/populatePersonData" security="none" />
 	<http pattern="/logout" security="none" />
-	
+	<http pattern="/auth/salesforce" security="none" />
+		<http pattern="/" security="none" />
+	<http pattern="/auth/salesforce/callback"  security="none" />
+	<http pattern="/auth/salesforce/logout"  security="none" />
 	
 
 	<!-- ================== Multi Tenant Url Authentication Configuration -->

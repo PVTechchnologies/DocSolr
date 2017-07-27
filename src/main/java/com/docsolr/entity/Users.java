@@ -47,6 +47,8 @@ public class Users extends BaseEntity {
 	
 	private boolean SocialFacebook;
 	
+	private boolean SocialSalesforce;
+	
 	public Users() {
 		super();
 	}
@@ -182,4 +184,11 @@ public class Users extends BaseEntity {
 		SocialFacebook = socialFacebook;
 	}
 
+	public boolean isSocialSalesforce() {
+		return SocialSalesforce;
+	}
+
+	public void setSocialSalesforce(boolean socialSales) {
+		SocialSalesforce = socialSales;
+	}
 }

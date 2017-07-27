@@ -11,8 +11,28 @@ import javax.persistence.Table;
 @Table(name="userconnection")
 @Inheritance(strategy=InheritanceType.JOINED)
 public class UserConnection{
-	
+	public UserConnection(){
+		
+	}
 	 
+	public UserConnection(String userId, String providerId, String providerUserId, String displayName,
+			String profileUrl, String imageUrl, String secret, String refreshToken, Long expireTime, Integer rank,
+			String accessToken, String email) {
+		super();
+		this.userId = userId;
+		this.providerId = providerId;
+		this.providerUserId = providerUserId;
+		this.displayName = displayName;
+		this.profileUrl = profileUrl;
+		this.imageUrl = imageUrl;
+		this.secret = secret;
+		this.refreshToken = refreshToken;
+		this.expireTime = expireTime;
+		this.rank = rank;
+		this.accessToken = accessToken;
+		this.email = email;
+	}
+
 	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 1L;
 	

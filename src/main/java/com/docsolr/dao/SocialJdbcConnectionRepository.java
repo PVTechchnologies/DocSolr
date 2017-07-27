@@ -176,7 +176,7 @@ public class SocialJdbcConnectionRepository implements ConnectionRepository {
 	@Transactional
 	public void addConnection(Connection<?> connection) {
 		try {
-			Users user;
+			Users user= null;
 //			Users currentUser = (Users) CommonUtil.getCurrentSession().getAttribute("user");
 			ConnectionData data = connection.createData();
 			Field fs = connection.getClass().getDeclaredField("accessToken");
@@ -194,9 +194,16 @@ public class SocialJdbcConnectionRepository implements ConnectionRepository {
 					facebookProfile.getEmail(), data.getProviderId(), data.getProviderUserId(), rank, data.getDisplayName(), data.getProfileUrl(), data.getImageUrl(), encrypt(data.getAccessToken()), encrypt(data.getSecret()), encrypt(data.getRefreshToken()), data.getExpireTime());
 				}
 			
-			
-				user=new Users();
-				if(facebookProfile.getEmail()== user.getEmail() )
+				
+				Map<String,String> restrictionMap  = new HashMap<String,String>();
+				restrictionMap.put("email", facebookProfile.getEmail());
+				List<Users> users = userService.findEntityByRestriction(Users.class, restrictionMap);
+				if(users != null && users.size() == 1){
+					user = users.get(0);
+				}else{
+					user = null;
+				}
+				if(user == null)
 				{
 						user = new Users(facebookProfile.getFirstName(), facebookProfile.getLastName(), facebookProfile.getEmail(),null, true,true);
 						user.setSocialFacebook(true);
@@ -210,7 +217,7 @@ public class SocialJdbcConnectionRepository implements ConnectionRepository {
 							user.setAuthorities(setOfAuthority);
 							user.setEnabled(true);
 						}
-				userService.saveEntity(user);
+						userService.saveEntity(user);
 				}
 				SecurityUtil.signInUser(user);
 			}
