@@ -6,7 +6,7 @@
 <body align="center">
 	
 		<br /> <br /> <br />
-		<h1>User profile page !!!</h1>
+		<h1> Welcome ${user.firstName} ${user.lastName} to Docsolr.</h1>
 		
 		<form action="j_spring_security_logout" method="GET">
 			<input type="submit" value="logout" /> <input type="hidden"
@@ -18,5 +18,6 @@
 				<input type="submit" value="Upload"> Press here to upload the file!
 		</form>	
 	
+		
 </body>
 </html>

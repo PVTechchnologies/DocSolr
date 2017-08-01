@@ -1,5 +1,8 @@
 package com.docsolr.controller;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -18,12 +21,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.docsolr.dto.UserVO;
-
+import com.docsolr.entity.Users;
+import com.docsolr.service.UserService;
+import com.docsolr.service.common.GenericService;
 
 
 @Controller
+
 public class LoginController {
 
+	@Autowired
+	public GenericService<Users> userService;
+	
 
 	@RequestMapping(value = { "/", "/home" })
 	public String getUserDefault() {
@@ -33,9 +42,21 @@ public class LoginController {
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public String home(ModelMap model, Principal principal, HttpSession session, HttpServletRequest req) throws Exception {
 		// set current user in session
+		Users user=null;
 		try{
+			
 			if(principal!=null){
 				
+					String username = principal.getName();
+					Map<String,String> restrictionMap  = new HashMap<String,String>();
+					restrictionMap.put("email",username);
+					List<Users> users = userService.findEntityByRestriction(Users.class, restrictionMap);
+					if(users != null && users.size() == 1){
+						user = users.get(0);
+						session.setAttribute("user", user);
+					}else{
+						user = null;
+					}
 			}
 		}
 		catch(Exception e)

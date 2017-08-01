@@ -144,7 +144,7 @@ public class FacebookController<FacebookApi> extends ConnectController{
 	@Override
 	public synchronized RedirectView connectionStatusRedirect(String providerId, NativeWebRequest request) {
 		String userName = null;
-		RedirectView redirectView = new RedirectView("login/registration", true);
+		RedirectView redirectView = new RedirectView("/user", true);
 		
 		
 
