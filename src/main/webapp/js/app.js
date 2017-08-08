@@ -1,4 +1,4 @@
-var myApp = angular.module('enterprise', ['angularBootstrapNavTree']);
+var myApp = angular.module('enterprise', []);
 
 	myApp.controller('SocialController', function($window, $scope) {
 		$scope.shareOnFacebook = function() {
