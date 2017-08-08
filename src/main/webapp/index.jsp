@@ -32,15 +32,22 @@ pageEncoding="ISO-8859-1"%>
 		<div class="container">
 			<div class="row main">
 				<div class="main-login main-center">
-				<h2>Docsolr Home</h2><br>
-					
-						<div class="form-group ">
+
+<br>
+				<div class="form-group ">
+					<div class="header">
+						<img src="/docsolr/images/docsolr.png" alt="logo" /> <br>
+					</div>
+
+				</div>
+				<div class="form-group ">
 							<a href="docsolrlogin" ><button type="submit"  id="button" class="btn btn-primary btn-lg btn-block ">Login</button></a>
 						</div>
 						
 						<div class="form-group ">
 							<a href="signup" ><button type="button" id="button" class="btn btn-primary btn-lg btn-block ">Signup</button></a>
 						</div>
+						
 						
 				</div>
 			</div>

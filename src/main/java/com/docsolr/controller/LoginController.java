@@ -64,7 +64,7 @@ public class LoginController {
 			e.printStackTrace();
 		}
 		
-		return "user";
+		return "home";
 	}
 	@RequestMapping("/login")
 	public ModelAndView getLoginForm(@ModelAttribute UserVO users,

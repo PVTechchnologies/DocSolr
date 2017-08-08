@@ -1,0 +1,76 @@
+WSC: Creating a new connection to https://login.salesforce.com/services/Soap/u/40.0 Proxy = DIRECT username null
+------------ Request start   ----------
+<?xml version="1.0" encoding="UTF-8"?><env:Envelope
+   xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <env:Body>
+  <m:login xmlns:m="urn:partner.soap.sforce.com" xmlns:sobj="urn:sobject.partner.soap.sforce.com">
+   <m:username>hiteshyadav@mtxb2b.com</m:username>
+   <m:password>123456789t</m:password>
+  </m:login>
+ </env:Body>
+</env:Envelope>
+------------ Request end   ----------
+null=[HTTP/1.1 500 Server Error]
+Date=[Wed, 02 Aug 2017 07:57:13 GMT]
+Content-Length=[971]
+Expires=[Thu, 01 Jan 1970 00:00:00 GMT]
+Set-Cookie=[BrowserId=tzuHI_oyQ62dYoKIVw8X8g;Path=/;Domain=.salesforce.com;Expires=Sun, 01-Oct-2017 07:57:13 GMT]
+Content-Type=[text/xml; charset=utf-8]
+------------ Response start ----------
+  <?xml version="1.0" encoding="UTF-8"?>
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sf="urn:fault.partner.soap.sforce.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <soapenv:Fault>
+          <faultcode>sf:UNSUPPORTED_CLIENT</faultcode>
+          <faultstring>UNSUPPORTED_CLIENT: TLS 1.0 has been disabled in this organization. Please use TLS 1.1 or higher when connecting to Salesforce using https.</faultstring>
+          <detail>
+            <sf:UnexpectedErrorFault xsi:type="sf:UnexpectedErrorFault">
+              <sf:exceptionCode>UNSUPPORTED_CLIENT</sf:exceptionCode>
+              <sf:exceptionMessage>TLS 1.0 has been disabled in this organization. Please use TLS 1.1 or higher when connecting to Salesforce using https.</sf:exceptionMessage>
+              <sf:upgradeURL>https://ap5.salesforce.com/secur/weakhttps.jsp?l=1</sf:upgradeURL>
+              <sf:upgradeMessage>Stronger security is required</sf:upgradeMessage>
+          </sf:UnexpectedErrorFault>
+        </detail>
+      </soapenv:Fault>
+    </soapenv:Body>
+  </soapenv:Envelope>
+------------ Response end   ----------
+WSC: Creating a new connection to https://login.salesforce.com/services/Soap/u/40.0 Proxy = DIRECT username null
+------------ Request start   ----------
+<?xml version="1.0" encoding="UTF-8"?><env:Envelope
+   xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <env:Body>
+  <m:login xmlns:m="urn:partner.soap.sforce.com" xmlns:sobj="urn:sobject.partner.soap.sforce.com">
+   <m:username>hiteshyadav@mtxb2b.com</m:username>
+   <m:password>123456789t</m:password>
+  </m:login>
+ </env:Body>
+</env:Envelope>
+------------ Request end   ----------
+null=[HTTP/1.1 500 Server Error]
+Date=[Wed, 02 Aug 2017 07:58:48 GMT]
+Content-Length=[971]
+Expires=[Thu, 01 Jan 1970 00:00:00 GMT]
+Set-Cookie=[BrowserId=lj5cY8MOQoeUviNLOJBFTg;Path=/;Domain=.salesforce.com;Expires=Sun, 01-Oct-2017 07:58:48 GMT]
+Content-Type=[text/xml; charset=utf-8]
+------------ Response start ----------
+  <?xml version="1.0" encoding="UTF-8"?>
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sf="urn:fault.partner.soap.sforce.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <soapenv:Fault>
+          <faultcode>sf:UNSUPPORTED_CLIENT</faultcode>
+          <faultstring>UNSUPPORTED_CLIENT: TLS 1.0 has been disabled in this organization. Please use TLS 1.1 or higher when connecting to Salesforce using https.</faultstring>
+          <detail>
+            <sf:UnexpectedErrorFault xsi:type="sf:UnexpectedErrorFault">
+              <sf:exceptionCode>UNSUPPORTED_CLIENT</sf:exceptionCode>
+              <sf:exceptionMessage>TLS 1.0 has been disabled in this organization. Please use TLS 1.1 or higher when connecting to Salesforce using https.</sf:exceptionMessage>
+              <sf:upgradeURL>https://ap5.salesforce.com/secur/weakhttps.jsp?l=1</sf:upgradeURL>
+              <sf:upgradeMessage>Stronger security is required</sf:upgradeMessage>
+          </sf:UnexpectedErrorFault>
+        </detail>
+      </soapenv:Fault>
+    </soapenv:Body>
+  </soapenv:Envelope>
+------------ Response end   ----------

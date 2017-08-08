@@ -47,9 +47,9 @@ public class SalesforceController  {
 	private static final String INSTANCE_URL = "INSTANCE_URL";
 
 	// clientId is 'Consumer Key' in the Remote Access UI
-	private static String clientId = "3MVG9d8..z.hDcPJw9.B7BsDAw1MULXzqch2FQhn0VR8vM.tDL7k0xLFZ9muw_56P_Op_FUkDs1xGZjXYNLQN";
+	private static String clientId = "3MVG9d8..z.hDcPKJEqG974zEN__uVDhGsy1pvPoRh.91X4Kj3iyIiphkDtc7eTgPY4PkTwko_06e5MwmfJ4z";
 	// clientSecret is 'Consumer Secret' in the Remote Access UI
-	private static String clientSecret = "4994610599686947000";
+	private static String clientSecret = "3749580945705226921";
 	// This must be identical to 'Callback URL' in the Remote Access UI
 	private static String redirectUri = "http://localhost:8080/docsolr/auth/salesforce/callback";
 	private static String environment = "https://login.salesforce.com";

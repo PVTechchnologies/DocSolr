@@ -56,7 +56,7 @@
 				<form class="" method="post"  name="f" action="j_spring_security_check">
 					
 						<div class="form-group">
-							<label for="email" class="cols-sm-2 control-label">Your Email</label>
+							<label for="email" class="cols-sm-2 control-label">Username</label>
 							<div class="cols-sm-10">
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
@@ -65,7 +65,7 @@
 							</div>
 						</div>
 
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<label for="corporate" class="cols-sm-2 control-label">Corporate ID</label>
 						 	<div class="cols-sm-10" ng-init="getCorporateList()"> 
 							<div class="input-group">
@@ -78,7 +78,7 @@
     							</select>
     						</div>	
 							</div>
-						</div>
+						</div> -->
 						
 						<div class="form-group">
 							<label for="password" class="cols-sm-2 control-label">Password</label>

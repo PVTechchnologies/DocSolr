@@ -52,6 +52,18 @@ public class RegistrationController {
 		return "login/docsolrlogin";
 	}
 	
+	@RequestMapping("/tree")
+	public String treeview(HttpSession session)
+	{
+		return "tree";
+	}
+	
+	@RequestMapping("/userprofile")
+	public String homeview(HttpSession session)
+	{
+		return "user";
+	}
+	
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logout(ModelMap model) {
 		return "login/docsolrlogin";

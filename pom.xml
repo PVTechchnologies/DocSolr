@@ -356,6 +356,25 @@
 			<artifactId>scribe</artifactId>
 			<version>1.3.7</version>
 		</dependency>
+		
+
+		<dependency>
+		    <groupId>rhino</groupId>
+		    <artifactId>js</artifactId>
+		    <version>1.7R2</version>
+		</dependency>
+		
+
+		<!-- https://mvnrepository.com/artifact/com.force.api/force-partner-api -->
+		
+		<!-- https://mvnrepository.com/artifact/com.force.api/force-wsc -->
+		<dependency>
+		    <groupId>com.force.api</groupId>
+		    <artifactId>force-wsc</artifactId>
+		    <version>22.0.0</version>
+		</dependency>
+		
+
 	</dependencies>
 	<build>
 		<plugins>
