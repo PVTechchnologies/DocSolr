@@ -1,5 +1,6 @@
 package com.docsolr.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,18 +9,21 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.docsolr.dto.UserVO;
 import com.docsolr.entity.Account;
+import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.UserAuthority;
 import com.docsolr.entity.UserAuthority.Roles;
 import com.docsolr.entity.Users;
@@ -38,6 +42,8 @@ public class RegistrationController {
 	
 	@Autowired
 	GenericService<Account> accountService;
+	
+	
 	
 	@RequestMapping("/signup")
 	public String signnup(HttpSession session)
@@ -106,4 +112,5 @@ public class RegistrationController {
 			}
 		}
 	 
+	
 }

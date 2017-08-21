@@ -16,11 +16,21 @@ public class SalesforceSetupDetail extends BaseEntity{
 	
 	private String salesforceObjectApiName  ;
 	
-	private String salesforceSetupDetailsId   ;
-	
 	private String salesforceFields  ;
 
 	
+	public SalesforceSetupDetail() {
+		super();
+	}
+
+	public SalesforceSetupDetail( String salesforceObjectApiName,
+			String salesforceFields) {
+		super();
+		
+		this.salesforceObjectApiName = salesforceObjectApiName;
+		this.salesforceFields = salesforceFields;
+	}
+
 	@ManyToOne(targetEntity = Profiles.class)
     @JoinColumn(name = "salesforceSetupId")
 	public SalesforceSetup getSalesforceSetup() {
@@ -40,13 +50,6 @@ public class SalesforceSetupDetail extends BaseEntity{
 		this.salesforceObjectApiName = salesforceObjectApiName;
 	}
 
-	public String getSalesforceSetupDetailsId() {
-		return salesforceSetupDetailsId;
-	}
-
-	public void setSalesforceSetupDetailsId(String salesforceSetupDetailsId) {
-		this.salesforceSetupDetailsId = salesforceSetupDetailsId;
-	}
 
 	public String getSalesforceFields() {
 		return salesforceFields;

@@ -1,27 +1,28 @@
 package com.docsolr.controller;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -30,6 +31,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.docsolr.dto.SalesforceMetadataTree;
+import com.docsolr.entity.SalesforceSetupDetail;
+import com.docsolr.entity.Users;
+import com.docsolr.service.common.GenericService;
+import com.docsolr.util.CommonUtil;
 import com.docsolr.util.UnZipUtil;
 import com.sforce.soap.metadata.AsyncResult;
 import com.sforce.soap.metadata.MetadataConnection;
@@ -43,12 +49,24 @@ import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
+/**
+ * @author Yadav
+ *
+ */
 @Controller
 public class SalesforceMetadataController {
+	
+	
+	
+	@Autowired
+	GenericService<SalesforceSetupDetail> c;
 
+	@Autowired
+	public GenericService<SalesforceSetupDetail> salesforceSetupDetail;
 	
 	private UnZipUtil unZipUtil;
 	
+	Map<String, String[]> treeMap = new HashMap<>();
     // Binding for the metadata WSDL used for making metadata API calls
     private MetadataConnection metadataConnection;
     
@@ -71,17 +89,20 @@ public class SalesforceMetadataController {
         
         @RequestMapping(value = "/recieveZip", method = RequestMethod.GET)
     	@ResponseBody        
-    	public String getXmlZip() throws RemoteException, Exception{
+    	public Object getXmlZip() throws RemoteException, Exception{
     		
     		createMetadataConnection(USERNAME, PASSWORD, URL);
-    		String strJsonObj=retrieveZip();
+    		Object strJsonObj=retrieveZip();
     		return strJsonObj;
     	}
         
     
-    private String retrieveZip() throws RemoteException, Exception
-    {
-    	 String jsonobjectofmetadata;
+    private Object retrieveZip() throws RemoteException, Exception
+    {	
+    	Users users=new Users();
+    	users = CommonUtil.getCurrentSessionUser();
+    	
+    	String jsonobjectofmetadata;
         RetrieveRequest retrieveRequest = new RetrieveRequest();
         // The version in package.xml overrides the version in RetrieveRequest
         retrieveRequest.setApiVersion(API_VERSION);
@@ -130,7 +151,63 @@ public class SalesforceMetadataController {
                 System.out.println("Retrieve warnings:\n" + buf);
             }    
         }
-        return jsonobjectofmetadata;
+        
+        
+        if(users!=null)
+		{
+        	Map<String, SalesforceSetupDetail> tableData = new HashMap<>();
+        	tableData = salesforceSetupDetail.getKeyValueMapString("SalesforceSetupDetail", "salesforceObjectApiName", "SalesforceSetupDetail", " Where createdById="+users.getId());
+        	
+        	ArrayList<String> CustomObjectList = new ArrayList<String>();
+			ArrayList<String> StandardObjectList = new ArrayList<String>();
+			ArrayList<String> CustomFieldsList = new ArrayList<String>();
+			ArrayList<String> StandardFieldsList = new ArrayList<String>();
+
+			JSONObject jobject = new JSONObject(jsonobjectofmetadata);
+			JSONArray CustomArray = jobject.getJSONArray("CustomObject");
+			JSONObject objectForParent = jobject.getJSONObject("Package");
+			JSONObject innnerParentObj = objectForParent.getJSONObject("types");
+			JSONArray standardArray = innnerParentObj.getJSONArray("members");
+			for (int z = 0; z < standardArray.length(); z++) {
+
+				StandardObjectList.add(standardArray.get(z).toString());
+			}
+			System.out.println(StandardObjectList);
+
+			for (int i = 0; i < CustomArray.length(); i++) {
+				StringBuilder sb = new StringBuilder();
+				JSONObject c = CustomArray.getJSONObject(i);
+
+				JSONArray FieldsArray = c.getJSONArray("fields");
+				for (int j = 0; j < FieldsArray.length(); j++) {
+					JSONObject f = FieldsArray.getJSONObject(j);
+					String name = f.getString("fullName");
+					sb.append(name).append(",");
+				}
+				String resultSb = sb.deleteCharAt(sb.length() - 1).toString();
+				if (c.has("label")) {
+					CustomObjectList.add(c.getString("label"));
+					CustomFieldsList.add(resultSb);
+				} else {
+					StandardFieldsList.add(resultSb);
+				}
+
+			}
+
+	
+			// Calling of method to creat tree json
+			
+			List<SalesforceMetadataTree> treeMapDataList = new ArrayList<>();
+			treeMapDataList = metaDataList(CustomObjectList,CustomFieldsList,tableData,treeMapDataList,"Custom");
+			treeMapDataList = metaDataList(StandardObjectList,StandardFieldsList,tableData,treeMapDataList,"Standard");
+			
+	
+			return treeMapDataList;
+		}
+        else
+        {
+        	return null;
+        }
     }
      
     private void setUnpackaged(RetrieveRequest request) throws Exception
@@ -226,5 +303,121 @@ public class SalesforceMetadataController {
 
     
 
+    // Method for inserting tree data in database
+    
+    @RequestMapping(value = "/addObjects", method = RequestMethod.POST)
+	
+	 public String addObjects(@RequestBody String selecteditem) {
+			      
+		 String key,selected,temp="";
+		 StringBuilder result = new StringBuilder();
+		 
+		 JSONArray jsonArray=new JSONArray(selecteditem);
+		 List<SalesforceSetupDetail> listssd = new ArrayList<SalesforceSetupDetail>();
+		 for(int i=0;i<jsonArray.length();i++)
+		 {
+			 JSONObject jsonObject=jsonArray.getJSONObject(i);
+			 key=jsonObject.getString("key");
+			 selected=jsonObject.getString("selected");
+			 
+			if(!key.equalsIgnoreCase(selected))
+			{
+				if (!temp.equalsIgnoreCase(key)) {
+
+					if (temp!="") {
+						result.deleteCharAt(result.length() - 1);
+						SalesforceSetupDetail detail = new SalesforceSetupDetail(temp, result.toString());
+						//salesforceSetupDetail.saveEntity(detail);
+						listssd.add(detail);
+						result = new StringBuilder();
+					}
+				}
+
+				temp = key;
+				result.append(selected);
+				result.append(",");
+				if (i == jsonArray.length() - 1) {
+					result.deleteCharAt(result.length() - 1);
+					SalesforceSetupDetail detail = new SalesforceSetupDetail(temp, result.toString());
+					listssd.add(detail);
+					//salesforceSetupDetail.saveEntity(detail);
+				}
+			}
+		 }
+		 salesforceSetupDetail.saveUpdateBatchEntity(SalesforceSetupDetail.class, listssd);
+		 System.out.println(selecteditem);
+		    return null;
+	 }
+
+    
+    // Method for creating tree JSON data with checked or unchecked type.
+    
+	public List<SalesforceMetadataTree> metaDataList(ArrayList<String> objectArray,ArrayList<String> fieldArray, Map<String, SalesforceSetupDetail> hashTable,List<SalesforceMetadataTree> treeMapDataList,String type) {
+
+		int i=0 ;
+		if(!type.equalsIgnoreCase("Custom")){
+			i=1;
+		}
+		for ( ;i < objectArray.size(); i++) {
+
+			Map map = new HashMap();
+			// Adding elements to map
+			if(type.equalsIgnoreCase("Custom"))
+			{
+				
+				map.put(objectArray.get(i), fieldArray.get(i));
+			}
+			else
+			{
+				
+				map.put(objectArray.get(i), fieldArray.get(i-1));
+				
+			}
+			// Traversing Map
+			Set set = map.entrySet();// Converting to Set so that we can
+										// traverse
+			Iterator itr = set.iterator();
+			while (itr.hasNext()) {
+				boolean ischecked = false;
+				SalesforceMetadataTree mtc = null;
+				List<SalesforceMetadataTree> mtca = new ArrayList<SalesforceMetadataTree>();
+				// Converting to Map.Entry so that we can get key and value
+				// separately
+				Map.Entry entry = (Map.Entry) itr.next();
+				System.out.println(entry.getKey() + " " + entry.getValue());
+				String[] sarray = entry.getValue().toString().split(",");
+				treeMap.put(entry.getKey().toString(), sarray);
+				SalesforceMetadataTree child = null;
+				SalesforceSetupDetail colvalues = hashTable.get(entry.getKey().toString());
+				for (int k = 0; k < sarray.length; k++) {
+					child = new SalesforceMetadataTree();
+					child.setName(sarray[k]);
+					if (colvalues != null && colvalues.getSalesforceFields().contains(sarray[k])) {
+						child.setChecked(true);
+						ischecked=true;
+					} else {
+						child.setChecked(false);
+					}
+					mtca.add(child);
+				}
+				mtc = new SalesforceMetadataTree();
+				mtc.setName(entry.getKey().toString());
+				if(!ischecked)
+				{
+					mtc.setChecked(false);
+				}else
+				{
+					mtc.setChecked(true);
+				}
+				
+				mtc.setChildren(mtca);
+				mtc.setId(colvalues.getId());
+				treeMapDataList.add(mtc);
+			}
+
+		}
+		return treeMapDataList;
+
+	}
 }
 

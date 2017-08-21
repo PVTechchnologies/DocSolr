@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.docsolr.common.dao.GenericDAO;
+import com.docsolr.entity.BaseEntity;
 import com.docsolr.interceptors.AccessInterceptor;
 
 /**
@@ -299,6 +300,34 @@ public class GenericDAOImpl<T> implements GenericDAO<T> {
 			session = sessionFactory.openSession();
 			for (T entity : listOfEntity) {
 				session.save(entity);
+			}
+			session.flush();
+		}
+		catch (Exception ex)
+		{
+			logger.error("Exception occured->",ex);
+			throw ex;
+		}
+		finally
+		{
+			if (session != null)
+			{
+				session.close();
+			}
+		}
+		return listOfEntity;
+	}
+	
+	
+	@Override
+	public List<T> saveUpdateBatchEntity(Class<T> clazz, List<T> listOfEntity)
+	{
+		logger.info("saveBatchEntity CALLED");
+		Session session = null;
+		try{
+			session = sessionFactory.openSession();
+			for (T entity : listOfEntity) {
+				session.saveOrUpdate(entity);
 			}
 			session.flush();
 		}
@@ -596,7 +625,7 @@ public class GenericDAOImpl<T> implements GenericDAO<T> {
 	 * @author Rajkiran
 	 */
 	@Override
-	public Map<Long, String> getKeyValueMap(String tablename, String keycolumn, String valuecolumn) {
+	public Map<Long, String> getKeyValueMap(String tablename, String keycolumn, String valuecolumn,String whereClause) {
 		logger.info("getKeyValueMap CALLED");
 		Session session = null;
 		List<Map<Long, String>> list = new ArrayList<Map<Long, String>>();
@@ -604,12 +633,44 @@ public class GenericDAOImpl<T> implements GenericDAO<T> {
 		try {
 			session = sessionFactory.openSession();
 			String HQL_QUERY = "select new map("+keycolumn+","+valuecolumn+") from "+tablename  ;
+			if(whereClause!=null){
+				HQL_QUERY = HQL_QUERY + whereClause;
+			}
 			Query query = session.createQuery(HQL_QUERY);
 			list = query.list();
 			for (Map<Long,String> row : list) {
 				String key = String.valueOf(row.get("0"));
 				Long longKey = Long.parseLong(key);
 				result.put(longKey,row.get("1"));
+			}
+		} catch (HibernateException he) {
+			logger.error("Exception occured->", he);
+			he.printStackTrace();
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public Map<String, T> getKeyValueMapString(String tablename, String keycolumn, String valuecolumn,String whereClause) {
+		logger.info("getKeyValueMap CALLED");
+		Session session = null;
+		List<Map<String, T>> list = new ArrayList<Map<String, T>>();
+		Map<String,T> result = new HashMap<>();
+		try {
+			session = sessionFactory.openSession();
+			String HQL_QUERY = "select new map("+keycolumn+",SS"+") from "+tablename + " SS" ;
+			if(whereClause!=null){
+				HQL_QUERY = HQL_QUERY + whereClause;
+			}
+			Query query = session.createQuery(HQL_QUERY);
+			list = query.list();
+			for (Map<String,T> row : list) {
+				String key = String.valueOf(row.get("0"));
+				result.put(key,(T)row.get("1"));
 			}
 		} catch (HibernateException he) {
 			logger.error("Exception occured->", he);

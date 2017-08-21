@@ -2,9 +2,12 @@
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
   
 	<types>
-        <members>*</members>
+		<members>*</members> 
 		<members>Account</members>
-        <name>CustomObject</name>
+		
+		<members>Case</members> 
+		<members>Contact</members> 
+		<name>CustomObject</name>  
     </types>
     <version>40.0</version>
 </Package>

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.hibernate.criterion.Criterion;
 
+import com.docsolr.entity.BaseEntity;
+
 /**
  * 
  * @author rajkiran.dewara
@@ -30,6 +32,8 @@ public interface GenericDAO<T> {
 	public List<T> getEnityListByQuery(String tableName, Map<String,?> whereClause);
 	public List<T> findAllEntityByProjectedColumn(Class clazz, String projectedColumn,Map<String,?> restrictionMap);
 	public List<T> findEntityByListOfValue(Class<T> clazz, String propertyName, List values);
-	public Map<Long, String> getKeyValueMap(String tablename, String keycolumn, String valuecolumn);
+	public Map<Long, String> getKeyValueMap(String tablename, String keycolumn, String valuecolumn,String whereClause);
 	public List<T> findEntityByRestriction(Class<T> clazz,Map<String,?> restrictionMap);
+	public List<T> saveUpdateBatchEntity(Class<T> clazz, List<T> listOfEntity);
+	public Map<String, T> getKeyValueMapString(String tablename, String keycolumn, String valuecolumn,String whereClause);
 }
