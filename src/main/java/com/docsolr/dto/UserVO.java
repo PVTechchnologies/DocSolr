@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserVO {
 
-	private String name;
+
 
 	private long userId;
 
@@ -22,12 +22,6 @@ public class UserVO {
 		super();
 	}
 
-	public UserVO(String name, long userId) {
-		super();
-		this.name = name;
-		this.userId = userId;
-	}
-
 	public UserVO(Long userId, String email, String password, String firstName,
 			String lastName) {
 		super();
@@ -36,17 +30,9 @@ public class UserVO {
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.name = firstName == null ? "" : firstName;
-		this.name = this.name + lastName == null ? "" : lastName;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+	
 
 	public long getUserId() {
 		return userId;

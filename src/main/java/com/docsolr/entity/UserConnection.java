@@ -11,8 +11,28 @@ import javax.persistence.Table;
 @Table(name="userconnection")
 @Inheritance(strategy=InheritanceType.JOINED)
 public class UserConnection{
-	
+	public UserConnection(){
+		
+	}
 	 
+	public UserConnection(String userId, String providerId, String providerUserId, String displayName,
+			String profileUrl, String imageUrl, String secret, String refreshToken, Long expireTime, Integer rank,
+			String accessToken, String email) {
+		super();
+		this.userId = userId;
+		this.providerId = providerId;
+		this.providerUserId = providerUserId;
+		this.displayName = displayName;
+		this.profileUrl = profileUrl;
+		this.imageUrl = imageUrl;
+		this.secret = secret;
+		this.refreshToken = refreshToken;
+		this.expireTime = expireTime;
+		this.rank = rank;
+		this.accessToken = accessToken;
+		this.email = email;
+	}
+
 	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 1L;
 	
@@ -37,6 +57,8 @@ public class UserConnection{
 	private Integer rank;
 	
 	private String accessToken;
+	
+	private String email;
 	
 	@Id
 	@Column(name="userId")
@@ -136,5 +158,16 @@ public class UserConnection{
 
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		if(email != null){
+			this.userId = email;
+		}
+		this.email = email;
 	}
 }

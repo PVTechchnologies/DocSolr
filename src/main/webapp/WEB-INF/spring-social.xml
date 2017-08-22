@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   		http://www.springframework.org/schema/beans/spring-beans.xsd
+	   		http://www.springframework.org/schema/context
+	   		http://www.springframework.org/schema/context/spring-context.xsd
+	   		http://www.springframework.org/schema/util
+	   		http://www.springframework.org/schema/util/spring-util.xsd
+			http://www.springframework.org/schema/aop 
+			http://www.springframework.org/schema/aop/spring-aop.xsd">
+			
+	
+	<context:property-placeholder location="/WEB-INF/spring.properties" ignore-unresolvable="true" order="1" />
+	
+	
+	<bean id="connectionFactoryRegistry"
+		class="org.springframework.social.connect.support.ConnectionFactoryRegistry">
+		<property name="connectionFactories">
+			<list>
+				<bean
+					class="org.springframework.social.facebook.connect.FacebookConnectionFactory">
+					<constructor-arg value="${app.config.oauth.facebook.apikey}" />
+					<constructor-arg value="${app.config.oauth.facebook.apisecret}" />
+					<property name="scope" value="email"/>
+				</bean>	
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="facebookServiceProvider" class="com.docsolr.service.OAuthServiceProvider">
+		<constructor-arg name="config" ref="facebookServiceConfig" />
+	</bean>
+
+	<bean id="facebookServiceConfig" class="com.docsolr.service.OAuthServiceConfig">
+		<constructor-arg value="${app.config.oauth.facebook.apikey}" />
+		<constructor-arg value="${app.config.oauth.facebook.apisecret}" />
+		<constructor-arg value="${app.config.oauth.facebook.callback}" />
+		<constructor-arg value="com.docsolr.controller.ExtendsDefaultApi20" />
+	</bean>
+
+	<bean id="oAuth2Parameters" class="org.springframework.social.oauth2.OAuth2Parameters">
+		<constructor-arg>
+			<map>
+				<entry key="redirect_uri" value="${app.config.oauth.facebook.callback}"></entry>
+				<entry key="scope" value="${app.config.oauth.facebook.scope}"></entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" 
+		factory-method="noOpText" />
+
+	<bean id="usersConnectionRepository" class="com.docsolr.dao.SocialJdbcConnectionRepository">
+	 	<constructor-arg value="test@social.com" />
+	    <constructor-arg ref="dataSource" />
+	    <constructor-arg ref="connectionFactoryRegistry" />
+	    <constructor-arg ref="textEncryptor" />
+	    <constructor-arg value="" />
+	</bean>
+	
+	<bean id="userSocialSignInController" class="com.docsolr.controller.FacebookController">
+		<constructor-arg ref="connectionFactoryRegistry"/>
+		<constructor-arg ref="usersConnectionRepository"/>
+	</bean>
+	
+	
+	<!-- Content put in spare for different way of facebook integeration -->
+		
+	<!-- <bean id="usersConnectionRepository" class="org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository">
+	    <constructor-arg ref="dataSource" />
+	    <constructor-arg ref="connectionFactoryRegistry" />
+	    <constructor-arg ref="textEncryptor" />
+	</bean> -->
+	
+	<!-- <bean id="connectionRepository" factory-method="createConnectionRepository" 
+			factory-bean="usersConnectionRepository" scope="request">
+	    <constructor-arg value="facebookuseridtobeupdated@facebook.com" />
+	    <aop:scoped-proxy proxy-target-class="false"/>
+	</bean> -->
+	
+	<!-- 	<bean id="facebookSignInAdapter" class="com.docsolr.controller.FacebookSignInAdapter" /> 
+	<bean id="userSocialSignInControllerSignup" class="com.docsolr.controller.FacebookControllerSingin">
+		<constructor-arg ref="connectionFactoryRegistry"/>
+		<constructor-arg ref="usersConnectionRepository"/>
+		<constructor-arg ref="facebookSignInAdapter"/>
+	</bean> -->
+	
+	
+</beans>

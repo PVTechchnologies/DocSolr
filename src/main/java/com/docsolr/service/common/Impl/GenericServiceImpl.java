@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.docsolr.common.dao.GenericDAO;
+import com.docsolr.entity.BaseEntity;
 import com.docsolr.service.common.GenericService;
 
 /**
@@ -159,6 +160,19 @@ public class GenericServiceImpl<T> implements GenericService<T> {
 		}
 	}
 	
+	public List<T> saveUpdateBatchEntity(Class<T> clazz, List<T> listOfEntity){
+		logger.info("CALLED");
+		try
+		{
+			return genericDAOImpl.saveUpdateBatchEntity(clazz,listOfEntity);
+		}
+		catch (Exception ex)
+		{
+			logger.error("Exception Ocured->"+ex);
+			throw ex;
+		}
+	}
+	
 	public List<T> updateBatchEntity(Class<T> clazz, List<T> listOfEntity){
 		logger.info("CALLED");
 		try
@@ -253,6 +267,37 @@ public class GenericServiceImpl<T> implements GenericService<T> {
 		try
 		{
 			return genericDAOImpl.findEntityByListOfValue(clazz, propertyName, values);
+		}
+		catch (Exception ex)
+		{
+			logger.error("Exception Ocured->"+ex);
+			throw ex;
+		}
+	}
+
+
+	@Override
+	public Map<Long, String> getKeyValueMap(String tablename, String keycolumn, String valuecolumn,
+			String whereClause) {
+		logger.info("CALLED");
+		try
+		{
+			return genericDAOImpl.getKeyValueMap(tablename, keycolumn, valuecolumn, whereClause);
+		}
+		catch (Exception ex)
+		{
+			logger.error("Exception Ocured->"+ex);
+			throw ex;
+		}
+	}
+
+	@Override
+	public Map<String, T> getKeyValueMapString(String tablename, String keycolumn, String valuecolumn,
+			String whereClause) {
+		logger.info("CALLED");
+		try
+		{
+			return genericDAOImpl.getKeyValueMapString(tablename, keycolumn, valuecolumn, whereClause);
 		}
 		catch (Exception ex)
 		{

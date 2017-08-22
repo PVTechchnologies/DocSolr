@@ -46,7 +46,11 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 			Map<String,String> restrictionMap  = new HashMap<String,String>();
 			restrictionMap.put("email", arg0);
 			List<Users> users = genericServiceImpl.findEntityByRestriction(Users.class, restrictionMap);
-			user =  (users == null || users.isEmpty()) && users.size() > 1 ? null : users.get(0);
+			if(users != null && users.size() == 1){
+				user = users.get(0);
+			}else{
+				user = null;
+			}
 			/*if(currentTenant == null){
 				user = service.findUserByUsername(null, arg0);
 			}

@@ -45,6 +45,9 @@ public class Users extends BaseEntity {
 	
 	private boolean enabled;
 	
+	private boolean SocialFacebook;
+	
+	private boolean SocialSalesforce;
 	
 	public Users() {
 		super();
@@ -55,7 +58,7 @@ public class Users extends BaseEntity {
 		this.id = userId;
 	}
 
-	public Users(String email, String password, String firstName, String lastName, Boolean isActive) {
+	public Users(String firstName, String lastName,String email, String password, boolean enabled,  Boolean isActive) {
 		this();
 		this.email = email;
 		this.password = password;
@@ -131,6 +134,7 @@ public class Users extends BaseEntity {
 	@JoinTable(name = "usersuserauthority", joinColumns = {
 			@JoinColumn(name = "userId", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "authoritieId", nullable = false, updatable = false) })
+	
 	public Set<UserAuthority> getAuthorities() {
 		return authorities;
 	}
@@ -172,4 +176,19 @@ public class Users extends BaseEntity {
 		this.account = account;
 	}
 
+	public boolean isSocialFacebook() {
+		return SocialFacebook;
+	}
+
+	public void setSocialFacebook(boolean socialFacebook) {
+		SocialFacebook = socialFacebook;
+	}
+
+	public boolean isSocialSalesforce() {
+		return SocialSalesforce;
+	}
+
+	public void setSocialSalesforce(boolean socialSales) {
+		SocialSalesforce = socialSales;
+	}
 }
