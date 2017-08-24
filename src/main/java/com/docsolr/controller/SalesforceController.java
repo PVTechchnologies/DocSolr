@@ -37,6 +37,7 @@ import com.docsolr.entity.UserAuthority;
 import com.docsolr.entity.UserAuthority.Roles;
 import com.docsolr.entity.UserConnection;
 import com.docsolr.entity.Users;
+
 import com.docsolr.service.common.GenericService;
 import com.docsolr.util.SecurityUtil;
 
@@ -55,7 +56,7 @@ public class SalesforceController  {
 	private static String environment = "https://login.salesforce.com";
 	private String authUrl = null;
 	private String tokenUrl = null;
-	
+	public static String acctoken;
 	@Autowired
 	GenericService<UserAuthority> userAuthGenericService;
 	
@@ -65,7 +66,7 @@ public class SalesforceController  {
 	@Autowired
 	public GenericService<UserConnection> userConnectionService;
 	
-	
+   
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@ResponseBody
 	public String home() {
@@ -132,6 +133,9 @@ public class SalesforceController  {
 					System.out.println("Auth response: "
 							+ authResponse.toString(2));
 
+					acctoken = authResponse.getString("access_token");
+					
+					
 					accessToken = authResponse.getString("access_token");
 					instanceUrl = authResponse.getString("instance_url");
 					Url = authResponse.getString("id");
@@ -146,7 +150,7 @@ public class SalesforceController  {
 										Get.getResponseBodyAsStream())));
 						System.out.println("Auth response: "
 								+ fullDetail.toString(2));
-					
+						
 						addConnection(fullDetail,authResponse);
 						
 						
