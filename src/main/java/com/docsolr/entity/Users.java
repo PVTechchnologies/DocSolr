@@ -64,6 +64,7 @@ public class Users extends BaseEntity {
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.enabled = enabled;
 		this.isActive = isActive;
 	}
 
