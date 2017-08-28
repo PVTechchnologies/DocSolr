@@ -44,6 +44,7 @@ import com.sforce.soap.metadata.RetrieveMessage;
 import com.sforce.soap.metadata.RetrieveRequest;
 import com.sforce.soap.metadata.RetrieveResult;
 import com.sforce.soap.metadata.RetrieveStatus;
+import com.sforce.soap.partner.GetUserInfoResult;
 import com.sforce.soap.partner.LoginResult;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
@@ -81,17 +82,20 @@ public class SalesforceMetadataController {
     private static final String MANIFEST_FILE = "C:\\Users\\Yadav\\git\\DocSolr\\package.xml"; 
 
     private static final double API_VERSION = 40.0; 
+    
+    
 
-        String USERNAME = "hiteshyadav@mtxb2b.com";
+     /*   String USERNAME = "hiteshyadav@mtxb2b.com";
         // This is only a sample. Hard coding passwords in source files is a bad practice.
-        String PASSWORD = "123456789t"; 
-        String URL = "https://login.salesforce.com/services/Soap/u/40.0";
+        String PASSWORD = "123456789t"; */
+ /*       String URL = "https://login.salesforce.com/services/Soap/u/40.0";*/
+        String URL = "https://ap5.salesforce.com/services/Soap/m/40.0/00D7F000001a7Nw";
         
         @RequestMapping(value = "/recieveZip", method = RequestMethod.GET)
     	@ResponseBody        
     	public Object getXmlZip() throws RemoteException, Exception{
-    		
-    		createMetadataConnection(USERNAME, PASSWORD, URL);
+    		String Accesstoken = SalesforceController.acctoken;
+    		createMetadataConnection(Accesstoken, URL);
     		Object strJsonObj=retrieveZip();
     		return strJsonObj;
     	}
@@ -173,7 +177,7 @@ public class SalesforceMetadataController {
 				StandardObjectList.add(standardArray.get(z).toString());
 			}
 			System.out.println(StandardObjectList);
-
+			
 			for (int i = 0; i < CustomArray.length(); i++) {
 				StringBuilder sb = new StringBuilder();
 				JSONObject c = CustomArray.getJSONObject(i);
@@ -272,20 +276,19 @@ public class SalesforceMetadataController {
     }
     
  
-    private void createMetadataConnection(final String username,
-            final String password, final String loginUrl)
-            throws ConnectionException {
+    private void createMetadataConnection(final String Accesstoken,final String loginUrl)throws ConnectionException {
 
-        final ConnectorConfig loginConfig = new ConnectorConfig();
+    /*    final ConnectorConfig loginConfig = new ConnectorConfig();
         loginConfig.setAuthEndpoint(loginUrl);
         loginConfig.setServiceEndpoint(loginUrl);
         loginConfig.setManualLogin(true);
         PartnerConnection pc = new PartnerConnection(loginConfig);
-        LoginResult loginResult = pc.login(username, password);
+        LoginResult loginResult = pc.login(username, password);*/
 
         final ConnectorConfig metadataConfig = new ConnectorConfig();
-        metadataConfig.setServiceEndpoint(loginResult.getMetadataServerUrl());
-        metadataConfig.setSessionId(loginResult.getSessionId());
+      
+        metadataConfig.setServiceEndpoint(loginUrl);
+        metadataConfig.setSessionId(Accesstoken);
         this.metadataConnection = new MetadataConnection(metadataConfig);
     }
     
@@ -411,7 +414,7 @@ public class SalesforceMetadataController {
 				}
 				
 				mtc.setChildren(mtca);
-				mtc.setId(colvalues.getId());
+				/*mtc.setId(colvalues.getId());*/
 				treeMapDataList.add(mtc);
 			}
 

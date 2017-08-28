@@ -36,7 +36,7 @@ public class LoginController {
 
 	@RequestMapping(value = { "/", "/home" })
 	public String getUserDefault() {
-		return "home";
+		return "newhome";
 	}
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
@@ -64,7 +64,7 @@ public class LoginController {
 			e.printStackTrace();
 		}
 		
-		return "home";
+		return "newhome";
 	}
 	@RequestMapping("/login")
 	public ModelAndView getLoginForm(@ModelAttribute UserVO users,
