@@ -363,7 +363,6 @@
 		    <artifactId>js</artifactId>
 		    <version>1.7R2</version>
 		</dependency>
-		
 
 		<!-- https://mvnrepository.com/artifact/com.force.api/force-partner-api -->
 		
@@ -373,8 +372,16 @@
 		    <artifactId>force-wsc</artifactId>
 		    <version>22.0.0</version>
 		</dependency>
-		
-
+		<dependency>
+       	 	<groupId>org.springframework.security.extensions</groupId>
+       	 	<artifactId>spring-security-saml2-core</artifactId>
+        	<version>1.0.2.RELEASE</version>
+    	</dependency>
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient</artifactId>
+		    <version>4.5.2</version>
+		</dependency>	
 	</dependencies>
 	<build>
 		<plugins>
