@@ -1,58 +1,63 @@
-<%@ taglib prefix="s" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="sf" uri="http://www.springframework.org/tags/form"%>  
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-pageEncoding="ISO-8859-1"%>
-<%@ page isELIgnored="false" %>
 <!DOCTYPE html>
-<html lang="en">
-    <head> 
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+<html>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+<!-- <script src="https://code.angularjs.org/1.3.0-beta.5/angular.js"></script> -->
+<link rel="stylesheet" href="css/homepage/home.css">
+<link rel="stylesheet" href="css/homepage/hometheme.css">
+<link rel="stylesheet" href="css/homepage/homefont.css">
+<link href="css/registration/register.css" rel="stylesheet">
+
+<body ng-app="myApp">
+
+	<p>
+		<a href="#/!">Main</a>
+	</p>
+
+	<!-- Navbar -->
+	<div class="w3-top">
+		<div class="w3-bar w3-theme-d2 w3-left-align">
+			<a
+				class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-hover-white w3-theme-d2"
+				href="javascript:void(0);" onclick="openNav()"><i
+				class="fa fa-bars"></i></a> <a href="#"
+				class="w3-bar-item w3-button w3-manualblue"> <span
+				class="glyphicon glyphicon-home"></span> Docsolr
+			</a>
 
 
-		<!-- Website CSS style -->
-		<link href="css/registration/register.css" rel="stylesheet">
-	
-		<!-- Website Font style -->
-	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
-		<link rel="stylesheet" href="style.css">
-		
-		<!-- Google Fonts -->
-		<link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
-		<link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
-
-		<title>Docsolr</title>
-
-		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  		
-	</head>
-	<body>
-		<div class="container">
-			<div class="row main">
-				<div class="main-login main-center">
-
-<br>
-				<div class="form-group ">
-					<div class="header">
-						<img src="/docsolr/images/docsolr.png" alt="logo" /> <br>
-					</div>
-
-				</div>
-				<div class="form-group ">
-							<a href="docsolrlogin" ><button type="submit"  id="button" class="btn btn-primary btn-lg btn-block ">Login</button></a>
-						</div>
-						
-						<div class="form-group ">
-							<a href="signup" ><button type="button" id="button" class="btn btn-primary btn-lg btn-block ">Signup</button></a>
-						</div>
-						
-						
-				</div>
+			<div class="barmodule">
+				<a href="#!login"
+					class="w3-bar-item w3-button w3-hide-small w3-hover-white">LOG
+					IN</a> <a href="#!signup"
+					class="w3-bar-item w3-button w3-hide-small w3-hover-white">SIGN
+					UP</a>
+				<div class="w3-dropdown-hover w3-hide-small"></div>
 			</div>
 		</div>
- 
-	</body>
+
+		<!-- Navbar on small screens -->
+		<div id="navDemo"
+			class="w3-bar-block w3-theme-d2 w3-hide w3-hide-large w3-hide-medium">
+			<a href="#parser" class="w3-bar-item w3-button">LOG IN</a> <a
+				href="#work" class="w3-bar-item w3-button">SIGN UP</a>
+
+		</div>
+	</div>
+	<br>
+
+	<div ng-view></div>
+
+	<script src="js/mainapp.js"></script>
+	<script src="js/treedirective.js"></script>
+	<script src="js/app.js"></script>
+
+</body>
 </html>
+
 

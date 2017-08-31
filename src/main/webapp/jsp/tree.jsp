@@ -24,8 +24,6 @@
     Selected: {{selectedItemsObject}}
     <ul>
       <li ng-repeat="item in selectedItemsObject">
-        {{item.selected}}
-        {{item.key}}
       </li>
     </ul>
    

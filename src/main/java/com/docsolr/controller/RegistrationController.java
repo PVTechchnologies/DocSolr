@@ -1,34 +1,34 @@
 package com.docsolr.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.docsolr.dto.UserVO;
 import com.docsolr.entity.Account;
-import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.UserAuthority;
 import com.docsolr.entity.UserAuthority.Roles;
 import com.docsolr.entity.Users;
 import com.docsolr.service.common.GenericService;
 import com.docsolr.util.CommonUtil;
+import com.docsolr.util.SecurityUtil;
 
 
 @Controller
@@ -72,12 +72,13 @@ public class RegistrationController {
 	
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logout(ModelMap model) {
-		return "login/docsolrlogin";
+		return "home";
 	}
 	
 	 @RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	 @ResponseBody
-	 public String addUser(@ModelAttribute("newUserSignup")UserVO userVo,  ModelMap model) {
+	 public RedirectView addUser (HttpServletRequest request, HttpServletResponse response,
+			 	@ModelAttribute("newUserSignup")UserVO userVo,  ModelMap model ) {
 			      
 		 /*model.addAttribute("name", user.getName());*/
 		 Users user = new Users(userVo.getFirstName(), userVo.getLastName(), userVo.getEmail(), userVo.getPassword(), true,true);
@@ -92,7 +93,8 @@ public class RegistrationController {
 				user.setEnabled(true);
 			}
 			userService.saveEntity(user);
-			return "result";
+			SecurityUtil.signInUser(user);
+			return new RedirectView("/user",true);
 	 }
 	 
 	 
