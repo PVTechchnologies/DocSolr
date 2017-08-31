@@ -39,6 +39,7 @@
 	<http pattern="/" security="none" />
 	<http pattern="/auth/salesforce/callback"  security="none" />
 	<http pattern="/auth/salesforce/logout"  security="none" />
+	<http pattern="/login" security="none" />
 
 	
 
@@ -131,7 +132,7 @@
 			login-processing-url="/j_spring_security_check" login-page="/docsolrlogin" 
 			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
 			authentication-failure-url="/docsolrlogin?error=fail" /> <csrf disabled="true" /> <logout 
-			logout-success-url="/docsolrlogin" logout-url="/j_spring_security_logout"/>
+			logout-success-url="/" logout-url="/j_spring_security_logout"/>
 			
 	</http>
 

@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,9 +46,6 @@ import com.sforce.soap.metadata.RetrieveMessage;
 import com.sforce.soap.metadata.RetrieveRequest;
 import com.sforce.soap.metadata.RetrieveResult;
 import com.sforce.soap.metadata.RetrieveStatus;
-import com.sforce.soap.partner.GetUserInfoResult;
-import com.sforce.soap.partner.LoginResult;
-import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
@@ -83,6 +82,7 @@ public class SalesforceMetadataController {
 
     private static final double API_VERSION = 40.0; 
     
+    public ArrayList<String> ListOfID = new ArrayList<String>();
     
 
      /*   String USERNAME = "hiteshyadav@mtxb2b.com";
@@ -162,6 +162,15 @@ public class SalesforceMetadataController {
         	Map<String, SalesforceSetupDetail> tableData = new HashMap<>();
         	tableData = salesforceSetupDetail.getKeyValueMapString("SalesforceSetupDetail", "salesforceObjectApiName", "SalesforceSetupDetail", " Where createdById="+users.getId());
         	
+        	/*Creating list of ID coming from databse starts here*/
+        	Iterator<Map.Entry<String, SalesforceSetupDetail>> entries = tableData.entrySet().iterator();
+        	while (entries.hasNext()) {
+        	    Map.Entry<String, SalesforceSetupDetail> entry = entries.next();
+        	    SalesforceSetupDetail colvalues = tableData.get(entry.getKey().toString());
+        	    ListOfID.add(colvalues.getId().toString());   
+        	}
+        	/*End here*/
+        	
         	ArrayList<String> CustomObjectList = new ArrayList<String>();
 			ArrayList<String> StandardObjectList = new ArrayList<String>();
 			ArrayList<String> CustomFieldsList = new ArrayList<String>();
@@ -199,13 +208,12 @@ public class SalesforceMetadataController {
 			}
 
 	
-			// Calling of method to creat tree json
+			/*Calling of method to create JSON for treeview*/
 			
 			List<SalesforceMetadataTree> treeMapDataList = new ArrayList<>();
 			treeMapDataList = metaDataList(CustomObjectList,CustomFieldsList,tableData,treeMapDataList,"Custom");
 			treeMapDataList = metaDataList(StandardObjectList,StandardFieldsList,tableData,treeMapDataList,"Standard");
 			
-	
 			return treeMapDataList;
 		}
         else
@@ -312,40 +320,90 @@ public class SalesforceMetadataController {
 	
 	 public String addObjects(@RequestBody String selecteditem) {
 			      
-		 String key,selected,temp="";
+		 String key,selected,oldKey="";
+		 boolean haveID =false;
 		 StringBuilder result = new StringBuilder();
-		 
+		 Long id=null,oldid=null,tempid=null;
+		 Integer idStringvalue = null;
 		 JSONArray jsonArray=new JSONArray(selecteditem);
+
+		 
+		 /*Code to detect which record needs to be delete Starts here*/
+		 ArrayList<String> listdata = new ArrayList<String>();     
+		 if (jsonArray != null) {
+			
+		    for (int i=0;i<jsonArray.length();i++){ 
+		    	 JSONObject jsonObject=jsonArray.getJSONObject(i);
+		    	try{
+		    		   listdata.add(Integer.toString(jsonObject.getInt("idvalue")));
+		    	 
+		    	}
+		    	catch(Exception e)
+		    	{
+		    		continue;
+		    	}
+		    } 
+		 } 
+		
+		  Collection<String> selectedList = new ArrayList(listdata);
+		  Collection<String> unSelectedList = new ArrayList(ListOfID);
+		  
+		  List<String> sourceList = new ArrayList<String>(selectedList);
+		  List<String> destinationList = new ArrayList<String>(unSelectedList);
+
+		  destinationList.removeAll( selectedList );
+
+		  System.out.println( destinationList );  
+		  
+		  /*End here*/
+		  
 		 List<SalesforceSetupDetail> listssd = new ArrayList<SalesforceSetupDetail>();
 		 for(int i=0;i<jsonArray.length();i++)
 		 {
+			 
 			 JSONObject jsonObject=jsonArray.getJSONObject(i);
 			 key=jsonObject.getString("key");
 			 selected=jsonObject.getString("selected");
+			 idStringvalue=!jsonObject.get("idvalue").equals(null)? ((Integer)jsonObject.get("idvalue")) : null;
+			 if(idStringvalue!=null)
+			 {
+				 id = new Long(idStringvalue.toString());
+			 }
 			 
-			if(!key.equalsIgnoreCase(selected))
+			if(!key.equalsIgnoreCase(selected))/*only go inside for field name*/
 			{
-				if (!temp.equalsIgnoreCase(key)) {
+				
+				if (!oldKey.equalsIgnoreCase(key)) {
 
-					if (temp!="") {
+					if (oldKey!="") {/*This will run whenever new object name occurs and store previously build String*/
+						/*All objects were stored from here except last one*/
 						result.deleteCharAt(result.length() - 1);
-						SalesforceSetupDetail detail = new SalesforceSetupDetail(temp, result.toString());
-						//salesforceSetupDetail.saveEntity(detail);
+						SalesforceSetupDetail detail = new SalesforceSetupDetail(oldKey, result.toString());
+						detail.setId(oldid);
+						tempid=oldid;
 						listssd.add(detail);
 						result = new StringBuilder();
 					}
 				}
 
-				temp = key;
+				
+				oldid=id;
+				oldKey = key;
 				result.append(selected);
 				result.append(",");
+				
+				/*This will run only for last object*/
 				if (i == jsonArray.length() - 1) {
 					result.deleteCharAt(result.length() - 1);
-					SalesforceSetupDetail detail = new SalesforceSetupDetail(temp, result.toString());
+					SalesforceSetupDetail detail = new SalesforceSetupDetail(oldKey, result.toString());
+					if(tempid!=oldid)
+					{
+						detail.setId(oldid);
+					}
 					listssd.add(detail);
-					//salesforceSetupDetail.saveEntity(detail);
 				}
 			}
+			
 		 }
 		 salesforceSetupDetail.saveUpdateBatchEntity(SalesforceSetupDetail.class, listssd);
 		 System.out.println(selecteditem);
@@ -414,11 +472,14 @@ public class SalesforceMetadataController {
 				}
 				
 				mtc.setChildren(mtca);
-				/*mtc.setId(colvalues.getId());*/
+				if(colvalues!= null){
+					mtc.setId(colvalues.getId());
+				}
 				treeMapDataList.add(mtc);
 			}
 
 		}
+		System.out.println(treeMapDataList);
 		return treeMapDataList;
 
 	}

@@ -2,6 +2,17 @@ var app = angular.module("myApp", ["ngRoute", 'tree.directives']);
 angular.module('myApp')
 .config(function($routeProvider) {
     $routeProvider
+    .when("/", {
+        templateUrl : "jsp/home.jsp"
+    })
+    .when("/login", {
+        templateUrl : "jsp/login/docsolrlogin.jsp"
+        	
+    })
+     .when("/signup", {
+        templateUrl : "jsp/login/registration.jsp"
+        	
+    })
     .when("/userview", {
         templateUrl : "jsp/user.jsp"
         	

@@ -25,11 +25,13 @@ angular.module('myApp')
 			 $scope.selectedItems = [];
 			 $scope.selectedItemsObject = [];
 			 
+			 
 			 function checkChildren(c,mykey) {
 	          angular.forEach(c.children, function (c,key) {
 	             if (c.checked){
 	                $scope.selectedItems.push({"selected":c.name});
-	                $scope.selectedItemsObject.push({"key":$scope.jsonData[mykey].name,"selected":c.name});
+	                $scope.selectedItemsObject.push({"key":$scope.jsonData[mykey].name,"selected":c.name,"idvalue":c.id});
+	                
 	             }
 	              checkChildren(c,key);
 	          });
@@ -39,7 +41,8 @@ angular.module('myApp')
 	    	 
 	          if (value.checked){
 	            $scope.selectedItems.push({"selected":value.name});
-	            $scope.selectedItemsObject.push({"key":$scope.jsonData[key].name,"selected":value.name});
+	            $scope.selectedItemsObject.push({"key":$scope.jsonData[key].name,"selected":value.name,"idvalue":value.id});
+	            
 	          }
 	           checkChildren(value,key);
 	      });

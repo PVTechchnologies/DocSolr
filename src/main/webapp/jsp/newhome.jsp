@@ -4,10 +4,10 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
-<script src="https://code.angularjs.org/1.3.0-beta.5/angular.js"></script>
 <link rel="stylesheet" href="css/homepage/home.css">
 <link rel="stylesheet" href="css/homepage/hometheme.css">
 <link rel="stylesheet" href="css/homepage/homefont.css">
+<link href="css/registration/register.css" rel="stylesheet">
 
     <link rel="stylesheet" href="css/tree.css"/>
 <body ng-app="myApp">
@@ -18,7 +18,7 @@
 <div class="w3-top">
  <div class="w3-bar w3-theme-d2 w3-left-align">
   <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-hover-white w3-theme-d2" href="javascript:void(0);" onclick="openNav()"><i class="fa fa-bars"></i></a>
-  <a href="#" class="w3-bar-item w3-button w3-teal"> <span class="glyphicon glyphicon-home"></span> Docsolr</a>
+  <a href="#" class="w3-bar-item w3-button w3-manualblue"> <span class="glyphicon glyphicon-home"></span> Docsolr</a>
   
  
     <div class="barmodule">
