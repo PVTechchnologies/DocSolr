@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.docsolr.common.dao.GenericDAO;
 import com.docsolr.dto.SalesforceMetadataTree;
 import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.Users;
@@ -56,13 +56,12 @@ import com.sforce.ws.ConnectorConfig;
 @Controller
 public class SalesforceMetadataController {
 	
-	
-	
-	@Autowired
-	GenericService<SalesforceSetupDetail> c;
 
 	@Autowired
 	public GenericService<SalesforceSetupDetail> salesforceSetupDetail;
+	
+	@Autowired
+	public GenericDAO<SalesforceSetupDetail> SFSD;
 	
 	private UnZipUtil unZipUtil;
 	
@@ -82,7 +81,7 @@ public class SalesforceMetadataController {
 
     private static final double API_VERSION = 40.0; 
     
-    public ArrayList<String> ListOfID = new ArrayList<String>();
+    
     
 
      /*   String USERNAME = "hiteshyadav@mtxb2b.com";
@@ -162,15 +161,6 @@ public class SalesforceMetadataController {
         	Map<String, SalesforceSetupDetail> tableData = new HashMap<>();
         	tableData = salesforceSetupDetail.getKeyValueMapString("SalesforceSetupDetail", "salesforceObjectApiName", "SalesforceSetupDetail", " Where createdById="+users.getId());
         	
-        	/*Creating list of ID coming from databse starts here*/
-        	Iterator<Map.Entry<String, SalesforceSetupDetail>> entries = tableData.entrySet().iterator();
-        	while (entries.hasNext()) {
-        	    Map.Entry<String, SalesforceSetupDetail> entry = entries.next();
-        	    SalesforceSetupDetail colvalues = tableData.get(entry.getKey().toString());
-        	    ListOfID.add(colvalues.getId().toString());   
-        	}
-        	/*End here*/
-        	
         	ArrayList<String> CustomObjectList = new ArrayList<String>();
 			ArrayList<String> StandardObjectList = new ArrayList<String>();
 			ArrayList<String> CustomFieldsList = new ArrayList<String>();
@@ -213,7 +203,6 @@ public class SalesforceMetadataController {
 			List<SalesforceMetadataTree> treeMapDataList = new ArrayList<>();
 			treeMapDataList = metaDataList(CustomObjectList,CustomFieldsList,tableData,treeMapDataList,"Custom");
 			treeMapDataList = metaDataList(StandardObjectList,StandardFieldsList,tableData,treeMapDataList,"Standard");
-			
 			return treeMapDataList;
 		}
         else
@@ -345,16 +334,38 @@ public class SalesforceMetadataController {
 		    } 
 		 } 
 		
-		  Collection<String> selectedList = new ArrayList(listdata);
-		  Collection<String> unSelectedList = new ArrayList(ListOfID);
-		  
-		  List<String> sourceList = new ArrayList<String>(selectedList);
-		  List<String> destinationList = new ArrayList<String>(unSelectedList);
+		 Users users=new Users();
+		 users = CommonUtil.getCurrentSessionUser();
+		 Map<String, SalesforceSetupDetail> tableData = new HashMap<>();
+     	tableData = salesforceSetupDetail.getKeyValueMapString("SalesforceSetupDetail", "salesforceObjectApiName", "SalesforceSetupDetail", " Where createdById="+users.getId());
+     	
+     	ArrayList<String> ListOfID = new ArrayList<String>();
+     	/*Creating list of ID coming from databse starts here*/
+     	Iterator<Map.Entry<String, SalesforceSetupDetail>> entries = tableData.entrySet().iterator();
+     	while (entries.hasNext()) {
+     	    Map.Entry<String, SalesforceSetupDetail> entry = entries.next();
+     	    SalesforceSetupDetail colvalues = tableData.get(entry.getKey().toString());
+     	    ListOfID.add(colvalues.getId().toString());   
+     	}
+		
+			Collection<String> selectedList = new ArrayList(listdata);
+			Collection<String> unSelectedList = new ArrayList(ListOfID);
 
-		  destinationList.removeAll( selectedList );
+			List<String> sourceList = new ArrayList<String>(selectedList);
+			List<SalesforceSetupDetail> ssdlist = new ArrayList<SalesforceSetupDetail>();
+			List<String> destinationList = new ArrayList<String>(unSelectedList);
+			destinationList.removeAll(sourceList);
+			for (String string : destinationList) {
+				SalesforceSetupDetail ssd = new SalesforceSetupDetail();
+				ssd.setId(Long.parseLong(string));
+				ssdlist.add(ssd);
+			}
+			System.out.println(destinationList);
 
-		  System.out.println( destinationList );  
-		  
+			if(!ssdlist.isEmpty())
+			{
+				SFSD.deleteBatchEntity(SalesforceSetupDetail.class, ssdlist);
+			}	
 		  /*End here*/
 		  
 		 List<SalesforceSetupDetail> listssd = new ArrayList<SalesforceSetupDetail>();

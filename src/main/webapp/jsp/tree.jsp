@@ -9,7 +9,7 @@
  
 </head>
 
-<body>
+<body  ng-app="myApp">
  <p>Hello {{name}}!</p>
 	
 	
@@ -27,6 +27,7 @@
       </li>
     </ul>
    
+   <a href="#!field">Field Data</a>
 </body>
 
 </html>

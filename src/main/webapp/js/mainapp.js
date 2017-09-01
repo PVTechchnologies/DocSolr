@@ -20,7 +20,12 @@ angular.module('myApp')
     .when("/treeview", {
         templateUrl : "jsp/tree.jsp",
         controller: 'TreeCtrl'
+    })
+    .when("/field", {
+        templateUrl : "jsp/fielddata.jsp",
+        controller: 'FieldCtrl'
     });
+   
 })
 
 

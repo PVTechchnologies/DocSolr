@@ -373,6 +373,26 @@ public class GenericDAOImpl<T> implements GenericDAO<T> {
 		return listOfEntity;
 	}
 	
+	@Override
+	public void deleteBatchEntity(Class<T> clazz, List<T> listOfEntity) {
+		logger.info("saveBatchEntity CALLED");
+		Session session = null;
+		try {
+			session = sessionFactory.openSession();
+			for (T entity : listOfEntity) {
+				session.delete(entity);
+			}
+			session.flush();
+		} catch (Exception ex) {
+			logger.error("Exception occured->", ex);
+			throw ex;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findEntityByFk(Class<T> clazz,Class<T> fkclazz)
