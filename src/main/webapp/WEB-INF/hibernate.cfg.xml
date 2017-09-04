@@ -5,14 +5,16 @@
 
 <hibernate-configuration>
 	<session-factory>
+	
 		<property name="show_sql">true</property>
 		<property name="hibernate.hbm2ddl.auto">update</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 		
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/docsolr</property>
-		<property name="hibernate.connection.username">maverickdev</property>
-		<property name="hibernate.connection.password">maverickdev</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">qwerqwer1</property>
+		
 		<!-- UAT -->
 		<!-- 
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/maverick_uat</property>
@@ -25,7 +27,8 @@
 		<property name="hibernate.connection.password">FjBoEqu3uJ</property> -->
 
 		<property name="hibernate.query.substitutions">true=1, false=0</property>
-
+		 <mapping class="com.docsolr.entity.SiteInfo"></mapping>
+		  <mapping class="com.docsolr.entity.SiteFolders"></mapping>
 	</session-factory>
 </hibernate-configuration>
 

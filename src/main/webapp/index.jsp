@@ -7,9 +7,15 @@ pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html>
 <head>
-    
+    eeeee
 </head>
 <body>
 Docsolr Rest is running !!!
+
+this is test fro pankah
+
+sahdjhsakdjhaskj this wshowuld work thhhhheeeeeeeeee 1 s h i jjkkkk lmn o
+Message is: ${message}  
+
 </body>
 </html>
