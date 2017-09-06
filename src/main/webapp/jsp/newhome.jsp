@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="css/homepage/home.css">
 <link rel="stylesheet" href="css/homepage/hometheme.css">
 <link rel="stylesheet" href="css/homepage/homefont.css">
-<link href="css/registration/register.css" rel="stylesheet">
+<link rel="stylesheet" href="css/homepage/home_background.css">
 
     <link rel="stylesheet" href="css/tree.css"/>
 <body ng-app="myApp">

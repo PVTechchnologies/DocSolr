@@ -6,9 +6,11 @@ import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,7 @@ import com.sforce.soap.partner.QueryResult;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
+import com.sforce.ws.bind.XmlObject;
 
 
 @Controller
@@ -80,9 +83,9 @@ public class PartnerQueryController {
 	      }
 
 	    
-	    public Object querySample() {    
+	    public Object querySample() throws ConnectionException {    
 	    	 SObject[] records=null;
-	    	 
+	    	 Set<Long> setOfID = new HashSet<Long>();
 	    	 Users users=new Users();
 	    	 users = CommonUtil.getCurrentSessionUser();
 	    	 
@@ -92,9 +95,12 @@ public class PartnerQueryController {
 	        List<String> query = new ArrayList<String>();
 	        for (Map.Entry<String, SalesforceSetupDetail> entrySet:tableData.entrySet()) {
 	        	SalesforceSetupDetail ssd = entrySet.getValue();
-				query.add("Select "+ssd.getSalesforceFields()+" from "+entrySet.getKey());
+				query.add("Select id,"+ssd.getSalesforceFields()+" from "+entrySet.getKey());
+				setOfID.add(ssd.getId());
+				
 			}
 	        
+	       
         	for(int j=0;j<query.size();j++)
         	{
         		String soqlQuery=query.get(j);
@@ -114,6 +120,7 @@ public class PartnerQueryController {
 	               
 	                records = qr.getRecords();
 	              
+	                
 	                if (qr.isDone()) {
 	                    done = true;
 	                } else {
@@ -126,8 +133,73 @@ public class PartnerQueryController {
 	    
 	        System.out.println("\nQuery execution completed.");     
 	    }
+        	Set<String> ids = new HashSet<String>();
+        	for (SObject so : records) {
+        		Iterator<XmlObject> sxml =so.getChildren(); 
+        		while(sxml.hasNext()){
+        			System.out.println("===");
+        			XmlObject xobj = sxml.next();
+        			if(xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Id")){
+        				System.out.println(xobj.getName().toString());
+        				ids.add(xobj.getValue().toString());
+        			}
+        		}
+			}
+       
+        	getAttachment(ids);
+        	System.out.println(ids);
 	        return records;
+	  
 	    }
+	    
+	   private void getAttachment(Set<String> setOfId) throws ConnectionException{
+		   partnerConnection.setQueryOptions(250);
+		   
+		   
+		   StringBuilder result = new StringBuilder();
+		   
+		   for(String string : setOfId) {
+		        result.append("\'"+string+"\'");
+		        result.append(",");
+		    }
+		 
+		   result.deleteCharAt(result.length() - 1);
+		   System.out.println(result);
+		   
+		   String soqlQuery="SELECT Id, body FROM Attachment Where ParentID IN("+ result +")";
+		   
+		   QueryResult qr = partnerConnection.query(soqlQuery);
+		   SObject[] records=null; 
+		   boolean done = false;
+           int loopCount = 0;
+           // Loop through the batches of returned results
+           while (!done) {
+		   records = qr.getRecords();
+		  
+		   if (qr.isDone()) {
+               done = true;
+           } else {
+               qr = partnerConnection.queryMore(qr.getQueryLocator());
+           }
+           }
+           
+           Set<String> ids = new HashSet<String>();
+       		for (SObject so : records) {
+       		Iterator<XmlObject> sxml =so.getChildren(); 
+       		while(sxml.hasNext()){
+       			System.out.println("===");
+       			XmlObject xobj = sxml.next();
+       			if(xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Body")){
+       				System.out.println(xobj.getName().toString());
+       				ids.add(xobj.getValue().toString());
+       			}
+       		}
+			}
+       		System.out.println(ids);
+		   System.out.println("attachment >>>>>>..."+records);
+	
+	    }
+	  
 	}
 
 
