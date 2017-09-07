@@ -24,6 +24,7 @@ public interface GenericDAO<T> {
 	public List<T> findLimitedEntity(Class<T> clazz,int fetchSize,Map<String,?> restrictionMap,Map<String,Map<String,?>> restrictionChildEntityMap);
 	public List<T> saveBatchEntity(Class<T> clazz, List<T> listOfEntity);
 	public List<T> updateBatchEntity(Class<T> clazz, List<T> listOfEntity);
+	public void deleteBatchEntity(Class<T> clazz, List<T> listOfEntity);
 	public List<T> findEntityByFk(Class<T> clazz, Class<T> fkclazz);
 	public T saveUpdateEntity(T entity);
 	public T findUniqueEntity(Class<T> clazz, List<Criterion> restrictions);
@@ -36,4 +37,5 @@ public interface GenericDAO<T> {
 	public List<T> findEntityByRestriction(Class<T> clazz,Map<String,?> restrictionMap);
 	public List<T> saveUpdateBatchEntity(Class<T> clazz, List<T> listOfEntity);
 	public Map<String, T> getKeyValueMapString(String tablename, String keycolumn, String valuecolumn,String whereClause);
+	
 }
