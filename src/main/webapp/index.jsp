@@ -57,6 +57,7 @@
 	<script src="js/treedirective.js"></script>
 	
 	<script src="js/app.js"></script>
+	<script src="js/Controllers/homecontroller.js"></script>
 
 </body>
 </html>

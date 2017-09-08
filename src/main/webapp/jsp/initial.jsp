@@ -22,25 +22,16 @@
 <body>
 	<div class="container">
 		<div class="row main"  >
-			
-			<div class="col-md-6" >
-			<div class="form-group ">
+			<div class="main-login main-center">
+
+				<br>
+				<div class="form-group ">
 					<div class="header">
-						<img src="/docsolr/images/piechart.jpg" alt="logo" /> <br>
+						<img src="/docsolr/images/docsolr.png" alt="logo" /> <br>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
-			<div class="form-group ">
-					<iframe width="500" height="412" src="https://www.youtube.com/embed/0bUghCx9iso">
-			</iframe>
-
-				</div>
-			</div>
 		</div>
-	</div>
-
+	</div>			
 </body>
 </html>
-
-

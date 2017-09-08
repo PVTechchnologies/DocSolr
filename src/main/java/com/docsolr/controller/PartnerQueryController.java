@@ -84,6 +84,7 @@ public class PartnerQueryController {
 
 	    
 	    public Object querySample() throws ConnectionException {    
+	    	
 	    	 SObject[] records=null;
 	    	 Set<Long> setOfID = new HashSet<Long>();
 	    	 Users users=new Users();
@@ -133,6 +134,9 @@ public class PartnerQueryController {
 	    
 	        System.out.println("\nQuery execution completed.");     
 	    }
+        	
+        	/*   Set<String> ids = new HashSet<String>();
+               ids=gettingSet(records);*/
         	Set<String> ids = new HashSet<String>();
         	for (SObject so : records) {
         		Iterator<XmlObject> sxml =so.getChildren(); 
@@ -147,6 +151,7 @@ public class PartnerQueryController {
 			}
        
         	getAttachment(ids);
+        
         	System.out.println(ids);
 	        return records;
 	  
@@ -183,6 +188,10 @@ public class PartnerQueryController {
            }
            }
            
+
+          /* Set<String> ids = new HashSet<String>();
+           ids=gettingSet(records);*/
+           
            Set<String> ids = new HashSet<String>();
        		for (SObject so : records) {
        		Iterator<XmlObject> sxml =so.getChildren(); 
@@ -195,10 +204,40 @@ public class PartnerQueryController {
        			}
        		}
 			}
-       		System.out.println(ids);
+       	System.out.println(ids);
 		   System.out.println("attachment >>>>>>..."+records);
 	
 	    }
+	   
+	   
+	
+	/*private Set<String> gettingSet(SObject[] records){
+	  
+		Boolean havebody=false;
+		
+		Map<String,List<String>> idsBase64Map = new HashMap<>();
+	  
+		   Set<String> ids = new HashSet<String>();
+      		for (SObject so : records) {
+      		Iterator<XmlObject> sxml =so.getChildren(); 
+      		while(sxml.hasNext()){
+      			System.out.println("===");
+      			XmlObject xobj = sxml.next();
+      			if(xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Body")){
+      				System.out.println(xobj.getName().toString());
+      				ids.add(xobj.getValue().toString());
+      				}
+      			else {
+      				if(xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Id")){
+      			
+    				System.out.println(xobj.getName().toString());
+    				ids.add(xobj.getValue().toString());
+      				}
+      			}
+      			}
+			}
+      		return ids;
+	   }*/
 	  
 	}
 

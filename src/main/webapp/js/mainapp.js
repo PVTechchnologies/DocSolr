@@ -3,7 +3,8 @@ angular.module('myApp')
 .config(function($routeProvider) {
     $routeProvider
     .when("/", {
-        templateUrl : "jsp/home.jsp"
+        templateUrl : "jsp/dochome.jsp",
+        controller: 'HomeCtrl'
     })
     .when("/login", {
         templateUrl : "jsp/login/docsolrlogin.jsp"
