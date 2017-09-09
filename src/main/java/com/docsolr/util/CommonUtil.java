@@ -1,6 +1,9 @@
 package com.docsolr.util;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,5 +85,11 @@ public class CommonUtil {
 			}
 		}
 		return currentUser;
+	}
+	
+	
+	public static Date convertStringToDate(String dateString) throws ParseException{
+		Date dateRec = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(dateString);
+		return dateRec;
 	}
 }

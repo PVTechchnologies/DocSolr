@@ -33,21 +33,28 @@ public class LoginManager {
 			Configuration config = new Configuration();
 			config.configure("hibernate.cfg.xml");
 			SessionFactory SF = config.buildSessionFactory();
-			Session sess = SF.openSession();
-			Transaction tr = sess.beginTransaction();
+			Session session = SF.openSession();
+			Transaction tr = session.beginTransaction();
 			
 			token = requestToken();
 			System.out.println("token-->"+token);
 			String cookie = submitToken(token);
 			System.out.println("cookie-->"+cookie);
-			String requestDigestXml = getDigestAuth("","",cookie);
-			System.out.println(requestDigestXml);
-			SharePointCallout.getALlSharePointSites(token,cookie,requestDigestXml,sess,"sharepoint@pgangparia.onmicrosoft.com");
+			String formDigestValue = getDigestAuth("","",cookie);
+			System.out.println(formDigestValue);
+			
+			SharePointCallout.getALlSharePointSites(token,cookie,formDigestValue,session,"sharepoint@pgangparia.onmicrosoft.com");
+			//SharePointCallout.getAllFilesFoldersFromSite("https://pgangparia.sharepoint.com/sites/SPSite/SpSiteCustomSubSite", token, cookie, formDigestValue, session);
+			//SharePointCallout.getAllFilesFromSite("", token, cookie, formDigestValue, session);
+			//SharePointCallout.getAllFilesInfo("", token, cookie, formDigestValue);
+			//getAllFilesInfo
+			//SharePointCallout.camlQueryToFetchFolder("", token, cookie, formDigestValue);
+			
 			tr.commit();
 			System.out.println("commited succesffully");
-			sess.close();
+			session.close();
 			SF.close();
-			return requestDigestXml;
+			return formDigestValue;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.identityHashCode("Exeption --> "+e.getMessage());

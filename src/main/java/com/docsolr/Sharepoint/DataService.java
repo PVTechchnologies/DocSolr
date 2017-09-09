@@ -16,6 +16,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
+import com.docsolr.entity.SiteFileInfo;
 import com.docsolr.entity.SiteFolders;
 import com.docsolr.entity.SiteInfo;
 
@@ -32,7 +33,8 @@ public class DataService {
 		//new DataService().querySiteInfoRecords();
 		//new DataInsertion().insertMultipleRecords();
 		//new DataInsertion().insertInfoSiteItemDetails();
-		new DataService().getSiteFolders();
+		//new DataService().getSiteFolders();
+		new DataService().insertSiteFileInfo();
 		URL obj;
 		try {
 			obj = new URL("https://pgangparia.sharepoint.com/sites/SPSite/_api/web/Folders?$expand=Files,Folders/Files,Folders/Folders/Files$value");
@@ -109,6 +111,23 @@ public class DataService {
 		sess.close();
 		SF.close();
 
+	}
+	
+	public void insertSiteFileInfo(){
+		Configuration config = new Configuration();
+		config.configure(hibernatePropsFilePath);
+		SessionFactory SF = config.buildSessionFactory();
+		Session sess = SF.openSession();
+		SiteFileInfo provider = new SiteFileInfo();
+		provider.setFileName("testSIte");
+		provider.setSiteURL("test.com");
+		//provider.setSiteId("1234111");
+		Transaction tr = sess.beginTransaction();
+		sess.save(provider);
+		System.out.println("Object saved successfully");
+		tr.commit();
+		sess.close();
+		SF.close();
 	}
 	
 	public void insertInfoSiteItemDetails(){

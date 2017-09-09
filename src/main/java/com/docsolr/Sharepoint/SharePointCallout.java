@@ -58,8 +58,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.docsolr.entity.SiteFileInfo;
 import com.docsolr.entity.SiteFolders;
 import com.docsolr.entity.SiteInfo;
+import com.docsolr.entity.SiteLibrary;
+import com.docsolr.util.CommonUtil;
 
 import  org.apache.http.client.*;
 import org.apache.http.HttpEntity;
@@ -78,7 +81,8 @@ import org.apache.http.util.EntityUtils;
 public class SharePointCallout {
 
 
-	
+
+	// in use to get all sites information
 	public static String getALlSharePointSites(String token, String cookie,String formDigestValue,Session session, String userName )  {
 		String endPoint = "https://pgangparia.sharepoint.com/_api/search/query?querytext=%27contentclass:sts_site%27&amp;Key=SPWebUrl";
 		try{
@@ -91,52 +95,63 @@ public class SharePointCallout {
 			connection.setRequestProperty("Cookie", cookie);
 			String line;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			 List<String> sites = new ArrayList<String>();
+			List<String> sites = new ArrayList<String>();
 			while ((line = reader.readLine()) != null) {
 				JSONObject lineRes = new JSONObject(line);
-		        JSONObject tableRows = lineRes.getJSONObject("d").getJSONObject("query").getJSONObject("PrimaryQueryResult").getJSONObject("RelevantResults").getJSONObject("Table").getJSONObject("Rows");
-		        JSONArray array1 = (JSONArray) tableRows.get("results");
-		        for (int i = 0; i < array1.length(); i++) {
-		         
-		        	JSONObject jsonObject1 = (JSONObject) array1.get(i);
-		        	JSONObject tableCells = jsonObject1.getJSONObject("Cells");
-		            //System.out.println(i+"-------------------------------> "+jsonObject1);
-		            JSONArray array2 = (JSONArray) tableCells.get("results");
-		            for (int j = 0; j < array2.length(); j++) {
-		            	JSONObject jsonObject2 = (JSONObject) array2.get(j);
-		            	System.out.println(j+"--> "+jsonObject2);
-		            	if(jsonObject2.getString("Key").equals("SPWebUrl")){
-		            		System.out.println(j+"----------yooooooooooooo---------------> "+jsonObject2);
-		            		String res = jsonObject2.has("Value") && !jsonObject2.isNull("Value") ? jsonObject2.getString("Value") : null;
-		            		if(res!=null){
-		            			SiteInfo provider = new SiteInfo();
-		            			URL sitObj = new URL(res);
-		            			String sitePath = sitObj.getPath();
-		            			String siteName="/";
-		            			if(!sitePath.isEmpty()){
-		            				String[] resList = sitePath.split("/sites/");
-		            				if(resList.length > 1){
-		            					siteName = resList[1];
-		            				}
-		            			}
-		            			provider.setSiteName(siteName);
-		            			provider.setSiteURL(res);
-		            			//provider.setSiteId(sitObj.getPath()+userName);
-		            			System.out.println(provider);
-		            			System.out.println(sitObj);
-		            			session.save(provider);
-		            			sites.add(res);
-		            		}
-		            	}
-		            }
-		            
-		        }
+				JSONObject tableRows = lineRes.getJSONObject("d").getJSONObject("query").getJSONObject("PrimaryQueryResult").getJSONObject("RelevantResults").getJSONObject("Table").getJSONObject("Rows");
+				JSONArray array1 = (JSONArray) tableRows.get("results");
+				for (int i = 0; i < array1.length(); i++) {
+
+					JSONObject jsonObject1 = (JSONObject) array1.get(i);
+					JSONObject tableCells = jsonObject1.getJSONObject("Cells");
+					//System.out.println(i+"-------------------------------> "+jsonObject1);
+					JSONArray array2 = (JSONArray) tableCells.get("results");
+					for (int j = 0; j < array2.length(); j++) {
+						JSONObject jsonObject2 = (JSONObject) array2.get(j);
+						System.out.println(j+"--> "+jsonObject2);
+						if(jsonObject2.getString("Key").equals("SPWebUrl")){
+							System.out.println(j+"----------yooooooooooooo---------------> "+jsonObject2);
+							String res = jsonObject2.has("Value") && !jsonObject2.isNull("Value") ? jsonObject2.getString("Value") : null;
+							if(res!=null){
+
+
+								sites.add(res);
+							}
+						}
+					}
+
+				}
 			}
 			System.out.println("--sites--> "+sites);
+			List<String> subSites = new ArrayList<String>();
 			for(int i=0; i<sites.size();i++){
+				//subSites = getAllSubSites (sites.get(i),token,cookie,formDigestValue,session);
+				//getAllFilesFoldersFromSite(sites.get(i),token,cookie,formDigestValue,session);
+				subSites.addAll( getAllSubSites (sites.get(i),token,cookie,formDigestValue,session));
+			}
+			sites.addAll(subSites);
+			for(int i=0; i<sites.size();i++){
+				SiteInfo provider = new SiteInfo();
+				String siteURL = sites.get(i);
+				URL sitObj = new URL(siteURL);
+				String sitePath = sitObj.getPath();
+				String siteName="/";
+				if(!sitePath.isEmpty()){
+					String[] resList = sitePath.split("/sites/");
+					if(resList.length > 1){
+						siteName = resList[1];
+					}
+				}
+				provider.setSiteName(siteName);
+				provider.setSiteURL(siteURL);
+				//provider.setSiteId(sitObj.getPath()+userName);
+				session.save(provider);
+				System.out.println(provider);
+				System.out.println(sitObj);
 				getAllFilesFoldersFromSite(sites.get(i),token,cookie,formDigestValue,session);
 			}
-			
+
+			System.out.println("--sites--> "+sites);
 		}catch(Exception e){
 			System.out.println("Exceptin is -->"+e.getMessage());
 		}
@@ -144,11 +159,51 @@ public class SharePointCallout {
 		return "";
 	}
 
-	public static void getAllFilesFoldersFromSite(String siteURL,String token, String cookie,String formDigestValue,Session session ){
-		
-		try{
-			URL obj = new URL(siteURL+"/_api/web/Folders?$expand=Files,Folders/Files,Folders/Folders/Files$value");
 
+  // in use --> get all subsites
+	public static List<String> getAllSubSites(String siteURL,String token, String cookie,String formDigestValue,Session session ){
+		List<String> subSites = new ArrayList<String>();
+		System.out.println("--siteURL-->"+siteURL);
+		String endPoint = siteURL+"/_api/web/webs/?$select=title,ServerRelativeUrl";
+		try{
+			URL obj = new URL(endPoint);
+			HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
+			connection.setRequestMethod( "GET" );
+			connection.setRequestProperty("Accept", "application/json;odata=verbose");
+			connection.setRequestProperty("Content-Type", "application/json;odata=verbose");
+			connection.setRequestProperty("X-RequestDigest",formDigestValue);
+			connection.setRequestProperty("Cookie", cookie);
+			String line;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			while ((line = reader.readLine()) != null) {
+				JSONObject lineRes = new JSONObject(line);
+				System.out.println("--lineRes--> "+lineRes);
+				JSONArray array2 =  (JSONArray)  lineRes.getJSONObject("d").get("results");
+				for (int j = 0; j < array2.length(); j++) {
+					JSONObject jsonObject2 = (JSONObject) array2.get(j);
+					System.out.println(jsonObject2.get("ServerRelativeUrl"));
+					System.out.println(jsonObject2.get("Title"));
+					subSites.add(obj.getProtocol()+"://"+ obj.getHost()+jsonObject2.get("ServerRelativeUrl"));
+				}
+			}
+		}catch(Exception e){
+			System.out.println("Exceptin is -->"+e.getMessage());
+		}
+		return subSites;
+	}
+
+	
+
+
+	// in use --> get all site, subsite main folders/library
+	public static void getAllFilesFoldersFromSite(String siteURL,String token, String cookie,String formDigestValue,Session session ){
+
+		try{
+			//URL obj = new URL(siteURL+"/_api/web/Folders?$expand=Files,Folders/Files,Folders/Folders/Files$value");
+			
+
+			//URL obj = new URL("https://pgangparia.sharepoint.com/sites/SPSite/_api/web/Folders?$expand=Files,Folders$value");
+			URL obj = new URL(siteURL+"/_api/Web/Lists/?$filter=Hidden%20eq%20false");
 			HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
 			connection.setRequestMethod( "GET" );
 			connection.setRequestProperty("Accept", "application/json;odata=verbose");
@@ -158,38 +213,41 @@ public class SharePointCallout {
 			String line;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			List<String> sites = new ArrayList<String>();
-			
+
 			while ((line = reader.readLine()) != null) {
 				JSONObject lineRes = new JSONObject(line);
 				System.out.println("--lineRes--> "+lineRes);
 				JSONArray array2 =  (JSONArray)  lineRes.getJSONObject("d").get("results");
-				  for (int j = 0; j < array2.length(); j++) {
-					  
-					  JSONObject jsonObject2 = (JSONObject) array2.get(j);
-					  System.out.println(jsonObject2.get("ItemCount"));
-					  System.out.println(jsonObject2.get("ServerRelativeUrl"));
-					  SiteFolders provider = new SiteFolders();
-					  String sitePath = obj.getPath();
-					  String siteName="/";
-	          			if(!sitePath.isEmpty()){
-	          				String[] resList = sitePath.split("/sites/");
-	          				if(resList.length > 1){
-	          					siteName = resList[1].split("/")[0];
-	          				}
-	          			}
-					  provider.setSiteName(siteName);
-					  provider.setHostURL(obj.getHost());
-					  provider.setUniqueId((String)jsonObject2.get("UniqueId"));
-					  provider.setServerRelativeURL((String)jsonObject2.get("ServerRelativeUrl"));
-					  provider.setItemCount(((int)jsonObject2.get("ItemCount")));
-					  Date timeCreated = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse((String)jsonObject2.get("TimeCreated"));
-					  Date timeModified =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse((String)jsonObject2.get("TimeLastModified"));
-					  provider.setTimeCreated(timeCreated);
-					  provider.setTimeLastModified(timeModified);
-					  session.save(provider);
-				  }
+				for (int j = 0; j < array2.length(); j++) {
+
+					JSONObject jsonObject2 = (JSONObject) array2.get(j);
+					if(((int)jsonObject2.get("ItemCount"))>0){
+						System.out.println(jsonObject2.get("ItemCount"));
+						System.out.println(jsonObject2.get("Title"));
+						SiteLibrary provider = new SiteLibrary();
+						String sitePath = obj.getPath();
+						String siteName="/";
+						if(!sitePath.isEmpty()){
+							String[] resList = sitePath.split("/sites/");
+							if(resList.length > 1){
+								siteName = resList[1].split("/")[0];
+							}
+						}
+						provider.setSiteName(siteName);
+						provider.setHostURL(obj.getHost());
+						provider.setGuid((String)jsonObject2.get("Id"));
+						provider.setServerRelativeURL((String)jsonObject2.get("Title"));
+						provider.setItemCount(((int)jsonObject2.get("ItemCount")));
+						Date timeCreated = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse((String)jsonObject2.get("Created"));
+						Date timeModified =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse((String)jsonObject2.get("LastItemModifiedDate"));
+						provider.setTimeCreated(timeCreated);
+						provider.setTimeLastModified(timeModified);
+						session.save(provider);
+						getAllFilesFromSite(siteURL,provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
+					}
+				}
 			}
-		
+
 
 			//getAllFilesInfo("","","","");
 		}catch(Exception e){
@@ -197,12 +255,84 @@ public class SharePointCallout {
 		}
 
 	}
+
 	
-	
-public static void getAllFilesInfo(String siteURL,String token, String cookie,String formDigestValue){
-		
+	// in use -- > use to get all folder info from site menu folders
+	public static void getAllFilesFromSite(String siteURL,String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
+
 		try{
-			URL obj = new URL("https://pgangparia.sharepoint.com/sites/SPSite/_layouts/15/WopiFrame.aspx?sourcedoc=%7B901BD8C2-006A-410F-A3C4-B87F0A8681A1%7D&file=Spsite%20word%20doc%201.docx&action=default");
+			//URL obj = new URL("https://pgangparia.sharepoint.com/sites/SPSite/SPSite%20Document%20Library/files");
+			//URL obj = new URL(siteURL+"/_api/web/Folders?$expand=Files,Folders/Files,Folders/Folders/Files$value");
+			//URL obj = new URL("https://pgangparia.sharepoint.com/sites/SPSite/_api/Web/GetFolderByServerRelativeUrl('/sites/SPSite/SPSite Document Library')?$expand=Files,Folders/Files,Folders/Folders/Files,Folders/Folders/Folders/Files");
+			//URL obj = new URL ("https://pgangparia.sharepoint.com/sites/SPSite/_api/Web/GetFolderByServerRelativeUrl('/sites/SPSite/SPSite%20Document%20Library')?$expand=Files,Folders/Files,Folders/Folders/Files,Folders/Folders/Folders/Files");
+			//URL obj = new URL ("https://pgangparia.sharepoint.com/sites/SPSite/_api/Web/GetFolderByServerRelativeUrl('/sites/SPSite/SPSite%20Document%20Library')?$expand=Folders,Files");
+			//URL obj = new URL ("https://pgangparia.sharepoint.com/sites/SPSite/_api/web/Lists/GetByTitle('SPSite%20Document%20Library')/Items?$expand=Folder&$select=Title,Folder/ServerRelativeUrl,UniqueId,title,id");
+			
+			String[] paths = serverRelativeUrl.split("/");
+			serverRelativeUrl = paths[paths.length - 1];
+			serverRelativeUrl = replaceSpace(serverRelativeUrl);
+			
+			URL obj = new URL(siteURL+"/_api/web/Lists/GetByTitle('"+serverRelativeUrl+"')/Items?$expand=Folder&$select=Title,File");
+			//URL obj = new URL(siteURL+"/_api/Web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files");
+			//URL obj = new URL("https://pgangparia.sharepoint.com/sites/SPSite/_api/web/Lists/GetByTitle('SPSite%20Document%20Library')/Items?$expand=Folder&$select=Title,File,Folder");
+			HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
+			connection.setRequestMethod( "GET" );
+			connection.setRequestProperty("Accept", "application/json;odata=verbose");
+			connection.setRequestProperty("Content-Type", "application/json;odata=verbose");
+			connection.setRequestProperty("X-RequestDigest",formDigestValue);
+			connection.setRequestProperty("Cookie", cookie);
+			String line;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			List<String> sites = new ArrayList<String>();
+
+			while ((line = reader.readLine()) != null) {
+				JSONObject lineRes = new JSONObject(line);
+				System.out.println("--lineRes--> "+lineRes);
+				//JSONObject resObj =  (JSONObject)  lineRes.getJSONObject("d");
+				JSONArray array2 =  (JSONArray)  lineRes.getJSONObject("d").get("results");
+				for (int j = 0; j < array2.length(); j++) {
+					//JSONObject  fileObj =  (JSONObject)  array2.get(j).get("Folder");
+					JSONObject jsonObject2 = (JSONObject) array2.get(j);
+					JSONObject folderObj  = (JSONObject) jsonObject2.get("Folder");
+					if(folderObj.has("ItemCount") && ((int)folderObj.get("ItemCount"))>0){
+						System.out.println(folderObj.get("ItemCount"));
+						System.out.println(folderObj.get("ServerRelativeUrl"));
+						SiteFolders provider = new SiteFolders();
+						String sitePath = obj.getPath();
+						String siteName="/";
+						if(!sitePath.isEmpty()){
+							String[] resList = sitePath.split("/sites/");
+							if(resList.length > 1){
+								siteName = resList[1].split("/")[0];
+							}
+						}
+						provider.setSiteName(siteName);
+						provider.setHostURL(obj.getHost());
+						provider.setUniqueId((String)folderObj.get("UniqueId"));
+						provider.setServerRelativeURL((String)folderObj.get("ServerRelativeUrl"));
+						provider.setItemCount(((int)folderObj.get("ItemCount")));
+						Date timeCreated = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse((String)folderObj.get("TimeCreated"));
+						Date timeModified =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse((String)folderObj.get("TimeLastModified"));
+						provider.setTimeCreated(timeCreated);
+						provider.setTimeLastModified(timeModified);
+						session.save(provider);
+						getAllFilesInfo(siteURL,provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
+					}
+				}
+			}
+		}catch(Exception e){
+			System.out.println("Exceptin is -->"+e.getMessage());
+		}
+
+	}
+	
+
+	// in use -->  used to get all files from a folder
+	public static void getAllFilesInfo(String siteURL, String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
+
+		try{
+			//URL obj = new URL("https://pgangparia.sharepoint.com/sites/SPSite/_layouts/15/WopiFrame.aspx?sourcedoc=%7B901BD8C2-006A-410F-A3C4-B87F0A8681A1%7D&file=Spsite%20word%20doc%201.docx&action=default");
+			URL obj = new URL(siteURL+"/_api/web/getfolderbyserverrelativeurl('"+serverRelativeUrl+"')?$expand=Files");
 			HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
 			connection.setRequestMethod( "GET" );
 			connection.setRequestProperty("Accept", "application/json;odata=verbose");
@@ -215,28 +345,197 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 			while ((line = reader.readLine()) != null) {
 				JSONObject lineRes = new JSONObject(line);
 				System.out.println("--lineRes--> "+lineRes);
-				JSONArray array2 =  (JSONArray)  lineRes.getJSONObject("d").get("results");
-				  for (int j = 0; j < array2.length(); j++) {
-					  JSONObject jsonObject2 = (JSONObject) array2.get(j);
-					  System.out.println(jsonObject2.get("ItemCount"));
-					  System.out.println(jsonObject2.get("ServerRelativeUrl"));
-					  
-				  }
+				JSONObject jsonObj =  (JSONObject)  lineRes.getJSONObject("d");
+				getAllFolderFiles(jsonObj,siteURL,session);
 			}
 
-			
 		}catch(Exception e){
 			System.out.println("Exceptin is -->"+e.getMessage());
 		}
 
 	}
 	
+	// in use
+	public static List<SiteFileInfo> getAllFolderFiles(JSONObject  resObj, String siteURL,Session session){
+		List<SiteFileInfo>  files = new ArrayList<SiteFileInfo>();
+		try{
+			JSONObject  fileObj =  (JSONObject)  resObj.get("Files");
+			JSONArray fileArray =  (JSONArray)  fileObj.get("results");
+			for(int j = 0; j < fileArray.length(); j++){
+				JSONObject jsonObject2 = (JSONObject) fileArray.get(j);
+				System.out.println((String)jsonObject2.get("ServerRelativeUrl"));
+				System.out.println((String)jsonObject2.get("Name"));
+				System.out.println((Integer)jsonObject2.get("Level"));//TimeCreated
+				System.out.println((String)jsonObject2.get("TimeCreated"));
+				SiteFileInfo file = new SiteFileInfo();
+				file.setSiteURL(siteURL);
+				file.setFileRelativeURL((String)jsonObject2.get("ServerRelativeUrl"));
+				file.setFileName((String)jsonObject2.get("Name"));
+				file.setFileCreatedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated")));
+				file.setFileLastModifiedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified")));
+				files.add(file);
+				session.save(file);
+			}
+		}catch(Exception e){
+			System.out.println("Exceptin is -->"+e.getMessage());
+		}
+
+
+		return files;
+	}
+
+
+	public static String replaceSpace(String str) {
+		String[] words = str.split(" ");
+		StringBuilder sentence = new StringBuilder(words[0]);
+
+		for (int i = 1; i < words.length; ++i) {
+			sentence.append("%20");
+			sentence.append(words[i]);
+		}
+
+		return sentence.toString();
+	}
+	
+	//not in use 
+	public static String getALlSharePointSites_Olds(String token, String cookie,String formDigestValue,Session session, String userName )  {
+		String endPoint = "https://pgangparia.sharepoint.com/_api/search/query?querytext=%27contentclass:sts_site%27&amp;Key=SPWebUrl";
+		try{
+			URL obj = new URL(endPoint);
+			HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
+			connection.setRequestMethod( "GET" );
+			connection.setRequestProperty("Accept", "application/json;odata=verbose");
+			connection.setRequestProperty("Content-Type", "application/json;odata=verbose");
+			connection.setRequestProperty("X-RequestDigest",formDigestValue);
+			connection.setRequestProperty("Cookie", cookie);
+			String line;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			List<String> sites = new ArrayList<String>();
+			while ((line = reader.readLine()) != null) {
+				JSONObject lineRes = new JSONObject(line);
+				JSONObject tableRows = lineRes.getJSONObject("d").getJSONObject("query").getJSONObject("PrimaryQueryResult").getJSONObject("RelevantResults").getJSONObject("Table").getJSONObject("Rows");
+				JSONArray array1 = (JSONArray) tableRows.get("results");
+				for (int i = 0; i < array1.length(); i++) {
+
+					JSONObject jsonObject1 = (JSONObject) array1.get(i);
+					JSONObject tableCells = jsonObject1.getJSONObject("Cells");
+					//System.out.println(i+"-------------------------------> "+jsonObject1);
+					JSONArray array2 = (JSONArray) tableCells.get("results");
+					for (int j = 0; j < array2.length(); j++) {
+						JSONObject jsonObject2 = (JSONObject) array2.get(j);
+						System.out.println(j+"--> "+jsonObject2);
+						if(jsonObject2.getString("Key").equals("SPWebUrl")){
+							System.out.println(j+"----------yooooooooooooo---------------> "+jsonObject2);
+							String res = jsonObject2.has("Value") && !jsonObject2.isNull("Value") ? jsonObject2.getString("Value") : null;
+							if(res!=null){
+								SiteInfo provider = new SiteInfo();
+								URL sitObj = new URL(res);
+								String sitePath = sitObj.getPath();
+								String siteName="/";
+								if(!sitePath.isEmpty()){
+									String[] resList = sitePath.split("/sites/");
+									if(resList.length > 1){
+										siteName = resList[1];
+									}
+								}
+								provider.setSiteName(siteName);
+								provider.setSiteURL(res);
+								//provider.setSiteId(sitObj.getPath()+userName);
+								System.out.println(provider);
+								System.out.println(sitObj);
+								session.save(provider);
+								sites.add(res);
+							}
+						}
+					}
+
+				}
+			}
+			System.out.println("--sites--> "+sites);
+			for(int i=0; i<sites.size();i++){
+				getAllFilesFoldersFromSite(sites.get(i),token,cookie,formDigestValue,session);
+			}
+
+		}catch(Exception e){
+			System.out.println("Exceptin is -->"+e.getMessage());
+		}
+
+		return "";
+	}
 	
 	
 	
+	// not in use
+	public static void getALlFilesFromSubsiteFolder(String siteURL,String token, String cookie,String formDigestValue,Session session){
+
+		try{
+			URL obj = new URL("https://pgangparia.sharepoint.com/Spdemo/_api/web/getfolderbyserverrelativeurl('/sites/SPSite/SPSite Document Library/SpSiteFolder3')?$expand=Files,Folders/Files,Folders/Folders/Files");
+			HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
+			connection.setRequestMethod( "GET" );
+			connection.setRequestProperty("Accept", "application/json;odata=verbose");
+			connection.setRequestProperty("Content-Type", "application/json;odata=verbose");
+			connection.setRequestProperty("X-RequestDigest",formDigestValue);
+			connection.setRequestProperty("Cookie", cookie);
+			String line;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			List<String> sites = new ArrayList<String>();
+
+			while ((line = reader.readLine()) != null) {
+				JSONObject lineRes = new JSONObject(line);
+				System.out.println("--lineRes--> "+lineRes);
+				JSONArray array2 =  (JSONArray)  lineRes.getJSONObject("d").get("results");
+
+			}
+
+		}catch(Exception e){
+			System.out.println("--Exception is--> "+e.getMessage());
+		}
+	}
 	
-	
-	// HTTP GET request
+	// not in use
+	public static void camlQueryToFetchFolder(String siteURL,String token, String cookie,String formDigestValue){
+		try{
+			String body = "{ \"query\" : {\"__metadata\": { \"type\": \"SP.CamlQuery\" }, \"ViewXml\": \"<View Scope='RecursiveAll'><Query><Where><Eq><FieldRef Name='FSObjType' /><Value Type='Integer'>1</Value></Eq></Where></Query></View>\" } }";
+		
+			String endpointurl = "https://pgangparia.sharepoint.com/sites/SPSite/_api/Web/GetByTitle('SPSite%20Document%20Library')/getitems";
+			URL obj = new URL(endpointurl);
+			HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
+			connection.setConnectTimeout(1000000);
+			connection.setDoOutput( true );
+			// set read timeout.
+			connection.setReadTimeout(1000000);
+			connection.setRequestProperty("Content-Length", ""+body.length());
+			connection.setRequestMethod("POST");
+			
+			connection.setRequestProperty("Accept", "application/json;odata=verbose");
+			connection.setRequestProperty("Content-Type", "application/json;odata=verbose");
+			connection.setRequestProperty("X-RequestDigest",formDigestValue);
+			connection.setRequestProperty("Cookie", cookie);
+			OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+			wr.write(body);
+			wr.flush();
+			String line;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			List<String> sites = new ArrayList<String>();
+			while ((line = reader.readLine()) != null) {
+				JSONObject lineRes = new JSONObject(line);
+				System.out.println("--lineRes--> "+lineRes);
+				
+			}
+
+
+		}catch(Exception e){
+			System.out.println("Exceptin is -->"+e.getMessage());
+		}
+	}
+
+
+
+
+
+
+
+	// not in use --> HTTP GET request
 	public static String sendGet() throws Exception {
 
 		/*HttpClient client = HttpClientBuilder.create().build();
@@ -316,7 +615,7 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 		return "";
 	}
 
-
+	// not in use ...login manager used to get acess token
 	public static String getAccessToken(String realm) throws Exception {
 		String acsAuth2Url ="https://accounts.accesscontrol.windows.net/"+realm+"/tokens/OAuth/2";
 		URL obj = new URL(acsAuth2Url);
@@ -380,6 +679,7 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 		return access_token;
 	}
 
+	// not in use
 	public static String getSharePointFilesANDFolders(String accessToken) throws Exception {
 		String endPoint = "https://pgangparia.sharepoint.com/_api/web/Folders?$expand=Folders,Files";
 		URL obj = new URL(endPoint);
@@ -402,10 +702,10 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 		return "";
 	}
 
-	
-	
-	
-	
+
+
+
+	// not in use
 	public static void basichAuthenicationSharepoint() throws Exception, IOException{
 		/*CredentialsProvider credsProvider = new BasicCredentialsProvider();
 		    credsProvider.setCredentials(
@@ -429,14 +729,14 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 		    } finally {
 		        httpclient.close();
 		    }	*/
-		
+
 		//URL fileToDownload = new URL("https://pgangparia.sharepoint.com/_api/web/lists");
-        //URI FileDL = new URI(fileToDownload.toString());
+		//URI FileDL = new URI(fileToDownload.toString());
 
 
-        //File downloadedFile = new File(this.localDownloadPath + filePath);
-        //if (downloadedFile.canWrite() == false) downloadedFile.setWritable(true);
-        
+		//File downloadedFile = new File(this.localDownloadPath + filePath);
+		//if (downloadedFile.canWrite() == false) downloadedFile.setWritable(true);
+
 		/*BufferedReader br = null;
 		String retval = new String();
 		final HttpClient client = new HttpClient();
@@ -456,53 +756,53 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
              System.out.println("Response content length: " + entity.getContentLength());
          }*/
 		System.out.println("Executing request 0" );
-         
-         CredentialsProvider credsProvider = new BasicCredentialsProvider();
-         credsProvider.setCredentials(
-                 new AuthScope(AuthScope.ANY),
-                 new NTCredentials("sharepoint@pgangparia.onmicrosoft.com", "123@topcoder", "", "https://pgangparia.sharepoint.com"));
-         CloseableHttpClient httpclient = HttpClients.custom()
-                 .setDefaultCredentialsProvider(credsProvider)
-                 .build();
-         try {
-        	 System.out.println("Executing request " );
-             HttpGet httpget = new HttpGet("https://pgangparia.sharepoint.com/_api/web/lists");
 
-             System.out.println("Executing request " + httpget.getRequestLine());
-             CloseableHttpResponse response = httpclient.execute(httpget);
-             try {
-                 System.out.println("----------------------------------------");
-                 System.out.println(response.getStatusLine());
-                 EntityUtils.consume(response.getEntity());
-             } catch(Exception e){
-            	 
-            	 System.out.println("----------------------------------------"+e.getMessage());
-             }finally {
-            	 System.out.println("----------------------------------------finalyy");
-                 response.close();
-             }
-         } finally {
-             httpclient.close();
-         }
-         //Get the Digestvalue.
-         CredentialsProvider provider = new BasicCredentialsProvider();
-         provider.setCredentials(AuthScope.ANY, new  NTCredentials("sharepoint@pgangparia.onmicrosoft.com", "123@topcoder", "", "https://pgangparia.sharepoint.com"));
-         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-         //provider.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
+		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		credsProvider.setCredentials(
+				new AuthScope(AuthScope.ANY),
+				new NTCredentials("sharepoint@pgangparia.onmicrosoft.com", "123@topcoder", "", "https://pgangparia.sharepoint.com"));
+		CloseableHttpClient httpclient = HttpClients.custom()
+				.setDefaultCredentialsProvider(credsProvider)
+				.build();
+		try {
+			System.out.println("Executing request " );
+			HttpGet httpget = new HttpGet("https://pgangparia.sharepoint.com/_api/web/lists");
 
-         HttpPost httpPost = new HttpPost( "https://pgangparia.sharepoint.com/_api/contextinfo");
-         httpPost.addHeader("Accept", "application/json;odata=verbose");
-         httpPost.addHeader("content-type", "application/json;odata=verbose");
-         httpPost.addHeader("X-ClientService-ClientTag", "SDK-JAVA");
-         HttpResponse response = client.execute(httpPost);
+			System.out.println("Executing request " + httpget.getRequestLine());
+			CloseableHttpResponse response = httpclient.execute(httpget);
+			try {
+				System.out.println("----------------------------------------");
+				System.out.println(response.getStatusLine());
+				EntityUtils.consume(response.getEntity());
+			} catch(Exception e){
 
-         byte[] content = EntityUtils.toByteArray(response.getEntity());
-         String jsonString = new String(content, "UTF-8"); 
-         System.out.println("--response-->"+response);
-         JSONObject json = new JSONObject(jsonString);
-         String FormDigestValue = json.getJSONObject("d").getJSONObject("GetContextWebInformation").getString("FormDigestValue");
-         System.out.println(FormDigestValue);
-         
+				System.out.println("----------------------------------------"+e.getMessage());
+			}finally {
+				System.out.println("----------------------------------------finalyy");
+				response.close();
+			}
+		} finally {
+			httpclient.close();
+		}
+		//Get the Digestvalue.
+		CredentialsProvider provider = new BasicCredentialsProvider();
+		provider.setCredentials(AuthScope.ANY, new  NTCredentials("sharepoint@pgangparia.onmicrosoft.com", "123@topcoder", "", "https://pgangparia.sharepoint.com"));
+		HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+		//provider.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
+
+		HttpPost httpPost = new HttpPost( "https://pgangparia.sharepoint.com/_api/contextinfo");
+		httpPost.addHeader("Accept", "application/json;odata=verbose");
+		httpPost.addHeader("content-type", "application/json;odata=verbose");
+		httpPost.addHeader("X-ClientService-ClientTag", "SDK-JAVA");
+		HttpResponse response = client.execute(httpPost);
+
+		byte[] content = EntityUtils.toByteArray(response.getEntity());
+		String jsonString = new String(content, "UTF-8"); 
+		System.out.println("--response-->"+response);
+		JSONObject json = new JSONObject(jsonString);
+		String FormDigestValue = json.getJSONObject("d").getJSONObject("GetContextWebInformation").getString("FormDigestValue");
+		System.out.println(FormDigestValue);
+
 		/*
 		final GetMethod myMethod = new GetMethod("https://login.microsoftonline.com");
 
@@ -548,6 +848,7 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 
 	}
 
+	// not in use
 	public static void getAllSites(String accessToken) throws Exception{
 		//String relativeUri = "/sites/dpmqa/Records/30888";
 		String endpoint = "https://pgangparia.sharepoint.com/_api/search/query?querytext=\'contentclass:sts_site\'";
@@ -570,7 +871,9 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 			//System.out.println(access_token);
 		}
 	}
-
+	
+	
+	 // not in use
 	public static String getBinaryToken(String tokenRequestXml, String username, String password, String host, String endpointurl) throws Exception{
 		String  token = "";
 		tokenRequestXml = "<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:a=\"http://www.w3.org/2005/08/addressing\" xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"> <s:Header> <a:Action s:mustUnderstand=\"1\">http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</a:Action> <a:ReplyTo> <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address> </a:ReplyTo> <a:To s:mustUnderstand=\"1\">https://login.microsoftonline.com/extSTS.srf</a:To> <o:Security s:mustUnderstand=\"1\" xmlns:o=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"> <o:UsernameToken> <o:Username>sharepoint@pgangparia.onmicrosoft.com</o:Username> <o:Password>123@topcoder</o:Password> </o:UsernameToken> </o:Security> </s:Header> <s:Body> <t:RequestSecurityToken xmlns:t=\"http://schemas.xmlsoap.org/ws/2005/02/trust\"> <wsp:AppliesTo xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\"> <a:EndpointReference> <a:Address>https://pgangparia.sharepoint.com/Spdemo/_api/web/lists</a:Address> </a:EndpointReference> </wsp:AppliesTo> <t:KeyType>http://schemas.xmlsoap.org/ws/2005/05/identity/NoProofKey</t:KeyType> <t:RequestType>http://schemas.xmlsoap.org/ws/2005/02/trust/Issue</t:RequestType> <t:TokenType>urn:oasis:names:tc:SAML:1.0:assertion</t:TokenType> </t:RequestSecurityToken> </s:Body> </s:Envelope>";
@@ -611,46 +914,51 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 		return token;
 	} 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0";
+
 	
+	// not in use
 	public static void sharePointCall() throws Exception {
 		String urlStr = "https://pgangparia.sharepoint.com/_api/web/lists";
-			String domain = ""; // May also be referred as realm
-			String userName = "sharepoint@pgangparia.onmicrosoft.com";
-			String password = "123@topcoder";		
+		String domain = ""; // May also be referred as realm
+		String userName = "sharepoint@pgangparia.onmicrosoft.com";
+		String password = "123@topcoder";		
 
-			String responseText = getAuthenticatedResponse(urlStr, domain, userName, password);
+		String responseText = getAuthenticatedResponse(urlStr, domain, userName, password);
 
-		    System.out.println("response: " + responseText);
+		System.out.println("response: " + responseText);
 	}
+
 	
+	// not in use
 	private static String getAuthenticatedResponse(final String urlStr, final String domain, final String userName, final String password) throws IOException {
 
-	    StringBuilder response = new StringBuilder();
+		StringBuilder response = new StringBuilder();
 
 		Authenticator.setDefault(new Authenticator() {
-	        @Override
-	        public PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication(domain + "\\" + userName, password.toCharArray());
-	        }
-	    });
+			@Override
+			public PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(domain + "\\" + userName, password.toCharArray());
+			}
+		});
 
-	    URL urlRequest = new URL(urlStr);
-	    HttpURLConnection conn = (HttpURLConnection) urlRequest.openConnection();
-	    conn.setDoOutput(true);
-	    conn.setDoInput(true);
-	    conn.setRequestMethod("GET");
+		URL urlRequest = new URL(urlStr);
+		HttpURLConnection conn = (HttpURLConnection) urlRequest.openConnection();
+		conn.setDoOutput(true);
+		conn.setDoInput(true);
+		conn.setRequestMethod("GET");
 
-	    InputStream stream = conn.getInputStream();
-	    BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-	    String str = "";
-	    while ((str = in.readLine()) != null) {
-	        response.append(str);
-	    }
-	    in.close();		
+		InputStream stream = conn.getInputStream();
+		BufferedReader in = new BufferedReader(new InputStreamReader(stream));
+		String str = "";
+		while ((str = in.readLine()) != null) {
+			response.append(str);
+		}
+		in.close();		
 
-	    return response.toString();
+		return response.toString();
 	}
-	
+
+	//not in use
 	public static String getCookie(String host, String token) throws Exception
 	{
 		String cookie = "";
@@ -698,40 +1006,40 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 			//if( is != null)	is.close();
 		}*/
 		URL url;
-	    HttpURLConnection conn = null;        
-	    try{
-	        //Create connection
+		HttpURLConnection conn = null;        
+		try{
+			//Create connection
 
-	        url = new URL("https://pgangparia.sharepoint.com/_forms/default.aspx?wa=wsignin1.0");
-	        conn = (HttpURLConnection)url.openConnection();
+			url = new URL("https://pgangparia.sharepoint.com/_forms/default.aspx?wa=wsignin1.0");
+			conn = (HttpURLConnection)url.openConnection();
 
-	        conn.setRequestMethod("POST");
-	        conn.setRequestProperty("Content-Type", 
-	                   "application/x-www-form-urlencoded");
-	        //connection.setRequestProperty("Content-Language", "en-US"); 
-	        //connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11");
-	        conn.setRequestProperty("Content-Length", Integer.toString(token.length()));
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Content-Type", 
+					"application/x-www-form-urlencoded");
+			//connection.setRequestProperty("Content-Language", "en-US"); 
+			//connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11");
+			conn.setRequestProperty("Content-Length", Integer.toString(token.length()));
 
-	        conn.setUseCaches(false);
-	        conn.setDoInput(true);
-	        conn.setDoOutput(true);
+			conn.setUseCaches(false);
+			conn.setDoInput(true);
+			conn.setDoOutput(true);
 
-	        System.out.println("hwllo");
-	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+			System.out.println("hwllo");
+			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 			wr.write(token);
 			wr.flush();
 			System.out.println("hwllo");
 			String line;
 			String cookiesHeader = conn.getHeaderField("Set-Cookie");
-	        System.out.println(cookiesHeader);
+			System.out.println(cookiesHeader);
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			System.out.println("hwllo 3");
 			while ((line = reader.readLine()) != null) {
 				System.out.println("hwllo"+line);
 			}
-	        //get response
-	        /*InputStream is = connection.getInputStream();
+			//get response
+			/*InputStream is = connection.getInputStream();
 	        BufferedReader br = new BufferedReader(new InputStreamReader(is));
 	        String line;
 	        StringBuffer response = new StringBuffer();
@@ -745,19 +1053,19 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 
 	        }
 	        System.out.println(response.toString());*/
-	        //br.close();
-	 
-	        return "";
-	    }catch(Exception e){
-	        System.out.println("Unable to full create connection");
-	        e.printStackTrace();
-	        return null;
-	    }finally {
+			//br.close();
 
-	          if(conn != null) {
-	        	  //conn.disconnect(); 
-	          }
-	    }
+			return "";
+		}catch(Exception e){
+			System.out.println("Unable to full create connection");
+			e.printStackTrace();
+			return null;
+		}finally {
+
+			if(conn != null) {
+				//conn.disconnect(); 
+			}
+		}
 
 
 		/*HttpRequest requestCookie = new HttpRequest();
@@ -802,7 +1110,9 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 
 		//return "";
 	}
+
 	
+	// not in use
 	private static String submitToken(String token) throws IOException {
 		//String token = "t=EwBwAk6hBwAUIQT64YiMbkZQLHdw6peopUrQ0O8AAYkt43mh328r0OTpTqSVMQEWGlzlpE906mSyOfU2JgkHQCBz0VBLPKyFEYeCUUqLQ0FmodljevOEceo5L1r+aj207XYvgGl+QBOMxSuNtdbPprICB/+NhRxEynCQe2l1U84a3S20At+OsGorLHKpp1RIfjR6FGGW3ahltWwDvvkcLY5mMtvOHoQx+citNFIvXGY4zzosNgum0OXMlIz26QfODI705ICMV9wmLfbJ4xQjeRAHFrPQxdeQ3mA9tepV9zPKyeAsAmFrMb0/3GUh9GK0jk9O1+N5PZYtL4cKsOrMbGN3Z++IhoTrwLR6/8PJrZNtyKJhv/W35N66THKsKH0DZgAACDKSCSEEFKnaQAEQ+c2vlhFUJ1WBjs9puwnuOFye+J6AvcpFrCaefpBozSYZTQAwJDuHu51xUyrUhrPetgTekrM04m7q6IpqccJBFxTzd3UAkJLgFJQpcerLOFKgYMrVNWOyqEPzn9Zdjv3Xa73HGa36kOUqZeDPcBcxOtMy0I5LmV8tQ4a3Cc302hDax208/eL1fi5xqEiUE89DLEJ8w9KyIWfVUFwvs3r374t/7KJmQH55yZk3p874gNFyToHA4s+0ZuMikRyDTXeYPQ/Jz8rgIYGA+dCwDNb6x+2y26TRX9QiWYvuhcJ8V1xola+Wo6tjHJwon+8QHXLjCiOXkLUvZbjnR2X+UoAnAYNYb5YVeTBqQSO2l19VhK4o5tnHvOhnwVBM8DeGFJSeMChqS7SlPzq/39ntZtPmv9HuvFrP8801pW9KmxgXdoEB&p=";
 		// http://cafeconleche.org/books/xmljava/chapters/ch03s05.html
@@ -835,19 +1145,19 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 
 		InputStream in = connection.getInputStream();
 		//http://www.exampledepot.com/egs/java.net/GetHeaders.html
-		
-	    for (int i=0; ; i++) {
-	        String headerName = connection.getHeaderFieldKey(i);
-	        String headerValue = connection.getHeaderField(i);
-	        System.out.println("header: " + headerName + " : " + headerValue);
-	        if (headerName == null && headerValue == null) {
-	            // No more headers
-	            break;
-	        }
-	        if (headerName == null) {
-	            // The header value contains the server's HTTP version
-	        }
-	    }
+
+		for (int i=0; ; i++) {
+			String headerName = connection.getHeaderFieldKey(i);
+			String headerValue = connection.getHeaderField(i);
+			System.out.println("header: " + headerName + " : " + headerValue);
+			if (headerName == null && headerValue == null) {
+				// No more headers
+				break;
+			}
+			if (headerName == null) {
+				// The header value contains the server's HTTP version
+			}
+		}
 		String headerName = connection.getHeaderField("set-cookie");
 		System.out.println("headerName");
 		System.out.println(headerName);
@@ -862,7 +1172,7 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 		return headerName;
 	}
 
-	
+	// not in use
 	public static String getFilesForFolder(String acessToken) throws Exception {
 		String relativeUri = "/sites/dpmqa/Records/30888";
 		String endpoint = "https://ihg.sharepoint.com/sites/dpmqa/_api/web/getfolderbyserverrelativeurl(\'"+relativeUri+"\')/files?$expand=ListItemAllFields/FieldValuesAsText&$select=Title,Name,ServerRelativeUrl,UniqueId,dpmDocType,Current_x0020_PIP";
@@ -889,7 +1199,8 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 
 		return "";
 	}
-
+	
+	// not in use
 	public static void fetchRealm(String domainName){
 		/*HttpRequest httpRequestObject = new HttpRequest();
 		  httpRequestObject.setEndPoint("https://"+domainName+"/_vti_bin/client.svc");
@@ -920,7 +1231,7 @@ public static void getAllFilesInfo(String siteURL,String token, String cookie,St
 	}
 
 
-
+	// not in use
 	public static void getRealm(){
 		System.out.println("hello");
 		/*CredentialsProvider credsProvider = (CredentialsProvider) new BasfhttpClienticCredentialsProvider();
