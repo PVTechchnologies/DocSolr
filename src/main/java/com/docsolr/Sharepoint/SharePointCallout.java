@@ -80,6 +80,8 @@ public class SharePointCallout {
 		}catch(Exception e){
 			System.out.println("Exceptin is -->"+e.getMessage());
 			//CommonUtil.generateLog(e.getMessage(), 0,  e.getLocalizedMessage(), session);
+		}finally{
+			
 		}
 		return "";
 	}
@@ -107,6 +109,8 @@ public class SharePointCallout {
 		}catch(Exception e){
 			System.out.println("Exceptin is- -->"+e.getMessage());
 			//CommonUtil.generateLog(e.getMessage(), 0,  e.getLocalizedMessage(), session);
+		}finally{
+			
 		}
 		return subSites;
 	}
@@ -154,6 +158,8 @@ public class SharePointCallout {
 		}catch(Exception e){
 			System.out.println("Exceptin is ------->"+e.getMessage());
 			//CommonUtil.generateLog(e.getMessage(), 0,  e.getLocalizedMessage(), session);
+		}finally{
+			
 		}
 
 	}
@@ -203,6 +209,8 @@ public class SharePointCallout {
 		}catch(Exception e){
 			System.out.println("Exceptin is--- -->"+e.getMessage());
 			//CommonUtil.generateLog(e.getMessage(), 0,  e.getLocalizedMessage(), session);
+		}finally{
+			
 		}
 
 	}
@@ -227,6 +235,8 @@ public class SharePointCallout {
 		}catch(Exception e){
 			System.out.println("Exceptin is - -->"+e.getMessage()+e.getLocalizedMessage()+e.getCause()+e.getStackTrace());
 			//CommonUtil.generateLog(e.getMessage(), 0,  e.getLocalizedMessage(), session);
+		}finally{
+			
 		}
 	}
 
@@ -263,6 +273,8 @@ public class SharePointCallout {
 		}catch(Exception e){
 			System.out.println("Exceptin is -->"+e.getMessage());
 			//CommonUtil.generateLog(e.getMessage(), 0,  e.getLocalizedMessage(), session);
+		}finally{
+			
 		}
 		return files;
 	}
