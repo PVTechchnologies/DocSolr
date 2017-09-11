@@ -119,7 +119,7 @@ public class DataService {
 		SessionFactory SF = config.buildSessionFactory();
 		Session sess = SF.openSession();
 		SiteFileInfo provider = new SiteFileInfo();
-		provider.setFileName("testSIte");
+		provider.setName("testSIte");
 		provider.setSiteURL("test.com");
 		//provider.setSiteId("1234111");
 		Transaction tr = sess.beginTransaction();

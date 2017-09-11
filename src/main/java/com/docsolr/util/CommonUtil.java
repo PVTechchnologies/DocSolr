@@ -16,6 +16,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.docsolr.entity.Users;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+
 public class CommonUtil {
 
 	/**
@@ -91,5 +96,28 @@ public class CommonUtil {
 	public static Date convertStringToDate(String dateString) throws ParseException{
 		Date dateRec = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(dateString);
 		return dateRec;
+	}
+	public static String replaceSpace(String str) {
+		String[] words = str.split(" ");
+		StringBuilder sentence = new StringBuilder(words[0]);
+
+		for (int i = 1; i < words.length; ++i) {
+			sentence.append("%20");
+			sentence.append(words[i]);
+		}
+
+		return sentence.toString();
+	} 
+	
+	public static HttpURLConnection getConnectionForGetRequest(String endpointURL,String formDigestValue, String cookie) throws IOException{
+		URL obj = new URL(endpointURL);
+		HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
+		connection.setRequestMethod( "GET" );
+		connection.setRequestProperty("Accept", "application/json;odata=verbose");
+		connection.setRequestProperty("Content-Type", "application/json;odata=verbose");
+		connection.setRequestProperty("X-RequestDigest",formDigestValue);
+		connection.setRequestProperty("Cookie", cookie);
+		
+		return connection;
 	}
 }

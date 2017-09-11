@@ -10,24 +10,19 @@ public class SiteFileInfo extends BaseEntity{
 	
 
 
-	private String fileName;
+	private String name;
 	private String fileRelativeURL;
 	private String siteURL;
 	private Date fileCreatedDate;
 	private Date fileLastModifiedDate;
 	
 	
-	public Date getFileLastModifiedDate() {
-		return fileLastModifiedDate;
+	
+	public String getName() {
+		return name;
 	}
-	public void setFileLastModifiedDate(Date fileLastModifiedDate) {
-		this.fileLastModifiedDate = fileLastModifiedDate;
-	}
-	public String getFileName() {
-		return fileName;
-	}
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setName(String name) {
+		this.name = name;
 	}
 	public String getFileRelativeURL() {
 		return fileRelativeURL;
@@ -50,6 +45,12 @@ public class SiteFileInfo extends BaseEntity{
 		this.fileCreatedDate = fileCreatedDate;
 	}
 	
+	public Date getFileLastModifiedDate() {
+		return fileLastModifiedDate;
+	}
+	public void setFileLastModifiedDate(Date fileLastModifiedDate) {
+		this.fileLastModifiedDate = fileLastModifiedDate;
+	}
 
 
 }

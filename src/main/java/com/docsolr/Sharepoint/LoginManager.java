@@ -53,13 +53,16 @@ public class LoginManager {
 			tr.commit();
 			System.out.println("commited succesffully");
 			session.close();
+			session.clear();
 			SF.close();
 			return formDigestValue;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.identityHashCode("Exeption --> "+e.getMessage());
 			e.printStackTrace();
-		}		
+		}finally{
+			
+		}
 		return "";
 	}
 
