@@ -6,44 +6,17 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="siteFolders")
-public class SiteFolders  implements Serializable  {
-
-	@Id
-	@Column(name="id")
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private int id;
+public class SiteFolders extends BaseEntity {
 	
-	@Column(name="uniqueId")
 	private String uniqueId;
-	
-	@Column(name="name")
 	private String name;
-	
-	@Column(name="timeLastModified")
 	private Date timeLastModified;
-	
-	@Column(name="timeCreated")
 	private Date timeCreated;
-	
-	@Column(name="itemCount")
 	private int itemCount;
-	
-	@Column(name="serverRelativeURL")
 	private String serverRelativeURL;
-	
-	@Column(name="siteName")
 	private String siteName;
-	
-	@Column(name="hostURL")
 	private String hostURL;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
+	
 
 	public String getUniqueId() {
 		return uniqueId;

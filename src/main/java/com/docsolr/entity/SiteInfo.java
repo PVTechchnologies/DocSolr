@@ -6,28 +6,18 @@ import javax.persistence.*;
 
 
 @Entity
-@Table(name="siteinfo")
-public class SiteInfo  implements Serializable  {
+@Table(name="SiteInfo")
+public class SiteInfo  extends BaseEntity {
 
 	
 	
-	@Id
-	@Column(name="id")
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private int id;
 	
-	@Column(name="siteName")
+
 	private String siteName;
 	
-	@Column(name="siteURL")
+
 	private String siteURL;
 
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
 	public String getSiteName() {
 		return siteName;
 	}
