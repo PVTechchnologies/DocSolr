@@ -15,7 +15,14 @@ public class SiteInfo  extends BaseEntity {
 
 	private String siteName;
 	
+	private long parentSiteId;
 
+	public long getParentSiteId() {
+		return parentSiteId;
+	}
+	public void setParentSiteId(long parentSiteId) {
+		this.parentSiteId = parentSiteId;
+	}
 	private String siteURL;
 
 	public String getSiteName() {

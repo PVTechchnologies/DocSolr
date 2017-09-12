@@ -9,6 +9,8 @@ import javax.persistence.*;
 public class SiteFolders extends BaseEntity {
 	
 	private String uniqueId;
+	private int siteLibraryId;
+
 	private String name;
 	private Date timeLastModified;
 	private Date timeCreated;
@@ -17,7 +19,15 @@ public class SiteFolders extends BaseEntity {
 	private String siteName;
 	private String hostURL;
 	
+	public int getSiteLibraryId() {
+		return siteLibraryId;
+	}
 
+	public void setSiteLibraryId(int siteLibraryId) {
+		this.siteLibraryId = siteLibraryId;
+	}
+
+	
 	public String getUniqueId() {
 		return uniqueId;
 	}

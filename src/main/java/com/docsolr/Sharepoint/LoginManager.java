@@ -49,6 +49,7 @@ public class LoginManager {
 			//SharePointCallout.getAllFilesInfo("", token, cookie, formDigestValue);
 			//getAllFilesInfo
 			//SharePointCallout.camlQueryToFetchFolder("", token, cookie, formDigestValue);
+			//SharePointCallout.getAllSubSites("https://pgangparia.sharepoint.com/sites/SPSite", 0, token, cookie, formDigestValue, session);
 			
 			tr.commit();
 			System.out.println("commited succesffully");

@@ -9,7 +9,7 @@ import javax.persistence.*;
 public class SiteFileInfo extends BaseEntity{
 	
 
-
+	private long folderId;
 	private String name;
 	private String fileRelativeURL;
 	private String siteURL;
@@ -17,7 +17,12 @@ public class SiteFileInfo extends BaseEntity{
 	private Date fileLastModifiedDate;
 	
 	
-	
+	public long getFolderId() {
+		return folderId;
+	}
+	public void setFolderId(long folderId) {
+		this.folderId = folderId;
+	}
 	public String getName() {
 		return name;
 	}

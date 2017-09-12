@@ -12,7 +12,7 @@ public class SiteLibrary  extends BaseEntity{
 
 	
 	
-	private String siteId;
+	private Long siteId;
 	private String guid;
 	private String name;
 	private Date timeLastModified;
@@ -22,11 +22,13 @@ public class SiteLibrary  extends BaseEntity{
 	private String siteName;
 	private String hostURL;
 
-	public String getSiteId() {
+	
+
+	public Long getSiteId() {
 		return siteId;
 	}
 
-	public void setSiteId(String siteId) {
+	public void setSiteId(Long siteId) {
 		this.siteId = siteId;
 	}
 

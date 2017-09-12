@@ -32,7 +32,8 @@ public class SharePointCallout {
 			HttpURLConnection connection = CommonUtil.getConnectionForGetRequest(endPoint, formDigestValue, cookie);
 			String line;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			List<String> sites = new ArrayList<String>();
+			List<SiteInfo> sites = new ArrayList<SiteInfo>();
+			List<SiteInfo> subSites = new ArrayList<SiteInfo>();
 			while ((line = reader.readLine()) != null) {
 				JSONObject lineRes = new JSONObject(line);
 				JSONObject tableRows = lineRes.getJSONObject("d").getJSONObject("query").getJSONObject("PrimaryQueryResult").getJSONObject("RelevantResults").getJSONObject("Table").getJSONObject("Rows");
@@ -46,20 +47,35 @@ public class SharePointCallout {
 						if(jsonObject2.getString("Key").equals("SPWebUrl")){
 							String res = jsonObject2.has("Value") && !jsonObject2.isNull("Value") ? jsonObject2.getString("Value") : null;
 							if(res!=null){
-								sites.add(res);
+								SiteInfo provider = new SiteInfo();
+								String siteURL = res;
+								URL sitObj = new URL(siteURL);
+								String sitePath = sitObj.getPath();
+								String siteName="/";
+								if(!sitePath.isEmpty()){
+									String[] resList = sitePath.split("/sites/");
+									if(resList.length > 1){
+										siteName = resList[1];
+									}
+								}
+								provider.setSiteName(siteName);
+								provider.setSiteURL(siteURL);
+								session.save(provider);
+								sites.add(provider);
+								subSites.addAll( getAllSubSites (res,provider.getId(),token,cookie,formDigestValue,session));
 							}
 						}
 					}
 				}
 			}
 			//System.out.println("--sites--> "+sites);
-			List<String> subSites = new ArrayList<String>();
-			for(int i=0; i<sites.size();i++){
+			
+			/*for(int i=0; i<sites.size();i++){
 				subSites.addAll( getAllSubSites (sites.get(i),token,cookie,formDigestValue,session));
-			}
+			}*/
 			sites.addAll(subSites);
 			for(int i=0; i<sites.size();i++){
-				SiteInfo provider = new SiteInfo();
+				/*SiteInfo provider = new SiteInfo();
 				String siteURL = sites.get(i);
 				URL sitObj = new URL(siteURL);
 				String sitePath = sitObj.getPath();
@@ -72,8 +88,8 @@ public class SharePointCallout {
 				}
 				provider.setSiteName(siteName);
 				provider.setSiteURL(siteURL);
-				session.save(provider);
-				getAllFilesFoldersFromSite(sites.get(i),token,cookie,formDigestValue,session);
+				session.save(provider);*/
+				getAllFilesFoldersFromSite(sites.get(i).getSiteURL(),sites.get(i).getId(),token,cookie,formDigestValue,session);
 			}
 			connection.disconnect();
 			System.out.println("--sites--> "+sites);
@@ -87,8 +103,8 @@ public class SharePointCallout {
 	}
 
 	// in use --> get all subsites
-	public static List<String> getAllSubSites(String siteURL,String token, String cookie,String formDigestValue,Session session ){
-		List<String> subSites = new ArrayList<String>();
+	public static List<SiteInfo> getAllSubSites(String siteURL,long parentSiteId, String token, String cookie,String formDigestValue,Session session ){
+		List<SiteInfo> subSites = new ArrayList<SiteInfo>();
 		System.out.println("--siteURL-->"+siteURL);
 		String endPoint = siteURL+"/_api/web/webs/?$select=title,ServerRelativeUrl";
 		try{
@@ -102,7 +118,29 @@ public class SharePointCallout {
 				JSONArray array2 =  (JSONArray)  lineRes.getJSONObject("d").get("results");
 				for (int j = 0; j < array2.length(); j++) {
 					JSONObject jsonObject2 = (JSONObject) array2.get(j);
-					subSites.add(obj.getProtocol()+"://"+ obj.getHost()+jsonObject2.get("ServerRelativeUrl"));
+					//String subSiteURL = obj.getProtocol()+"://"+ obj.getHost()+jsonObject2.get("ServerRelativeUrl");
+					SiteInfo provider = new SiteInfo();
+					String subSiteURL = obj.getProtocol()+"://"+ obj.getHost()+jsonObject2.get("ServerRelativeUrl");
+					URL sitObj = new URL(subSiteURL);
+					String sitePath = sitObj.getPath();
+					String siteName="/";
+					System.out.println("--sitePath-->"+sitePath);
+					if(!sitePath.isEmpty() && sitePath.contains("sites")){
+						String[] resList = sitePath.split("/sites/");
+						System.out.println("----reslit---> "+resList[resList.length-1]);
+						if(resList.length > 1){
+							siteName = resList[resList.length-1];
+							
+						}
+					}else{
+						siteName = sitePath.substring(1,sitePath.length());
+					}
+					System.out.println("=---subSiteURL-->"+subSiteURL);
+					provider.setSiteName(siteName);
+					provider.setSiteURL(subSiteURL);
+					provider.setParentSiteId(parentSiteId);
+					session.save(provider);
+					subSites.add(provider);
 				}
 			}
 			connection.disconnect();
@@ -116,9 +154,10 @@ public class SharePointCallout {
 	}
 
 	// in use --> get all site, subsite main folders/library
-	public static void getAllFilesFoldersFromSite(String siteURL,String token, String cookie,String formDigestValue,Session session ){
+	public static void getAllFilesFoldersFromSite(String siteURL,Long siteId,String token, String cookie,String formDigestValue,Session session ){
 		try{
 			String endPointURL = siteURL+"/_api/Web/Lists/?$filter=Hidden%20eq%20false";
+			System.out.println("----endPointURL--->"+endPointURL);
 			URL obj = new URL(endPointURL);
 			HttpURLConnection connection = CommonUtil.getConnectionForGetRequest(endPointURL, formDigestValue, cookie);
 			String line;
@@ -134,11 +173,16 @@ public class SharePointCallout {
 						SiteLibrary provider = new SiteLibrary();
 						String sitePath = obj.getPath();
 						String siteName="/";
-						if(!sitePath.isEmpty()){
+						System.out.println("--sitePath-->"+sitePath);
+						if(!sitePath.isEmpty() && sitePath.contains("sites")){
 							String[] resList = sitePath.split("/sites/");
-							if(resList.length > 1)
-								siteName = resList[1].split("/")[0];
+							if(resList.length > 1){
+								siteName = resList[1];
+							}
+						}else{
+							siteName = sitePath.substring(1,sitePath.length());
 						}
+						provider.setSiteId(siteId);
 						provider.setSiteName(siteName);
 						provider.setHostURL(obj.getHost());
 						provider.setGuid((String)jsonObject2.get("Id"));
@@ -150,7 +194,7 @@ public class SharePointCallout {
 						provider.setTimeCreated(timeCreated);
 						provider.setTimeLastModified(timeModified);
 						session.save(provider);
-						getAllFilesFromSite(siteURL,provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
+						getAllFilesFromSite(siteURL,provider.getId(),provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
 					}
 				}
 			}
@@ -165,7 +209,7 @@ public class SharePointCallout {
 	}
 
 	// in use -- > use to get all folder info from site menu folders
-	public static void getAllFilesFromSite(String siteURL,String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
+	public static void getAllFilesFromSite(String siteURL,Long siteLibraryId, String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
 		try{
 			String[] paths = serverRelativeUrl.split("/");
 			serverRelativeUrl = paths[paths.length - 1];
@@ -196,12 +240,12 @@ public class SharePointCallout {
 						provider.setUniqueId((String)folderObj.get("UniqueId"));
 						provider.setServerRelativeURL((String)folderObj.get("ServerRelativeUrl"));
 						provider.setItemCount(((int)folderObj.get("ItemCount")));
-						Date timeCreated = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated"));
-						Date timeModified = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified"));
-						provider.setTimeCreated(timeCreated);
-						provider.setTimeLastModified(timeModified);
+						//Date timeCreated = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated"));
+						//Date timeModified = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified"));
+						//provider.setTimeCreated(timeCreated);
+						//provider.setTimeLastModified(timeModified);
 						session.save(provider);
-						getAllFilesInfo(siteURL,provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
+						getAllFilesInfo(siteURL,provider.getId(),provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
 					}
 				}
 			}
@@ -216,7 +260,7 @@ public class SharePointCallout {
 	}
 
 	// in use -->  used to get all files from a folder
-	public static void getAllFilesInfo(String siteURL, String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
+	public static void getAllFilesInfo(String siteURL, long folderId, String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
 		try{
 			serverRelativeUrl = CommonUtil.replaceSpace(serverRelativeUrl);
 			String endPointURL = siteURL+"/_api/web/getfolderbyserverrelativeurl('"+serverRelativeUrl+"')?$expand=Files";
@@ -227,9 +271,9 @@ public class SharePointCallout {
 			List<String> sites = new ArrayList<String>();
 			while ((line = reader.readLine()) != null) {
 				JSONObject lineRes = new JSONObject(line);
-				//System.out.println("--lineRes--> "+lineRes);
+				System.out.println("--lineRes--> "+lineRes);
 				JSONObject jsonObj =  (JSONObject)  lineRes.getJSONObject("d");
-				getAllFolderFiles(jsonObj,siteURL,session);
+				getAllFolderFiles(jsonObj,folderId,siteURL,session);
 			}
 			connection.disconnect();
 		}catch(Exception e){
@@ -241,7 +285,7 @@ public class SharePointCallout {
 	}
 
 	// in use
-	public static List<SiteFileInfo> getAllFolderFiles(JSONObject  resObj, String siteURL,Session session){
+	public static List<SiteFileInfo> getAllFolderFiles(JSONObject  resObj,long folderId, String siteURL,Session session){
 		List<SiteFileInfo>  files = new ArrayList<SiteFileInfo>();
 		try{
 			JSONObject  fileObj =  (JSONObject)  resObj.get("Files");
@@ -263,8 +307,9 @@ public class SharePointCallout {
 					if(fileName.length()>255)
 						fileName = fileName.substring(0, 244);
 					file.setName(fileName);
-					file.setFileCreatedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated")));
-					file.setFileLastModifiedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified")));
+					file.setFolderId(folderId);
+					//file.setFileCreatedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated")));
+					//file.setFileLastModifiedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified")));
 
 					session.save(file);
 				}
