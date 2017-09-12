@@ -68,27 +68,8 @@ public class SharePointCallout {
 					}
 				}
 			}
-			//System.out.println("--sites--> "+sites);
-			
-			/*for(int i=0; i<sites.size();i++){
-				subSites.addAll( getAllSubSites (sites.get(i),token,cookie,formDigestValue,session));
-			}*/
 			sites.addAll(subSites);
 			for(int i=0; i<sites.size();i++){
-				/*SiteInfo provider = new SiteInfo();
-				String siteURL = sites.get(i);
-				URL sitObj = new URL(siteURL);
-				String sitePath = sitObj.getPath();
-				String siteName="/";
-				if(!sitePath.isEmpty()){
-					String[] resList = sitePath.split("/sites/");
-					if(resList.length > 1){
-						siteName = resList[1];
-					}
-				}
-				provider.setSiteName(siteName);
-				provider.setSiteURL(siteURL);
-				session.save(provider);*/
 				getAllFilesFoldersFromSite(sites.get(i).getSiteURL(),sites.get(i).getId(),token,cookie,formDigestValue,session);
 			}
 			connection.disconnect();
@@ -105,7 +86,7 @@ public class SharePointCallout {
 	// in use --> get all subsites
 	public static List<SiteInfo> getAllSubSites(String siteURL,long parentSiteId, String token, String cookie,String formDigestValue,Session session ){
 		List<SiteInfo> subSites = new ArrayList<SiteInfo>();
-		System.out.println("--siteURL-->"+siteURL);
+		//System.out.println("--siteURL-->"+siteURL);
 		String endPoint = siteURL+"/_api/web/webs/?$select=title,ServerRelativeUrl";
 		try{
 			URL obj = new URL(endPoint);
@@ -124,7 +105,7 @@ public class SharePointCallout {
 					URL sitObj = new URL(subSiteURL);
 					String sitePath = sitObj.getPath();
 					String siteName="/";
-					System.out.println("--sitePath-->"+sitePath);
+					//System.out.println("--sitePath-->"+sitePath);
 					if(!sitePath.isEmpty() && sitePath.contains("sites")){
 						String[] resList = sitePath.split("/sites/");
 						System.out.println("----reslit---> "+resList[resList.length-1]);
@@ -135,7 +116,7 @@ public class SharePointCallout {
 					}else{
 						siteName = sitePath.substring(1,sitePath.length());
 					}
-					System.out.println("=---subSiteURL-->"+subSiteURL);
+					//System.out.println("=---subSiteURL-->"+subSiteURL);
 					provider.setSiteName(siteName);
 					provider.setSiteURL(subSiteURL);
 					provider.setParentSiteId(parentSiteId);
@@ -157,7 +138,7 @@ public class SharePointCallout {
 	public static void getAllFilesFoldersFromSite(String siteURL,Long siteId,String token, String cookie,String formDigestValue,Session session ){
 		try{
 			String endPointURL = siteURL+"/_api/Web/Lists/?$filter=Hidden%20eq%20false";
-			System.out.println("----endPointURL--->"+endPointURL);
+			//System.out.println("----endPointURL--->"+endPointURL);
 			URL obj = new URL(endPointURL);
 			HttpURLConnection connection = CommonUtil.getConnectionForGetRequest(endPointURL, formDigestValue, cookie);
 			String line;
@@ -271,7 +252,7 @@ public class SharePointCallout {
 			List<String> sites = new ArrayList<String>();
 			while ((line = reader.readLine()) != null) {
 				JSONObject lineRes = new JSONObject(line);
-				System.out.println("--lineRes--> "+lineRes);
+				//System.out.println("--lineRes--> "+lineRes);
 				JSONObject jsonObj =  (JSONObject)  lineRes.getJSONObject("d");
 				getAllFolderFiles(jsonObj,folderId,siteURL,session);
 			}
