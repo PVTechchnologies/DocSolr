@@ -155,14 +155,13 @@ public class SharePointCallout {
 						String sitePath = obj.getPath();
 						String siteName="/";
 						System.out.println("--sitePath-->"+sitePath);
-						if(!sitePath.isEmpty() && sitePath.contains("sites")){
+						if(!sitePath.isEmpty()){
 							String[] resList = sitePath.split("/sites/");
 							if(resList.length > 1){
 								siteName = resList[1];
 							}
-						}else{
-							siteName = sitePath.substring(1,sitePath.length());
 						}
+						provider.setSiteURL(siteURL);
 						provider.setSiteId(siteId);
 						provider.setSiteName(siteName);
 						provider.setHostURL(obj.getHost());

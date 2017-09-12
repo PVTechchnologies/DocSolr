@@ -10,8 +10,8 @@ import javax.persistence.*;
 @Table(name="SiteLibrary")
 public class SiteLibrary  extends BaseEntity{  
 
-	
-	
+
+
 	private Long siteId;
 	private String guid;
 	private String name;
@@ -19,10 +19,12 @@ public class SiteLibrary  extends BaseEntity{
 	private Date timeCreated;
 	private int itemCount;
 	private String serverRelativeURL;
+	
+
 	private String siteName;
 	private String hostURL;
+	private String siteURL;
 
-	
 
 	public Long getSiteId() {
 		return siteId;
@@ -30,6 +32,14 @@ public class SiteLibrary  extends BaseEntity{
 
 	public void setSiteId(Long siteId) {
 		this.siteId = siteId;
+	}
+	
+	public String getSiteURL() {
+		return siteURL;
+	}
+
+	public void setSiteURL(String siteURL) {
+		this.siteURL = siteURL;
 	}
 
 	public String getGuid() {
@@ -96,6 +106,6 @@ public class SiteLibrary  extends BaseEntity{
 		this.hostURL = hostURL;
 	}
 
-	
-	
+
+
 }
