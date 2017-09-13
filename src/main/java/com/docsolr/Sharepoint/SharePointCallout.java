@@ -220,6 +220,7 @@ public class SharePointCallout {
 						provider.setUniqueId((String)folderObj.get("UniqueId"));
 						provider.setServerRelativeURL((String)folderObj.get("ServerRelativeUrl"));
 						provider.setItemCount(((int)folderObj.get("ItemCount")));
+						provider.setSiteLibraryId(siteLibraryId);
 						//Date timeCreated = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated"));
 						//Date timeModified = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified"));
 						//provider.setTimeCreated(timeCreated);

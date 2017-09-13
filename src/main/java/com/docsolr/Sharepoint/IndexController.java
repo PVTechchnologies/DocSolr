@@ -21,8 +21,12 @@ public class IndexController {
         System.out.println("message --> "+message);
         //new DataService().insertInfo();
         model.addAttribute("message", "DocSolr Search Engine");
-        model.addAttribute("siteList", new DataService().querySiteInfoRecords());
-        model.addAttribute("siteFolderMap", new DataService().getSiteFolders());
+        /*model.addAttribute("siteList", new DataService().querySiteInfoRecords());
+        model.addAttribute("siteFolderMap", new DataService().getSiteFolders1());*/
+        model.addAttribute("siteList", new DataService().getSites());
+        model.addAttribute("siteLibraryMap",new DataService().getSiteLibrariesMap());
+        model.addAttribute("siteFolderMap", new DataService().getSiteFoldersMap());
+        model.addAttribute("siteFileMap",new DataService().getSiteFilesMap());
         //List<SiteInfo> sites = new ArrayList<SiteInfo>();  
         //sites.add()
         

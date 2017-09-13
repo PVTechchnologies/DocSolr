@@ -10,6 +10,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -90,6 +93,14 @@ public class CommonUtil {
 			}
 		}
 		return currentUser;
+	}
+	public static Session geSession(){
+		Configuration config = new Configuration();
+		config.configure("hibernate.cfg.xml");
+		SessionFactory SF = config.buildSessionFactory();
+		Session sess = SF.openSession();
+		return sess;
+		
 	}
 	
 	

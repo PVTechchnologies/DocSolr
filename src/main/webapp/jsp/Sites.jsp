@@ -83,7 +83,7 @@
 				</c:forEach>
 			</tbody>
 		</table> --%>
-		<c:forEach items="${siteList}" var="site">
+		<!--<c:forEach items="${siteList}" var="site">
 			<c:set var="siteIndex" value="${siteIndex + 1}" />
 			<div id="accordion" role="tablist" aria-multiselectable="true">
 				<div class="card">
@@ -132,6 +132,87 @@
 						</div>
 				</div>
 			</div>
+
+
+			</div>
+		</c:forEach>-->
+		<c:forEach items="${siteList}" var="site">
+			<c:set var="siteIndex" value="${siteIndex + 1}" />
+			<div id="accordion" role="tablist" aria-multiselectable="true">
+				<div class="card">
+					<div class="card-header" role="tab" id="headingOne">
+						<h5>
+							<a data-toggle="collapse" data-parent="#accordion"
+								href="#${site.siteName}" aria-expanded="true"
+								aria-controls="collapseOne">#${siteIndex} ${site.siteName} </a>
+							<span style="font-size: 14px" class="text-center">${site.siteURL}
+							</span>
+							<div style="float: right">
+
+								<input type="checkbox" />
+							</div>
+						</h5>
+
+					</div>
+
+					<div id="${site.siteName}" class="collapse " role="tabpanel"
+						aria-labelledby="headingOne">
+						<div class="card-block">
+							<c:set var="libraryIndex" value="${loop.libraryIndex}" />
+							<table class="table" style="margin-left: 15%; width: 85%">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Server Relative URL</th>
+										<th>Item Count</th>
+										<th>Include Folder in search</th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:forEach items="${siteLibraryMap[site.id]}" var="siteLibrary">
+
+										<tr>
+											<c:set var="libraryIndex" value="${libraryIndex + 1}" />
+											<td scope="row"><c:out value="${libraryIndex}" /></td>
+											<td>${siteLibrary.serverRelativeURL}</td>
+											<td>${siteLibrary.itemCount}</td>
+											<td><input type="checkbox" /></td>
+										</tr>
+										<tr>
+											<c:set var="folderIndex" value="${loop.folderIndex}" />
+											<td colspan="4">
+											<table>
+												<thead>
+													<tr>
+														<th>#</th>
+														<th>Server Relative URL</th>
+														<th>Item Count</th>
+														<th>Include Folder in search</th>
+													</tr>
+												</thead>
+												
+												<tbody>
+													<c:forEach items="${siteFolderMap[siteLibrary.id]}"
+														var="siteFolder">
+														<tr>
+															<c:set var="folderIndex" value="${folderIndex + 1}" />
+															<td scope="row"><c:out value="${folderIndex}" /></td>
+															<td>${siteFolder.serverRelativeURL}</td>
+															<td>${siteFolder.itemCount}</td>
+															<td><input type="checkbox" /></td>
+														</tr>
+													</c:forEach>
+												</tbody>
+
+											</table>
+											</td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
 
 
 			</div>
