@@ -12,11 +12,18 @@ public class SiteFileInfo extends BaseEntity{
 	private long folderId;
 	private String name;
 	private String fileRelativeURL;
+	private String uniqueId;
+	
 	private String siteURL;
 	private Date fileCreatedDate;
 	private Date fileLastModifiedDate;
 	
-	
+	public String getUniqueId() {
+		return uniqueId;
+	}
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
+	}
 	public long getFolderId() {
 		return folderId;
 	}
@@ -41,7 +48,6 @@ public class SiteFileInfo extends BaseEntity{
 	public void setSiteURL(String siteURL) {
 		this.siteURL = siteURL;
 	}
-	
 	
 	public Date getFileCreatedDate() {
 		return fileCreatedDate;

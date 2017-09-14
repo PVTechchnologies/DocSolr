@@ -218,13 +218,14 @@ public class SharePointCallout {
 						provider.setSiteName(siteName);
 						provider.setHostURL(obj.getHost());
 						provider.setUniqueId((String)folderObj.get("UniqueId"));
+						//provider.setGuid((String)folderObj.get("UniqueId"));
 						provider.setServerRelativeURL((String)folderObj.get("ServerRelativeUrl"));
 						provider.setItemCount(((int)folderObj.get("ItemCount")));
 						provider.setSiteLibraryId(siteLibraryId);
-						//Date timeCreated = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated"));
-						//Date timeModified = CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified"));
-						//provider.setTimeCreated(timeCreated);
-						//provider.setTimeLastModified(timeModified);
+						Date timeCreated = CommonUtil.convertStringToDate((String)folderObj.get("TimeCreated"));
+						Date timeModified = CommonUtil.convertStringToDate((String)folderObj.get("TimeLastModified"));
+						provider.setTimeCreated(timeCreated);
+						provider.setTimeLastModified(timeModified);
 						session.save(provider);
 						getAllFilesInfo(siteURL,provider.getId(),provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
 					}
@@ -252,7 +253,7 @@ public class SharePointCallout {
 			List<String> sites = new ArrayList<String>();
 			while ((line = reader.readLine()) != null) {
 				JSONObject lineRes = new JSONObject(line);
-				//System.out.println("--lineRes--> "+lineRes);
+				System.out.println("--lineRes--> "+lineRes);
 				JSONObject jsonObj =  (JSONObject)  lineRes.getJSONObject("d");
 				getAllFolderFiles(jsonObj,folderId,siteURL,session);
 			}
@@ -289,8 +290,9 @@ public class SharePointCallout {
 						fileName = fileName.substring(0, 244);
 					file.setName(fileName);
 					file.setFolderId(folderId);
-					//file.setFileCreatedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated")));
-					//file.setFileLastModifiedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified")));
+					file.setUniqueId((String)jsonObject2.get("UniqueId"));
+					file.setFileCreatedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated")));
+					file.setFileLastModifiedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified")));
 
 					session.save(file);
 				}

@@ -138,6 +138,7 @@
 		</c:forEach>-->
 		<c:forEach items="${siteList}" var="site">
 			<c:set var="siteIndex" value="${siteIndex + 1}" />
+			<!----------  This div will be use to show sites and subsites for a sharepoint org------------------- -->
 			<div id="accordion" role="tablist" aria-multiselectable="true">
 				<div class="card">
 					<div class="card-header" role="tab" id="headingOne">
@@ -154,57 +155,88 @@
 						</h5>
 
 					</div>
-
+					<!----------  This div will be use to show libraries files under sites and subsites------------------- -->
 					<div id="${site.siteName}" class="collapse " role="tabpanel"
 						aria-labelledby="headingOne">
 						<div class="card-block">
 							<c:set var="libraryIndex" value="${loop.libraryIndex}" />
 							<table class="table" style="margin-left: 15%; width: 85%">
+							<!--<caption align=top>Displaying libararies under sites ${site.siteName} </caption>-->
 								<thead>
 									<tr>
 										<th>#</th>
-										<th>Server Relative URL</th>
+										<th>Library URL</th>
 										<th>Item Count</th>
-										<th>Include Folder in search</th>
+										<th>Include</th>
 									</tr>
 								</thead>
 								<tbody>
 									<c:forEach items="${siteLibraryMap[site.id]}" var="siteLibrary">
-
-										<tr>
 											<c:set var="libraryIndex" value="${libraryIndex + 1}" />
-											<td scope="row"><c:out value="${libraryIndex}" /></td>
+											<td scope="row">Lib <c:out value="${libraryIndex}" /></td>
 											<td>${siteLibrary.serverRelativeURL}</td>
 											<td>${siteLibrary.itemCount}</td>
 											<td><input type="checkbox" /></td>
 										</tr>
+										<!----------  This tr will be use to show all folders under library------------------- -->
 										<tr>
 											<c:set var="folderIndex" value="${loop.folderIndex}" />
 											<td colspan="4">
-											<table>
-												<thead>
-													<tr>
-														<th>#</th>
-														<th>Server Relative URL</th>
-														<th>Item Count</th>
-														<th>Include Folder in search</th>
-													</tr>
-												</thead>
-												
-												<tbody>
-													<c:forEach items="${siteFolderMap[siteLibrary.id]}"
-														var="siteFolder">
+												<table>
+												<!--<caption align=top>Displaying folders under Library ${siteLibrary.serverRelativeURL} </caption>-->
+													<thead>
 														<tr>
-															<c:set var="folderIndex" value="${folderIndex + 1}" />
-															<td scope="row"><c:out value="${folderIndex}" /></td>
-															<td>${siteFolder.serverRelativeURL}</td>
-															<td>${siteFolder.itemCount}</td>
-															<td><input type="checkbox" /></td>
+															<th>#</th>
+															<th>Folder URL</th>
+															<th>Item Count</th>
+															<th>Include</th>
 														</tr>
-													</c:forEach>
-												</tbody>
+													</thead>
 
-											</table>
+													<tbody>
+														<c:forEach items="${siteFolderMap[siteLibrary.id]}"
+															var="siteFolder">
+															<tr>
+																<c:set var="folderIndex" value="${folderIndex + 1}" />
+																<td scope="row">Fd <c:out value="${folderIndex}" /></td>
+																<td>${siteFolder.serverRelativeURL}</td>
+																<td>${siteFolder.itemCount}</td>
+																<td><input type="checkbox" /></td>
+															</tr>
+															<!----------  This tr will be use to show all files under folder------------------- -->
+															<tr>
+
+																<c:set var="fileIndex" value="${loop.fileIndex}" />
+																<td colspan="4">
+																	<table>
+																	<!--<caption align=top>Displaying files under Folder ${siteFolder.serverRelativeURL} ${siteFolder.id} </caption>-->
+																		<thead>
+																			<tr>
+																				<th>#</th>
+																				<th>File URL</th>
+																				<th>File Name</th>
+																				<th>Include</th>
+																			</tr>
+																		</thead>
+
+																		<tbody>
+																			<c:forEach items="${siteFileMap[siteFolder.id]}"
+																				var="siteFile">
+																				<tr>
+																					<c:set var="fileIndex" value="${fileIndex + 1}" />
+																					<td scope="row">File <c:out value="${fileIndex}" /></td>
+																					<td>${siteFile.fileRelativeURL}</td>
+																					<td>${siteFile.name}</td>
+																					<td><input type="checkbox" /></td>
+																				</tr>
+																			</c:forEach>
+																		</tbody>
+																	</table>
+																</td>
+															</tr>
+														</c:forEach>
+													</tbody>
+												</table>
 											</td>
 										</tr>
 									</c:forEach>
@@ -213,8 +245,6 @@
 						</div>
 					</div>
 				</div>
-
-
 			</div>
 		</c:forEach>
 	</div>

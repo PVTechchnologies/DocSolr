@@ -35,14 +35,12 @@ public class LoginManager {
 			SessionFactory SF = config.buildSessionFactory();
 			Session session = SF.openSession();
 			Transaction tr = session.beginTransaction();
-			
 			token = requestToken();
 			System.out.println("token-->"+token);
 			String cookie = submitToken(token);
 			System.out.println("cookie-->"+cookie);
 			String formDigestValue = getDigestAuth("","",cookie);
 			System.out.println(formDigestValue);
-			
 			SharePointCallout.getALlSharePointSites(token,cookie,formDigestValue,session,"sharepoint@pgangparia.onmicrosoft.com");
 			//SharePointCallout.getAllFilesFoldersFromSite("https://pgangparia.sharepoint.com/sites/SPSite/SpSiteCustomSubSite", token, cookie, formDigestValue, session);
 			//SharePointCallout.getAllFilesFromSite("", token, cookie, formDigestValue, session);
@@ -50,6 +48,9 @@ public class LoginManager {
 			//getAllFilesInfo
 			//SharePointCallout.camlQueryToFetchFolder("", token, cookie, formDigestValue);
 			//SharePointCallout.getAllSubSites("https://pgangparia.sharepoint.com/sites/SPSite", 0, token, cookie, formDigestValue, session);
+			//'/sites/SPSite/Shared Documents/SPSite_Folder1'
+			//SharePointCallout.getAllFilesInfo("https://pgangparia.sharepoint.com/sites/SPSite", 0, "/sites/SPSite/Shared Documents/SPSite_Folder1", token, cookie, formDigestValue, session);
+			
 			
 			tr.commit();
 			System.out.println("commited succesffully");

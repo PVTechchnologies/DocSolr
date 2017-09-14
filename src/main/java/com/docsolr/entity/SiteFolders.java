@@ -10,7 +10,6 @@ public class SiteFolders extends BaseEntity {
 	
 	private String uniqueId;
 	private long siteLibraryId;
-
 	private String name;
 	private Date timeLastModified;
 	private Date timeCreated;
