@@ -55,7 +55,7 @@ public class RegistrationController {
 	@RequestMapping("/docsolrlogin")
 	public String login(HttpSession session)
 	{
-		return "login/docsolrlogin";
+		return "dochome";
 	}
 	
 	@RequestMapping("/tree")

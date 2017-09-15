@@ -27,7 +27,7 @@
     <a href="#!treeview" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SalesdorceMetadata</a>
     <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SharePoint</a>
     <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SSO</a>
-    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">ShareDrive</a>
+    <a href="#!search" class="w3-bar-item w3-button w3-hide-small w3-hover-white">ShareDrive</a>
     <div class="w3-dropdown-hover w3-hide-small">
    <input id="username" name="username" type="hidden" value="${user.firstName}"/>
     <button class="w3-button" title="Notifications">${user.firstName} ${user.lastName}  <span class="glyphicon glyphicon-menu-down"></span></button>     
@@ -53,7 +53,6 @@
   </div>
 </div>
 
-<br>
 
 
 <div ng-view></div>
@@ -68,6 +67,16 @@
   <script src="js/Controllers/homecontroller.js"></script>
 
 
+<script>
+
+function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+}
+</script>
 
 </body>
 </html>

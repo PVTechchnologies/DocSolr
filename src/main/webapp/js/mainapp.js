@@ -25,8 +25,11 @@ angular.module('myApp')
     .when("/field", {
         templateUrl : "jsp/fielddata.jsp",
         controller: 'FieldCtrl'
+    })
+    .when("/search", {
+        templateUrl : "jsp/search.jsp",
+        
     });
-   
 })
 
 

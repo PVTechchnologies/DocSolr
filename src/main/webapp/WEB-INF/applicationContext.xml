@@ -68,6 +68,11 @@
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean"
 		p:location="/WEB-INF/spring.properties" />
 
+
+       
+       	<bean id="salesforceProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+       p:location="classpath:salesforce.properties" />
+       
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 

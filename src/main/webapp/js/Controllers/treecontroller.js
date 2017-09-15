@@ -5,7 +5,7 @@ angular.module('myApp')
 
 		 $scope.name = 'Docsolr';	
 		 $scope.getZipFile = function() {
-			 $http.get("recieveZip").then(function(response) {
+			 $http.get("recieveObjects").then(function(response) {
 				 $scope.jsonData = response.data;
 			 });
 		 }
