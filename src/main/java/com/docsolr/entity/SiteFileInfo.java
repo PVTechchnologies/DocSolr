@@ -5,7 +5,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "SiteFileInfo")
+@Table(name = "sitefileinfo")
 public class SiteFileInfo extends BaseEntity{
 	
 

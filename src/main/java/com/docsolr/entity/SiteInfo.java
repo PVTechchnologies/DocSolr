@@ -1,18 +1,18 @@
 package com.docsolr.entity;
 
-import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-import javax.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 @Entity
-@Table(name="SiteInfo")
+@Table(name="siteinfo")
 public class SiteInfo  extends BaseEntity {
 
 	
-	
-	
 
+	
 	private String siteName;
 	
 	private long parentSiteId;

@@ -7,7 +7,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity
-@Table(name="SiteLibrary")
+@Table(name="sitelibrary")
 public class SiteLibrary  extends BaseEntity{  
 
 

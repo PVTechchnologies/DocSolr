@@ -3,29 +3,51 @@ package com.docsolr.Sharepoint;
 
 
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.docsolr.entity.SiteFileInfo;
-import com.docsolr.entity.SiteFolders;
+import com.docsolr.entity.SiteFolder;
 import com.docsolr.entity.SiteInfo;
 import com.docsolr.entity.SiteLibrary;
+import com.docsolr.service.common.GenericService;
 import com.docsolr.util.CommonUtil;
+
 
 
 /**
  * @author gangparia
  *
  */
+@Service
 public class SharePointCallout {
 
+	@Autowired
+	GenericService<SiteInfo> siteInfoService;
+	
+	@Autowired
+	GenericService<SiteLibrary> siteLibraryService;
+	
+	@Autowired
+	GenericService<SiteFolder> siteFolder;
+	
+	@Autowired
+	GenericService<SiteFileInfo> sitefileinfo;
+	
+	
+	
 	// in use to get all sites information
-	public static String getALlSharePointSites(String token, String cookie,String formDigestValue,Session session, String userName )  {
+	public  String getALlSharePointSites(String token, String cookie,String formDigestValue, String userName )  {
 		String endPoint = "https://pgangparia.sharepoint.com/_api/search/query?querytext=%27contentclass:sts_site%27&amp;Key=SPWebUrl";
 		try{
 
@@ -60,9 +82,10 @@ public class SharePointCallout {
 								}
 								provider.setSiteName(siteName);
 								provider.setSiteURL(siteURL);
-								session.save(provider);
+								//session.save(provider);
+								siteInfoService.saveEntity(provider);
 								sites.add(provider);
-								subSites.addAll( getAllSubSites (res,provider.getId(),token,cookie,formDigestValue,session));
+								subSites.addAll( getAllSubSites (res,provider.getId(),token,cookie,formDigestValue));
 							}
 						}
 					}
@@ -70,12 +93,13 @@ public class SharePointCallout {
 			}
 			sites.addAll(subSites);
 			for(int i=0; i<sites.size();i++){
-				getAllFilesFoldersFromSite(sites.get(i).getSiteURL(),sites.get(i).getId(),token,cookie,formDigestValue,session);
+				getAllFilesFoldersFromSite(sites.get(i).getSiteURL(),sites.get(i).getId(),token,cookie,formDigestValue);
 			}
 			connection.disconnect();
 			System.out.println("--sites--> "+sites);
 		}catch(Exception e){
-			System.out.println("Exceptin is -->"+e.getMessage());
+			System.out.println("Exceptin is -->"+e.getMessage()+e.getLocalizedMessage()+e.toString());
+			e.printStackTrace();
 			//CommonUtil.generateLog(e.getMessage(), 0,  e.getLocalizedMessage(), session);
 		}finally{
 			
@@ -84,7 +108,7 @@ public class SharePointCallout {
 	}
 
 	// in use --> get all subsites
-	public static List<SiteInfo> getAllSubSites(String siteURL,long parentSiteId, String token, String cookie,String formDigestValue,Session session ){
+	public  List<SiteInfo> getAllSubSites(String siteURL,long parentSiteId, String token, String cookie,String formDigestValue ){
 		List<SiteInfo> subSites = new ArrayList<SiteInfo>();
 		//System.out.println("--siteURL-->"+siteURL);
 		String endPoint = siteURL+"/_api/web/webs/?$select=title,ServerRelativeUrl";
@@ -120,7 +144,8 @@ public class SharePointCallout {
 					provider.setSiteName(siteName);
 					provider.setSiteURL(subSiteURL);
 					provider.setParentSiteId(parentSiteId);
-					session.save(provider);
+					//session.save(provider);
+					siteInfoService.saveEntity(provider);
 					subSites.add(provider);
 				}
 			}
@@ -135,7 +160,7 @@ public class SharePointCallout {
 	}
 
 	// in use --> get all site, subsite main folders/library
-	public static void getAllFilesFoldersFromSite(String siteURL,Long siteId,String token, String cookie,String formDigestValue,Session session ){
+	public  void getAllFilesFoldersFromSite(String siteURL,Long siteId,String token, String cookie,String formDigestValue){
 		try{
 			String endPointURL = siteURL+"/_api/Web/Lists/?$filter=Hidden%20eq%20false";
 			//System.out.println("----endPointURL--->"+endPointURL);
@@ -173,8 +198,9 @@ public class SharePointCallout {
 						Date timeModified = CommonUtil.convertStringToDate((String)jsonObject2.get("LastItemModifiedDate"));
 						provider.setTimeCreated(timeCreated);
 						provider.setTimeLastModified(timeModified);
-						session.save(provider);
-						getAllFilesFromSite(siteURL,provider.getId(),provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
+						//session.save(provider);
+						siteLibraryService.saveEntity(provider);
+						getAllFilesFromSite(siteURL,provider.getId(),provider.getServerRelativeURL(),token,cookie,formDigestValue);
 					}
 				}
 			}
@@ -189,7 +215,7 @@ public class SharePointCallout {
 	}
 
 	// in use -- > use to get all folder info from site menu folders
-	public static void getAllFilesFromSite(String siteURL,Long siteLibraryId, String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
+	public  void getAllFilesFromSite(String siteURL,Long siteLibraryId, String serverRelativeUrl, String token, String cookie,String formDigestValue){
 		try{
 			String[] paths = serverRelativeUrl.split("/");
 			serverRelativeUrl = paths[paths.length - 1];
@@ -207,7 +233,7 @@ public class SharePointCallout {
 					JSONObject jsonObject2 = (JSONObject) array2.get(j);
 					JSONObject folderObj  = (JSONObject) jsonObject2.get("Folder");
 					if(folderObj.has("ItemCount") && ((int)folderObj.get("ItemCount"))>0){
-						SiteFolders provider = new SiteFolders();
+						SiteFolder provider = new SiteFolder();
 						String sitePath = obj.getPath();
 						String siteName="/";
 						if(!sitePath.isEmpty()){
@@ -226,8 +252,9 @@ public class SharePointCallout {
 						Date timeModified = CommonUtil.convertStringToDate((String)folderObj.get("TimeLastModified"));
 						provider.setTimeCreated(timeCreated);
 						provider.setTimeLastModified(timeModified);
-						session.save(provider);
-						getAllFilesInfo(siteURL,provider.getId(),provider.getServerRelativeURL(),token,cookie,formDigestValue,session);
+						//session.save(provider);
+						siteFolder.saveEntity(provider);
+						getAllFilesInfo(siteURL,provider.getId(),provider.getServerRelativeURL(),token,cookie,formDigestValue);
 					}
 				}
 			}
@@ -242,7 +269,7 @@ public class SharePointCallout {
 	}
 
 	// in use -->  used to get all files from a folder
-	public static void getAllFilesInfo(String siteURL, long folderId, String serverRelativeUrl, String token, String cookie,String formDigestValue,Session session ){
+	public  void getAllFilesInfo(String siteURL, long folderId, String serverRelativeUrl, String token, String cookie,String formDigestValue ){
 		try{
 			serverRelativeUrl = CommonUtil.replaceSpace(serverRelativeUrl);
 			String endPointURL = siteURL+"/_api/web/getfolderbyserverrelativeurl('"+serverRelativeUrl+"')?$expand=Files";
@@ -255,7 +282,7 @@ public class SharePointCallout {
 				JSONObject lineRes = new JSONObject(line);
 				System.out.println("--lineRes--> "+lineRes);
 				JSONObject jsonObj =  (JSONObject)  lineRes.getJSONObject("d");
-				getAllFolderFiles(jsonObj,folderId,siteURL,session);
+				getAllFolderFiles(jsonObj,folderId,siteURL);
 			}
 			connection.disconnect();
 		}catch(Exception e){
@@ -267,7 +294,7 @@ public class SharePointCallout {
 	}
 
 	// in use
-	public static List<SiteFileInfo> getAllFolderFiles(JSONObject  resObj,long folderId, String siteURL,Session session){
+	public  List<SiteFileInfo> getAllFolderFiles(JSONObject  resObj,long folderId, String siteURL){
 		List<SiteFileInfo>  files = new ArrayList<SiteFileInfo>();
 		try{
 			JSONObject  fileObj =  (JSONObject)  resObj.get("Files");
@@ -294,7 +321,8 @@ public class SharePointCallout {
 					file.setFileCreatedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated")));
 					file.setFileLastModifiedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified")));
 
-					session.save(file);
+					//session.save(file);
+					sitefileinfo.saveEntity(file);
 				}
 
 			}

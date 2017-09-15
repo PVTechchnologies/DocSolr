@@ -5,8 +5,8 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity
-@Table(name="siteFolders")
-public class SiteFolders extends BaseEntity {
+@Table(name="sitefolder")
+public class SiteFolder extends BaseEntity {
 	
 	private String uniqueId;
 	private long siteLibraryId;
