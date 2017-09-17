@@ -1,6 +1,5 @@
 package com.docsolr.Sharepoint;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,9 +29,7 @@ import org.xml.sax.SAXException;
 @Service
 public class LoginManager {
 	
-	@Autowired
-	SharePointCallout callout;
-	
+
 	
 	private final String sts = "https://login.microsoftonline.com/extSTS.srf";
 	private final String loginContextPath = "/_forms/default.aspx?wa=wsignin1.0";
@@ -46,24 +43,26 @@ public class LoginManager {
 		return saml;
 	}
 	
-	public String login() {
+	public LoginDetail login() {
 		String token;
 		try {
-			token = requestToken();
-			System.out.println("token-->"+token);
-			String cookie = submitToken(token);
-			System.out.println("cookie-->"+cookie);
-			String formDigestValue = getDigestAuth("","",cookie);
-			System.out.println(formDigestValue);
-			callout.getALlSharePointSites(token,cookie,formDigestValue,"sharepoint@pgangparia.onmicrosoft.com");
-			System.out.println("commited succesffully");
-			return formDigestValue;
+			LoginDetail logDetail = new LoginDetail();
+			logDetail.token = requestToken();
+			System.out.println("token-->"+logDetail.token);
+			logDetail.cookie = submitToken(logDetail.token);
+			System.out.println("cookie-->"+logDetail.cookie);
+			logDetail.formDigestValue = getDigestAuth("","",logDetail.cookie);
+			System.out.println(logDetail.formDigestValue);
+			logDetail.userName = "sharepoint@pgangparia.onmicrosoft.com";
+			//callout.getALlSharePointSites(token,cookie,formDigestValue,"sharepoint@pgangparia.onmicrosoft.com");
+			
+			return logDetail;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.identityHashCode("Exeption --> "+e.getMessage());
 			e.printStackTrace();
 		}		
-		return "";
+		return null;
 	}
 
 	private String requestToken() throws XPathExpressionException, SAXException,
@@ -208,8 +207,10 @@ public class LoginManager {
         return requestDigestXml;
     }
 
-	/*public static void main(String [] args) {
-		//System.out.println("--requestDigestXml--> " + new LoginManager2().login());
-		 new LoginManager().login();
-	}*/
+	class LoginDetail{
+		String token;
+		String cookie;
+		String formDigestValue;
+		String userName;
+	}
 }
