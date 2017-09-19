@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,8 @@ import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.Users;
 import com.docsolr.service.common.GenericService;
 import com.docsolr.util.CommonUtil;
+import com.sforce.soap.partner.DescribeGlobalResult;
+import com.sforce.soap.partner.DescribeGlobalSObjectResult;
 import com.sforce.soap.partner.DescribeSObjectResult;
 import com.sforce.soap.partner.Field;
 import com.sforce.soap.partner.FieldType;
@@ -42,8 +45,8 @@ public class DescribeSObjects {
 	        if (login()) {
 	            
 	        	// Add calls to the methods in this class.
-	        	
-	        	Object strJsonObj=describeSObjectsSample();
+	        	String[] result = describeGlobalSample();
+	        	Object strJsonObj=describeSObjectsSample(result);
 	    		return strJsonObj;	
 	        }
 	        else
@@ -68,87 +71,87 @@ public class DescribeSObjects {
 		return success;
 	}
 
-	public Object describeSObjectsSample() {
+	public Object describeSObjectsSample(String[] objects) {
 		
+		String resultSb=null;
+		Users users=new Users();
+    	users = CommonUtil.getCurrentSessionUser();
+    	
+    	
 		
-		List<String> StandardObjectList = new ArrayList<String>(Arrays.asList("account", "contact", "lead"));
-		List<String> StandardFieldsList = new ArrayList<String>();
-
-		/*List<String> CustomObjectList = new ArrayList<String>(Arrays.asList("MyCustomObjects"));
-		List<String> CustomFieldsList = new ArrayList<String>();*/
+		List<String> ObjectList = new ArrayList<String>(Arrays.asList(objects));
+		List<String> FieldsList = new ArrayList<String>();
 		
-		try {
-			String resultSb=null;
-			Users users=new Users();
-	    	users = CommonUtil.getCurrentSessionUser();
-	    	
-			Map<String, SalesforceSetupDetail> tableData = new HashMap<>();
-        	tableData = salesforceSetupDetail.getKeyValueMapString("SalesforceSetupDetail", "salesforceObjectApiName", "SalesforceSetupDetail", " Where createdById="+users.getId());
-			// Call describeSObjectResults and pass it an array with
-			// the names of the objects to describe.
-			DescribeSObjectResult[] describeSObjectResults = partnerConnection
-					.describeSObjects(new String[] {"account", "contact", "lead" });
+		Map<String, SalesforceSetupDetail> tableData = new HashMap<>();
+		tableData = salesforceSetupDetail.getKeyValueMapString("SalesforceSetupDetail", "salesforceObjectApiName", "SalesforceSetupDetail", " Where createdById="+users.getId());
 
-			// Iterate through the list of describe sObject results
-			for (int i = 0; i < describeSObjectResults.length; i++) {
-				DescribeSObjectResult desObj = describeSObjectResults[i];
-				// Get the name of the sObject
-				String objectName = desObj.getName();
-				System.out.println("sObject name: " + objectName);
-				StringBuilder sb = new StringBuilder();
-				// For each described sObject, get the fields
-				Field[] fields = desObj.getFields();
-
-				// Get some other properties
-				if (desObj.getActivateable())
-					System.out.println("\tActivateable");
-
-				// Iterate through the fields to get properties for each field
-				for (int j = 0; j < fields.length; j++) {
-					Field field = fields[j];
-					System.out.println("\tField: " + field.getName());
-					sb.append(field.getName()).append(",");
-				}
-				resultSb = sb.deleteCharAt(sb.length() - 1).toString();
+		String[]batchArray=new String[100];
+    	List<String> listOfStrings=new ArrayList<>();
+    /*	List<int[]> ObjectArrayList = new ArrayList<int[]>();*/
+    	for(int j=0;j<objects.length;j++){
+    		listOfStrings.add(objects[j]);
+    		if(listOfStrings.size()==99 || j==objects.length-1)
+    		{
+    			batchArray = listOfStrings.toArray(new String[listOfStrings.size()]);
+    			listOfStrings=new ArrayList<>();
+    		
+		try {    	
+				// Call describeSObjectResults and pass it an array with
+				// the names of the objects to describe.
+	    
+				DescribeSObjectResult[] describeSObjectResults = partnerConnection
+						.describeSObjects(batchArray);
 	
-				StandardFieldsList.add(resultSb);
-			}
-			
+				// Iterate through the list of describe sObject results
+				for (int i = 0; i < describeSObjectResults.length; i++) {
+					DescribeSObjectResult desObj = describeSObjectResults[i];
+					// Get the name of the sObject
+					String objectName = desObj.getName();
+					System.out.println("sObject name: " + objectName);
+					// For each described sObject, get the fields
+					Field[] fields = desObj.getFields();
+					StringBuilder sb = new StringBuilder();
+					// Get some other properties
+					if (desObj.getActivateable())
+						System.out.println("\tActivateable");
+	
+					// Iterate through the fields to get properties for each field
+					for (int z = 0; z < fields.length; z++) {
+						Field field = fields[z];
+						System.out.println("\tField: " + field.getName());
+						sb.append(field.getName()).append(",");
+					}
+					
+					resultSb = sb.deleteCharAt(sb.length() - 1).toString();
+		    		FieldsList.add(resultSb);
 
-			List<SalesforceMetadataTree> treeMapDataList = new ArrayList<>();
-			/*treeMapDataList=metaDataList(CustomObjectList,CustomFieldsList,tableData,treeMapDataList,"Custom");*/
-			treeMapDataList=metaDataList(StandardObjectList,StandardFieldsList,tableData,treeMapDataList,"Standard");
+					
+				}
+			
+				
+					}catch (ConnectionException ce) {
+		    			ce.printStackTrace();
+		    			return null;
+		    		}
+	    		} 
+	    	}
+    		List<SalesforceMetadataTree> treeMapDataList = new ArrayList<>();
+			treeMapDataList=metaDataList(ObjectList,FieldsList,tableData,treeMapDataList);
 			return treeMapDataList;
 			
-		} catch (ConnectionException ce) {
-			ce.printStackTrace();
-			return null;
-		}
+		
 	}
 	
-	public List<SalesforceMetadataTree> metaDataList(List<String> objectArray,List<String> fieldArray, Map<String, SalesforceSetupDetail> hashTable,List<SalesforceMetadataTree> treeMapDataList,String type) {
+	public List<SalesforceMetadataTree> metaDataList(List<String> objectArray,List<String> fieldArray, Map<String, SalesforceSetupDetail> hashTable,List<SalesforceMetadataTree> treeMapDataList) {
 
 		Map<String, String[]> treeMap = new HashMap<>();
 		
-		/*int i=0 ;
-		if(!type.equalsIgnoreCase("Custom")){
-			i=1;
-		}*/
+		
 		for (int i=0 ;i < objectArray.size(); i++) {
 
 			Map map = new HashMap();
-			// Adding elements to map
-			if(type.equalsIgnoreCase("Custom"))
-			{
-				
-				map.put(objectArray.get(i), fieldArray.get(i));
-			}
-			else
-			{
-				
-				map.put(objectArray.get(i), fieldArray.get(i));
-				
-			}
+			map.put(objectArray.get(i), fieldArray.get(i));
+			
 			// Traversing Map
 			Set set = map.entrySet();// Converting to Set so that we can
 										// traverse
@@ -200,4 +203,48 @@ public class DescribeSObjects {
 		return treeMapDataList;
 
 	}
+	
+	public String[] describeGlobalSample() {
+		
+		List<String> listOfStrings=new ArrayList<>();
+		String[] arr = null;
+	    try {
+	        // Make the describeGlobal() call
+	        DescribeGlobalResult describeGlobalResult = 
+	            partnerConnection.describeGlobal();
+	        
+	        // Get the sObjects from the describe global result
+	        DescribeGlobalSObjectResult[] sobjectResults = 
+	            describeGlobalResult.getSobjects();
+	       
+	        // Write the name of each sObject to the console
+	        listOfStrings.add("MyCustomObject__c");
+	        for (int i = 0; i < sobjectResults.length; i++) {
+	        	listOfStrings.add(sobjectResults[i].getName());
+	          System.out.println(sobjectResults[i].getName());
+	        }
+	        
+	        arr = listOfStrings.toArray(new String[listOfStrings.size()]);
+	    	return arr;
+	    } catch (ConnectionException ce) {
+	        ce.printStackTrace();
+	    	return arr;
+	    }
+	}
+	
+	/*public void createBatch(String[] objects ){
+		describeSObjectsSample(result);
+    	String[]batchArray=new String[100];
+    	List<String> listOfStrings=new ArrayList<>();
+    	List<int[]> ObjectArrayList = new ArrayList<int[]>();
+    	for(int i=0;i<result.length;i++){
+    		listOfStrings.add(result[i]);
+    		if(listOfStrings.size()==99)
+    		{
+    			batchArray = listOfStrings.toArray(new String[listOfStrings.size()]);
+    			listOfStrings=new ArrayList<>();
+    			
+    		}
+    	}
+	}*/
 }

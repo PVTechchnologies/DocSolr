@@ -80,7 +80,7 @@ public class PartnerQueryController {
 	    
 	    public Object getFields() throws ConnectionException {    
 	    	
-		SObject[] records = null;
+		List<SObject[]> recordsList = new ArrayList<>();
 		Users users = new Users();
 		users = CommonUtil.getCurrentSessionUser();
 
@@ -92,7 +92,7 @@ public class PartnerQueryController {
 		List<String> query = new ArrayList<String>();
 		for (Map.Entry<String, SalesforceSetupDetail> entrySet : tableData.entrySet()) {
 			SalesforceSetupDetail ssd = entrySet.getValue();
-			query.add("Select " + SalesforceConstants.SALESFORCE_DEFAULT_COLUMNS+ ssd.getSalesforceFields() + " from " + entrySet.getKey());
+			query.add("Select id,"+ ssd.getSalesforceFields() + " from " + entrySet.getKey());
 		}
 	        
 		/*Calling of Queries*/
@@ -112,7 +112,7 @@ public class PartnerQueryController {
 				// Loop through the batches of returned results
 				while (!done) {
 
-					records = qr.getRecords();
+					recordsList.add(qr.getRecords());
 
 					if (qr.isDone()) {
 						done = true;
@@ -134,21 +134,24 @@ public class PartnerQueryController {
 		/*Parsing of result fetched in XML form*/
 		
 		Set<String> ids = new HashSet<String>();
-		for (SObject so : records) {
-			Iterator<XmlObject> sxml = so.getChildren();
-			while (sxml.hasNext()) {
-				System.out.println("===");
-				XmlObject xobj = sxml.next();
-				if (xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Id")) {
-					System.out.println(xobj.getName().toString());
-					ids.add(xobj.getValue().toString());
+		for (SObject[] records : recordsList){
+			for (SObject so : records) {
+				Iterator<XmlObject> sxml = so.getChildren();
+				while (sxml.hasNext()) {
+					System.out.println("===");
+					XmlObject xobj = sxml.next();
+					if (xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Id")) {
+						System.out.println(xobj.getName().toString());
+						ids.add(xobj.getValue().toString());
+					}
 				}
 			}
-		}
+	    }
+		
 
 		getAttachment(ids);/*Method calling for Attachment*/
 		System.out.println(ids);
-		return records;
+		return recordsList;
 
 	}
 

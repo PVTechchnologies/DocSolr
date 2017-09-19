@@ -5,18 +5,23 @@
 
 </head>
 <body >
+<div ng-repeat="records in apiRecordData">
+<br>
+<br>
+<div ng-repeat="record in records track by $index">
+	<!-- <div class="row" ng-repeat="child in record.children track by $index">
+		<div class="col-sm-3">{{child.name}}</div>
+		<div class="col-sm-3">{{child.value}}</div>
+	</div> -->
+	<table>
+		<tr ng-repeat="child in record.children track by $index">
+			<td>{{child.name}}</td>
+			<td>{{child.value}}</td>
+		</tr>
+	</table>
+</div>
+<br>
+<br>
 	
-	 <table>
-      <tr ng-repeat="record in apiRecordData">
-      	<td>
-      	<div ng-repeat="children in record.children track by $index">
-      	<table border="1">
-      	<tr><td>{{children.name}}</td><td>{{children.value}}</td></tr>
-      	</br>
-      	</table>
-      	</div>
-      	</td>
-      </tr>
-    </table>	
 </body>
 </html>
