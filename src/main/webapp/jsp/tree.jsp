@@ -11,9 +11,12 @@
 
 <body  ng-app="myApp">
 <br>
- <p>Hello {{name}}!</p>
+ 
 	
-	
+	<div class="container">
+	<div calss="row">
+	<div class="col-md-6">
+	<p> * All Salesfroce Objects *</p>
     <ul class="tree">
         <node-tree children="jsonData"></node-tree>
     </ul>
@@ -27,8 +30,12 @@
       <li ng-repeat="item in selectedItemsObject">
       </li>
     </ul>
+   </div>
+   <div class="col-md-6">
+   <button type=button><a href="#!field" >Retrieve Field Data</a></button>
+   </div>
    
-   <a href="#!field">Field Data</a>
+   </div>
 </body>
 
 </html>
