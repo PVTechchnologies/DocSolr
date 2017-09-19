@@ -29,7 +29,7 @@
 		<property name="hibernate.query.substitutions">true=1, false=0</property>
 		 <mapping class="com.docsolr.entity.SiteInfo"></mapping>
 		  <mapping class="com.docsolr.entity.SiteFolder"></mapping>
-		   <mapping class="com.docsolr.entity.SiteFileInfo"></mapping>
+		  <mapping class="com.docsolr.entity.SiteFileInfo"></mapping>
 		   <mapping class="com.docsolr.entity.SiteLibrary"></mapping>
 	</session-factory>
 </hibernate-configuration>
