@@ -51,7 +51,11 @@ public class SharePointCallout {
 	@Autowired
 	DataService dataService;
 	
-	
+	/**
+	 *
+	 * This method can be invoked to fetech data from share point.
+	 * @return     void
+	 */
 	public void fecthSharePointData(){
 		LoginManager.LoginDetail logDetail = loginObj.login();
 		DataService.DataWrapper dataWrap = dataService.getSiteInfoMap();
@@ -60,8 +64,15 @@ public class SharePointCallout {
 		
 	}
 	
-	// in use to get all sites information
-	public  String getALlSharePointSites(LoginManager.LoginDetail logDetail, DataService.DataWrapper dataWrap )  {
+	/**
+	 *
+	 *fetch all sites information  and updates them in database
+	 *
+	 * @param  logDetail  this inner class contains login information
+	 * @param  dataWrap   contains the existing data from mysql database
+	 * @return     void
+	 */
+	public  void getALlSharePointSites(LoginManager.LoginDetail logDetail, DataService.DataWrapper dataWrap )  {
 		String endPoint = "https://pgangparia.sharepoint.com/_api/search/query?querytext=%27contentclass:sts_site%27&amp;Key=SPWebUrl";
 		Map<String,SiteInfo> siteInfoMap = dataWrap.siteInfoMap;
 		try{
@@ -126,10 +137,19 @@ public class SharePointCallout {
 		}finally{
 			
 		}
-		return "";
 	}
 
-	// in use --> get all subsites
+
+	/**
+	 *
+	 *fetch all subsites  for sites and updates them in database
+	 *
+	 * @param  siteURL  an absolute URL giving the base location of the site
+	 * @param  siteId   siteId which is referred as foreign key in sitelibrary tale
+	 * @param  logDetail  this inner class contains login information
+	 * @param  dataWrap   contains the existing data from mysql database
+	 * @return      all subsite details
+	 */
 	public  List<SiteInfo> getAllSubSites(String siteURL,long parentSiteId, LoginManager.LoginDetail logDetail,  DataService.DataWrapper dataWrap ){
 		Map<String,SiteInfo> siteInfoMap = dataWrap.siteInfoMap;
 		List<SiteInfo> subSites = new ArrayList<SiteInfo>();
@@ -169,10 +189,6 @@ public class SharePointCallout {
 					provider.setSiteURL(subSiteURL);
 					provider.setParentSiteId(parentSiteId);
 					siteInfoService.saveUpdateEntity(provider);
-					/*if(provider.getId() == null)
-						siteInfoService.saveEntity(provider);
-					else
-						siteInfoService.updateEntity(provider);*/
 					subSites.add(provider);
 				}
 			}
@@ -186,7 +202,16 @@ public class SharePointCallout {
 		return subSites;
 	}
 
-	// in use --> get all site, subsite main folders/library
+	
+	/**
+	 * fetch all libraries for sites and subsites and updates them in database
+	 * The url argument must specify an absolute {@link URL}. The name
+	 * @param  siteURL  an absolute URL giving the base location of the site
+	 * @param  siteId   siteId which is referred as foreign key in sitelibrary tale
+	 * @param  logDetail  this inner class contains login information
+	 * @param  dataWrap   contains the existing data from mysql database
+	 * @return      void
+	 */
 	public  void getAllFilesFoldersFromSite(String siteURL,Long siteId, LoginManager.LoginDetail logDetail, DataService.DataWrapper dataWrap){
 		Map<String,SiteLibrary> siteLibraryMap = dataWrap.siteLibraryMap;
 		try{
@@ -229,10 +254,6 @@ public class SharePointCallout {
 						provider.setTimeCreated(timeCreated);
 						provider.setTimeLastModified(timeModified);
 						siteLibraryService.saveUpdateEntity(provider);
-						/*if(provider.getId() == null)
-							siteLibraryService.saveEntity(provider);
-						else
-							siteLibraryService.updateEntity(provider);*/
 						getAllFilesFromSite(siteURL,provider.getId(),provider.getServerRelativeURL(),logDetail, dataWrap);
 					}
 				}
@@ -247,7 +268,17 @@ public class SharePointCallout {
 
 	}
 
-	// in use -- > use to get all folder info from site menu folders
+	/**
+	 *
+	 *use to get all folder info from site menu folders and updates/inserrt them in sitefolder table
+	 * @param  siteURL  an absolute URL giving the base location of the site
+	 * @param  siteId   siteId which is referred as foreign key in sitelibrary table
+	 * @param  serverRelativeUrl the location of the folder, relative to the siteurl argument
+	 * @param  logDetail  this inner class contains login information
+	 * @param  dataWrap   contains the existing data from mysql database
+	 * @return      the image at the specified URL
+	 * @see         Image
+	 */
 	public  void getAllFilesFromSite(String siteURL,Long siteLibraryId, String serverRelativeUrl, LoginManager.LoginDetail logDetail,  DataService.DataWrapper dataWrap){
 		Map<String, SiteFolder> siteFolderMap = dataWrap.siteFolderMap;
 		try{
@@ -292,10 +323,6 @@ public class SharePointCallout {
 						provider.setTimeCreated(timeCreated);
 						provider.setTimeLastModified(timeModified);
 						siteFolderService.saveUpdateEntity(provider);
-						/*if(provider.getId() ==null)
-							siteFolderService.saveEntity(provider);
-						else
-							siteFolderService.updateEntity(provider);*/
 						getAllFilesInfo(siteURL,provider.getId(),provider.getServerRelativeURL(), logDetail, dataWrap);
 					}
 				}
@@ -311,6 +338,17 @@ public class SharePointCallout {
 	}
 
 	// in use -->  used to get all files from a folder
+	/**
+	 *
+	 *  used to get all files from a folder and updates/inserrt them in sitefolder table
+	 * @param  siteURL  an absolute URL giving the base location of the site
+	 * @param  folderId   siteId which is referred as foreign key in sitelibrary table
+	 * @param  serverRelativeUrl the location of the folder, relative to the siteurl argument
+	 * @param  logDetail  this inner class contains login information
+	 * @param  dataWrap   contains the existing data from mysql database
+	 * @return      the image at the specified URL
+	 * @see         Image
+	 */
 	public  void getAllFilesInfo(String siteURL, long folderId, String serverRelativeUrl, LoginManager.LoginDetail logDetail, DataService.DataWrapper dataWrap ){
 		Map<String, SiteFileInfo> siteFileInfoMap = dataWrap.siteFileInfoMap;
 		try{
@@ -336,7 +374,17 @@ public class SharePointCallout {
 		}
 	}
 
-	// in use
+	/**
+	 *
+	 * helper method for getAllFilesInfo method, it receive data in json object  and updates/inserrt them in sitefolder table
+	 * @param  siteURL  an absolute URL giving the base location of the site
+	 * @param  folderId   siteId which is referred as foreign key in sitelibrary table
+	 * @param  serverRelativeUrl the location of the folder, relative to the siteurl argument
+	 * @param  logDetail  this inner class contains login information
+	 * @param  dataWrap   contains the existing data from mysql database
+	 * @return      the image at the specified URL
+	 * @see         Image
+	 */
 	public  List<SiteFileInfo> getAllFolderFiles(JSONObject  resObj,long folderId, String siteURL,  Map<String, SiteFileInfo> siteFileInfoMap ){
 		List<SiteFileInfo>  files = new ArrayList<SiteFileInfo>();
 		try{
@@ -365,10 +413,6 @@ public class SharePointCallout {
 					file.setFileCreatedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeCreated")));
 					file.setFileLastModifiedDate(CommonUtil.convertStringToDate((String)jsonObject2.get("TimeLastModified")));
 					sitefileinfoService.saveUpdateEntity(file);
-					/*if(file.getId() ==null)
-						sitefileinfoService.saveEntity(file);
-					else
-						sitefileinfoService.updateEntity(file);*/
 				}
 
 			}

@@ -43,6 +43,13 @@ public class LoginManager {
 		return saml;
 	}
 	
+	
+	
+	/**
+	 * Get all login details from sharepoint
+	 * @return    LoginDetail  inner class having all the login information including token, cookie and formDigestValue
+	 */
+	
 	public LoginDetail login() {
 		String token;
 		try {
@@ -54,8 +61,6 @@ public class LoginManager {
 			logDetail.formDigestValue = getDigestAuth("","",logDetail.cookie);
 			System.out.println(logDetail.formDigestValue);
 			logDetail.userName = "sharepoint@pgangparia.onmicrosoft.com";
-			//callout.getALlSharePointSites(token,cookie,formDigestValue,"sharepoint@pgangparia.onmicrosoft.com");
-			
 			return logDetail;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -64,7 +69,11 @@ public class LoginManager {
 		}		
 		return null;
 	}
-
+	
+	/**
+	 * process sharepoint endpoint to get token
+	 * @return     binary  access token
+	 */
 	private String requestToken() throws XPathExpressionException, SAXException,
 		ParserConfigurationException, IOException {
 		String saml = generateSAML();
@@ -93,6 +102,11 @@ public class LoginManager {
 		return token;
 	}
 	
+	/**
+	 *
+	 * @param  result   receive response from sharepoint and process it to get binary token
+	 * @return  token    the image at the specified URL
+	 */
 	private String extractToken(String result) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
 		//http://stackoverflow.com/questions/773012/getting-xml-node-text-value-with-java-dom
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -107,6 +121,12 @@ public class LoginManager {
         return token;
 	}
 	
+
+	/**
+	 *use to get cookie which is used by sharepoint callout classes to process data
+	 * @param  token   get cookies with access token 
+	 * @return cookie    cookie
+	 */
 	private String submitToken(String token) throws IOException {
 		//String token = "t=EwBwAk6hBwAUIQT64YiMbkZQLHdw6peopUrQ0O8AAYkt43mh328r0OTpTqSVMQEWGlzlpE906mSyOfU2JgkHQCBz0VBLPKyFEYeCUUqLQ0FmodljevOEceo5L1r+aj207XYvgGl+QBOMxSuNtdbPprICB/+NhRxEynCQe2l1U84a3S20At+OsGorLHKpp1RIfjR6FGGW3ahltWwDvvkcLY5mMtvOHoQx+citNFIvXGY4zzosNgum0OXMlIz26QfODI705ICMV9wmLfbJ4xQjeRAHFrPQxdeQ3mA9tepV9zPKyeAsAmFrMb0/3GUh9GK0jk9O1+N5PZYtL4cKsOrMbGN3Z++IhoTrwLR6/8PJrZNtyKJhv/W35N66THKsKH0DZgAACDKSCSEEFKnaQAEQ+c2vlhFUJ1WBjs9puwnuOFye+J6AvcpFrCaefpBozSYZTQAwJDuHu51xUyrUhrPetgTekrM04m7q6IpqccJBFxTzd3UAkJLgFJQpcerLOFKgYMrVNWOyqEPzn9Zdjv3Xa73HGa36kOUqZeDPcBcxOtMy0I5LmV8tQ4a3Cc302hDax208/eL1fi5xqEiUE89DLEJ8w9KyIWfVUFwvs3r374t/7KJmQH55yZk3p874gNFyToHA4s+0ZuMikRyDTXeYPQ/Jz8rgIYGA+dCwDNb6x+2y26TRX9QiWYvuhcJ8V1xola+Wo6tjHJwon+8QHXLjCiOXkLUvZbjnR2X+UoAnAYNYb5YVeTBqQSO2l19VhK4o5tnHvOhnwVBM8DeGFJSeMChqS7SlPzq/39ntZtPmv9HuvFrP8801pW9KmxgXdoEB&p=";
 		//System.out.println("token-->"+token);
@@ -172,6 +192,14 @@ public class LoginManager {
 		return cookie;
 	}
 	
+
+	/**
+	 *use to get cookie which is used by sharepoint callout classes to process data
+	 * @param  host    sharepoint url to get digest token
+	 * @param  token   
+	 * @param  cookie   
+	 * @return requestDigestXml    requestDigestXml
+	 */
 	public  String getDigestAuth(String host, String token, String cookie) throws IOException{
 		//System.out.println("in requestDigestXml");
 		//System.out.println("--cookie-->"+cookie);
