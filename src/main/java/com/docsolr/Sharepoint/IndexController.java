@@ -37,11 +37,11 @@ public class IndexController {
         return "Sites"; 
     } 
 	 
-	 @RequestMapping(value = "/", method = RequestMethod.GET)
+	/* @RequestMapping(value = "/", method = RequestMethod.GET)
 	 public String printWelcome(ModelMap model) {
 
 		 model.addAttribute("message", "Spring 3 MVC Hello World");
 		 return "hello";
 
-	 }
+	 }*/
 }
