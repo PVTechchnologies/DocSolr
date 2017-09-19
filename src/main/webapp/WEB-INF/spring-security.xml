@@ -11,13 +11,13 @@
 
 
 
+	<http pattern="/css/**" security="none" />
+	<http pattern="/images/**" security="none" />
 	<http pattern="/app/**" security="none" />
 	<http pattern="/scripts/**" security="none" />
 	<http pattern="/jsp/**" security="none" />
 	<http pattern="/plugins/**" security="none" />
 	<http pattern="/js/**" security="none" />
-	<http pattern="/css/**" security="none" />
-	<http pattern="/images/**" security="none" />
 	<http pattern="/styles/**" security="none" />
 	<http pattern="/fonts/**" security="none" />
 	<http pattern="/*.html" security="none" />
@@ -30,23 +30,16 @@
 	<http pattern="/addUser" security="none" />
 	<http pattern="/docsolrlogin" security="none" />
 	<http pattern="/signup" security="none" />
-	<http pattern="/social/facebook/**" security="none" />
-	<http pattern="/connect/**" security="none" />
-	<http pattern="/signin/**" security="none" />
 	<http pattern="/populatePersonData" security="none" />
 	<http pattern="/logout" security="none" />
 	<http pattern="/auth/salesforce" security="none" />
 	<http pattern="/" security="none" />
 	<http pattern="/auth/salesforce/callback"  security="none" />
 	<http pattern="/auth/salesforce/logout"  security="none" />
+	<http pattern="/social/facebook/**" security="none" />
+	<http pattern="/connect/**" security="none" />
+	<http pattern="/signin/**" security="none" />
 	<http pattern="/login" security="none" />
-
-	
-
-	<!-- ================== Multi Tenant Url Authentication Configuration -->
-
-	<beans:bean id="forceFullySessionClearFilter"
-		class="com.docsolr.web.filter.ForceFullySessionClearFilter" />
 
 	<http auto-config="true" pattern="/api/**" use-expressions="true"
 		disable-url-rewriting="true" create-session="stateless"
@@ -61,6 +54,315 @@
 		<custom-filter ref="restUsernameAndPasswordAuthenticationFilter"
 			before="FORM_LOGIN_FILTER" />
 	</http>
+	
+	<http pattern="/saml/web/**" use-expressions="false">
+	    <access-denied-handler error-page="/saml/web/metadata/login"/>
+	    <form-login login-processing-url="/saml/web/login" login-page="/saml/web/metadata/login" default-target-url="/saml/web/metadata"/>
+	     <intercept-url pattern="/saml/**" access="ROLE_ADMIN"/>
+	    <custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
+	</http>
+	
+	<http entry-point-ref="samlEntryPoint"  use-expressions="false">
+        <intercept-url pattern="/saml/**" access="IS_AUTHENTICATED_FULLY"/>
+        <custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
+        <custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
+        <csrf disabled="true"/>
+    </http>
+	
+	<!-- Filters for processing of SAML messages -->
+	<beans:bean id="samlFilter" class="org.springframework.security.web.FilterChainProxy">
+    	<filter-chain-map request-matcher="ant">
+	        <filter-chain pattern="/saml/login/**" filters="samlEntryPoint"/>
+	        <filter-chain pattern="/saml/logout/**" filters="samlLogoutFilter"/>
+	        <filter-chain pattern="/saml/metadata/**" filters="metadataDisplayFilter"/>
+	        <filter-chain pattern="/saml/SSO/**" filters="samlWebSSOProcessingFilter"/>
+	        <filter-chain pattern="/saml/SSOHoK/**" filters="samlWebSSOHoKProcessingFilter"/>
+	        <filter-chain pattern="/saml/SingleLogout/**" filters="samlLogoutProcessingFilter"/>
+	        <filter-chain pattern="/saml/discovery/**" filters="samlIDPDiscovery"/>
+    	</filter-chain-map>
+	</beans:bean>
+	
+<!-- 	<http auto-config="true" use-expressions="true"
+		disable-url-rewriting="true" authentication-manager-ref="simpleAuthenticationManager">
+		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" /> <form-login 
+			login-processing-url="/j_spring_security_check" login-page="/docsolrlogin" 
+			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
+			authentication-failure-url="/docsolrlogin?error=fail" /> <csrf disabled="true" /> <logout 
+			logout-success-url="/docsolrlogin" logout-url="/j_spring_security_logout"/>			
+	</http> -->
+
+    <!-- Handler deciding where to redirect user after successful login -->
+    <beans:bean id="successRedirectHandler"
+          class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+        <beans:property name="defaultTargetUrl" value="/"/>
+    </beans:bean>
+
+    <!-- Handler deciding where to redirect user after failed login -->
+    <beans:bean id="failureRedirectHandler"
+          class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+        <beans:property name="useForward" value="true"/>
+        <beans:property name="defaultFailureUrl" value="/error.jsp"/>
+    </beans:bean>
+
+    <!-- Handler for successful logout -->
+    <beans:bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
+        <beans:property name="defaultTargetUrl" value="/logout.jsp"/>
+    </beans:bean>
+
+    <authentication-manager alias="authenticationManager" >
+        <!-- Register authentication manager for SAML provider -->
+        <authentication-provider ref="samlAuthenticationProvider"/>
+        <!-- Register authentication manager for administration UI -->
+        <authentication-provider>
+            <user-service id="adminInterfaceService">
+                <user name="admin" password="admin" authorities="ROLE_ADMIN"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+
+    <!-- Logger for SAML messages and events -->
+    <beans:bean id="samlLogger" class="org.springframework.security.saml.log.SAMLDefaultLogger"/>
+
+    <!-- Central storage of cryptographic keys -->
+    <beans:bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
+        <beans:constructor-arg value="classpath:samlKeystore.jks"/>
+        <beans:constructor-arg type="java.lang.String" value="nalle123"/>
+        <beans:constructor-arg>
+            <beans:map>
+                <beans:entry key="mykey" value="nalle123"/>
+            </beans:map>
+        </beans:constructor-arg>
+        <beans:constructor-arg type="java.lang.String" value="mykey"/>
+    </beans:bean>
+
+    <!-- Entry point to initialize authentication, default values taken from properties file -->
+    <beans:bean id="samlEntryPoint" class="org.springframework.security.saml.SAMLEntryPoint">
+        <beans:property name="defaultProfileOptions">
+            <beans:bean class="org.springframework.security.saml.websso.WebSSOProfileOptions">
+                <beans:property name="includeScoping" value="false"/>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+
+    <!-- IDP Discovery Service -->
+    <beans:bean id="samlIDPDiscovery" class="org.springframework.security.saml.SAMLDiscovery">
+        <beans:property name="idpSelectionPath" value="/jsp/idpSelection.jsp"/>
+    </beans:bean>
+    
+<!--     <beans:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <beans:property name="targetClass" value="org.apache.commons.httpclient.protocol.Protocol"/>
+    <beans:property name="targetMethod" value="registerProtocol"/>
+    <beans:property name="arguments">
+        <beans:list>
+            <beans:value>https</beans:value>
+            <beans:bean class="org.apache.commons.httpclient.protocol.Protocol">
+                <beans:constructor-arg value="https"/>
+                <beans:constructor-arg>
+                    <beans:bean class="org.springframework.security.saml.trust.httpclient.TLSProtocolSocketFactory">
+                    <beans:constructor-arg ref="keyManager"/>
+                        <beans:constructor-arg> <beans:null/></beans:constructor-arg>
+                        <beans:constructor-arg value="default"/>
+                    </beans:bean>
+                </beans:constructor-arg>
+                <beans:constructor-arg value="443"/>
+            </beans:bean>
+        </beans:list>
+    </beans:property>
+	</beans:bean> -->
+
+    <!-- Filter automatically generates default SP metadata -->
+    <beans:bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
+ 		<beans:constructor-arg>
+  			<beans:bean class="org.springframework.security.saml.metadata.MetadataGenerator">
+   				<beans:property name="entityId" value="DocSolrSSONew"/>
+   				<beans:property name="extendedMetadata">
+    			<beans:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
+     				<beans:property name="signMetadata" value="false"/>
+     				<beans:property name="idpDiscoveryEnabled" value="true"/>
+     				<beans:property name="ecpEnabled" value="true"/>    				
+    			</beans:bean>
+   				</beans:property>
+  			</beans:bean>
+ 		</beans:constructor-arg>
+	</beans:bean>
+
+    <!-- The filter is waiting for connections on URL suffixed with filterSuffix and presents SP metadata there -->
+    <beans:bean id="metadataDisplayFilter" class="org.springframework.security.saml.metadata.MetadataDisplayFilter"/>
+
+
+	<beans:bean id="metadata" class="org.springframework.security.saml.metadata.CachingMetadataManager">
+	    <beans:constructor-arg>
+            <beans:list>
+                <!-- Example of classpath metadata with Extended Metadata -->
+                <beans:bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
+                    <beans:constructor-arg>
+                        <beans:bean class="org.opensaml.saml2.metadata.provider.ResourceBackedMetadataProvider">
+                            <beans:constructor-arg>
+                                <beans:bean class="java.util.Timer"/>
+                            </beans:constructor-arg>
+                            <beans:constructor-arg>
+                                <beans:bean class="org.opensaml.util.resource.ClasspathResource">
+                                    <beans:constructor-arg value="/metadata.xml"/>                                  
+                                </beans:bean>
+                            </beans:constructor-arg>
+                            <beans:property name="parserPool" ref="parserPool"/>
+                        </beans:bean>
+                    </beans:constructor-arg>
+                    <beans:constructor-arg>
+                        <beans:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
+                        <beans:property name="signMetadata" value="false" />
+                        <beans:property name="idpDiscoveryEnabled" value="true"/>
+                        <beans:property name="ecpEnabled" value="true"/>
+                        </beans:bean>
+                    </beans:constructor-arg>
+                    <beans:property name="metadataTrustCheck" value="true"></beans:property>
+                    <beans:property name="metadataRequireSignature" value="false"></beans:property>
+                </beans:bean>
+            </beans:list>
+        </beans:constructor-arg>
+	</beans:bean>
+	
+	
+    <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
+    <beans:bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
+        <!-- OPTIONAL property: can be used to store/load user data after login -->
+        <beans:property name="userDetails" ref="samlUserDetails" />
+    </beans:bean>
+    
+    <beans:bean id="samlUserDetails" class="com.docsolr.service.common.Impl.SAMLUserDetailsServiceImpl"/>
+
+    <!-- Provider of default SAML Context -->
+    <beans:bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl"/>
+
+    <!-- Processing filter for WebSSO profile messages -->
+    <beans:bean id="samlWebSSOProcessingFilter" class="org.springframework.security.saml.SAMLProcessingFilter">
+        <beans:property name="authenticationManager" ref="authenticationManager"/>
+        <beans:property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
+        <beans:property name="authenticationFailureHandler" ref="failureRedirectHandler"/>
+    </beans:bean>
+
+    <!-- Processing filter for WebSSO Holder-of-Key profile -->
+    <beans:bean id="samlWebSSOHoKProcessingFilter" class="org.springframework.security.saml.SAMLWebSSOHoKProcessingFilter">
+        <beans:property name="authenticationManager" ref="authenticationManager"/>
+        <beans:property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
+        <beans:property name="authenticationFailureHandler" ref="failureRedirectHandler"/>
+    </beans:bean>
+
+    <!-- Logout handler terminating local session -->
+    <beans:bean id="logoutHandler"
+          class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler">
+        <beans:property name="invalidateHttpSession" value="false"/>
+    </beans:bean>
+
+    <!-- Override default logout processing filter with the one processing SAML messages -->
+    <beans:bean id="samlLogoutFilter" class="org.springframework.security.saml.SAMLLogoutFilter">
+        <beans:constructor-arg index="0" ref="successLogoutHandler"/>
+        <beans:constructor-arg index="1" ref="logoutHandler"/>
+        <beans:constructor-arg index="2" ref="logoutHandler"/>
+    </beans:bean>
+
+    <!-- Filter processing incoming logout messages -->
+    <!-- First argument determines URL user will be redirected to after successful global logout -->
+    <beans:bean id="samlLogoutProcessingFilter" class="org.springframework.security.saml.SAMLLogoutProcessingFilter">
+        <beans:constructor-arg index="0" ref="successLogoutHandler"/>
+        <beans:constructor-arg index="1" ref="logoutHandler"/>
+    </beans:bean>
+
+    <!-- Class loading incoming SAML messages from httpRequest stream -->
+    <beans:bean id="processor" class="org.springframework.security.saml.processor.SAMLProcessorImpl">
+        <beans:constructor-arg>
+            <beans:list>
+                <beans:ref bean="redirectBinding"/>
+                <beans:ref bean="postBinding"/>
+                <beans:ref bean="artifactBinding"/>
+                <beans:ref bean="soapBinding"/>
+                <beans:ref bean="paosBinding"/>
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
+
+    <!-- SAML 2.0 WebSSO Assertion Consumer -->
+    <beans:bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl">
+    	<beans:property name="releaseDOM" value="false"></beans:property>
+    </beans:bean>
+
+    <!-- SAML 2.0 Holder-of-Key WebSSO Assertion Consumer -->
+    <beans:bean id="hokWebSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl"/>
+
+    <!-- SAML 2.0 Web SSO profile -->
+    <beans:bean id="webSSOprofile" class="org.springframework.security.saml.websso.WebSSOProfileImpl"/>
+
+    <!-- SAML 2.0 Holder-of-Key Web SSO profile -->
+    <beans:bean id="hokWebSSOProfile" class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl"/>
+
+    <!-- SAML 2.0 ECP profile -->
+    <beans:bean id="ecpprofile" class="org.springframework.security.saml.websso.WebSSOProfileECPImpl"/>
+
+    <!-- SAML 2.0 Logout Profile -->
+    <beans:bean id="logoutprofile" class="org.springframework.security.saml.websso.SingleLogoutProfileImpl"/>
+
+    <!-- Bindings, encoders and decoders used for creating and parsing messages -->
+    <beans:bean id="postBinding" class="org.springframework.security.saml.processor.HTTPPostBinding">
+        <beans:constructor-arg ref="parserPool"/>
+        <beans:constructor-arg ref="velocityEngine"/>
+    </beans:bean>
+
+    <beans:bean id="redirectBinding" class="org.springframework.security.saml.processor.HTTPRedirectDeflateBinding">
+        <beans:constructor-arg ref="parserPool"/>
+    </beans:bean>
+
+    <beans:bean id="artifactBinding" class="org.springframework.security.saml.processor.HTTPArtifactBinding">
+        <beans:constructor-arg ref="parserPool"/>
+        <beans:constructor-arg ref="velocityEngine"/>
+        <beans:constructor-arg>
+            <beans:bean class="org.springframework.security.saml.websso.ArtifactResolutionProfileImpl">
+                <beans:constructor-arg>
+                    <beans:bean class="org.apache.commons.httpclient.HttpClient">
+                        <beans:constructor-arg>
+                            <beans:bean class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:constructor-arg>
+                <beans:property name="processor">
+                    <beans:bean class="org.springframework.security.saml.processor.SAMLProcessorImpl">
+                        <beans:constructor-arg ref="soapBinding"/>
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:constructor-arg>
+    </beans:bean>
+
+    <beans:bean id="soapBinding" class="org.springframework.security.saml.processor.HTTPSOAP11Binding">
+        <beans:constructor-arg ref="parserPool"/>
+    </beans:bean>
+
+    <beans:bean id="paosBinding" class="org.springframework.security.saml.processor.HTTPPAOS11Binding">
+        <beans:constructor-arg ref="parserPool"/>
+    </beans:bean>
+
+    <!-- Initialization of OpenSAML library-->
+    <beans:bean class="org.springframework.security.saml.SAMLBootstrap"/>
+
+    <!-- Initialization of the velocity engine -->
+    <beans:bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory" factory-method="getEngine"/>
+
+    <!-- XML parser pool needed for OpenSAML parsing -->
+    <beans:bean id="parserPool" class="org.opensaml.xml.parse.StaticBasicParserPool" init-method="initialize">
+        <beans:property name="builderFeatures">
+            <beans:map>
+                <beans:entry key="http://apache.org/xml/features/dom/defer-node-expansion" value="false"/>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+
+    <beans:bean id="parserPoolHolder" class="org.springframework.security.saml.parser.ParserPoolHolder"/>
+    
+    
+	<!-- ================== Multi Tenant Url Authentication Configuration -->
+
+	<beans:bean id="forceFullySessionClearFilter"
+		class="com.docsolr.web.filter.ForceFullySessionClearFilter" />
+
 	<beans:bean id="restPreAuthenticatedProcessingFilter"
 		class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
 		<beans:property name="principalRequestHeader" value="X-AUTH-TOKEN" />
@@ -142,7 +444,7 @@
 		</authentication-provider>
 	</authentication-manager>
 	<beans:bean id="simpleUrlAuthenticationSuccessHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler"> 
-		<beans:property name="defaultTargetUrl" value="/user" /> <beans:property 
+		<beans:property name="defaultTargetUrl" value="/signin" /> <beans:property 
 		name="targetUrlParameter" value="redirect" /> </beans:bean>
 	<beans:bean id="userDetailService" class="com.docsolr.service.UserDetailsServiceImpl" />
 	<!-- For hashing and salting user passwords -->

@@ -118,6 +118,13 @@
 							</button>
 					</form>
 					
+					<form action="saml/login" method="GET">
+							<button class="btn btn-lg btn-block kpx_btn-facebook" type="submit"
+								data-toggle="tooltip" data-placement="top" title="SSO">
+								<i class="fa fa-Salesforce fa-2x">Salesforce SSO</i> <span class="hidden-xs"></span>
+							</button>
+					</form>
+					
 					
 				</div>
 			</div>
