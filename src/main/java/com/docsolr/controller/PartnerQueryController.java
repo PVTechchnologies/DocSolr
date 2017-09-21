@@ -88,6 +88,7 @@ public class PartnerQueryController {
 		tableData = salesforceSetupDetail.getKeyValueMapString("SalesforceSetupDetail", "salesforceObjectApiName",
 				"SalesforceSetupDetail", " Where createdById=" + users.getId());
 
+		try{
 		/*Making list of quries from database records*/
 		List<String> query = new ArrayList<String>();
 		for (Map.Entry<String, SalesforceSetupDetail> entrySet : tableData.entrySet()) {
@@ -106,7 +107,7 @@ public class PartnerQueryController {
 				// Make the query call and get the query results
 
 				QueryResult qr = partnerConnection.query(soqlQuery);
-
+				
 				boolean done = false;
 				int loopCount = 0;
 				// Loop through the batches of returned results
@@ -138,10 +139,10 @@ public class PartnerQueryController {
 			for (SObject so : records) {
 				Iterator<XmlObject> sxml = so.getChildren();
 				while (sxml.hasNext()) {
-					System.out.println("===");
+					
 					XmlObject xobj = sxml.next();
 					if (xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Id")) {
-						System.out.println(xobj.getName().toString());
+						
 						ids.add(xobj.getValue().toString());
 					}
 				}
@@ -150,8 +151,13 @@ public class PartnerQueryController {
 		
 
 		getAttachment(ids);/*Method calling for Attachment*/
-		System.out.println(ids);
+		
 		return recordsList;
+		}
+		catch (Exception e) {
+		
+			return null;
+		}
 
 	}
 
@@ -167,7 +173,7 @@ public class PartnerQueryController {
 		}
 
 		result.deleteCharAt(result.length() - 1);
-		System.out.println(result);
+	
 
 		String soqlQuery = "SELECT Id, body FROM Attachment Where ParentID IN(" + result + ")";
 
@@ -194,16 +200,15 @@ public class PartnerQueryController {
 		for (SObject so : records) {
 			Iterator<XmlObject> sxml = so.getChildren();
 			while (sxml.hasNext()) {
-				System.out.println("===");
+			
 				XmlObject xobj = sxml.next();
 				if (xobj.getName().toString().equalsIgnoreCase("{urn:sobject.partner.soap.sforce.com}Body")) {
-					System.out.println(xobj.getName().toString());
+					
 					ids.add(xobj.getValue().toString());
 				}
 			}
 		}
-		System.out.println(ids);
-		System.out.println("attachment >>>>>>..." + records);
+		
 
 	}
 	   
