@@ -40,8 +40,22 @@
 	<http pattern="/connect/**" security="none" />
 	<http pattern="/signin/**" security="none" />
 	<http pattern="/login" security="none" />
-
-	<http auto-config="true" pattern="/api/**" use-expressions="true"
+	
+	<http pattern="/saml/web/**" use-expressions="false">
+	    <access-denied-handler error-page="/saml/web/metadata/login"/>
+	    <form-login login-processing-url="/saml/web/login" login-page="/saml/web/metadata/login" default-target-url="/saml/web/metadata"/>
+	     <intercept-url pattern="/saml/**" access="ROLE_ADMIN"/>
+	    <custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
+	</http>
+	
+	<http entry-point-ref="samlEntryPoint" pattern="/saml/**" use-expressions="false">
+        <intercept-url pattern="/saml/**" access="IS_AUTHENTICATED_FULLY"/>
+        <custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
+        <custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
+        <csrf disabled="true"/>
+    </http>
+    
+    <http auto-config="true" pattern="/api/**" use-expressions="true"
 		disable-url-rewriting="true" create-session="stateless"
 		authentication-manager-ref="tenantedAuthenticationManager"
 		security-context-repository-ref="restHttpSessionSecurityContextRepository"
@@ -54,20 +68,15 @@
 		<custom-filter ref="restUsernameAndPasswordAuthenticationFilter"
 			before="FORM_LOGIN_FILTER" />
 	</http>
-	
-	<http pattern="/saml/web/**" use-expressions="false">
-	    <access-denied-handler error-page="/saml/web/metadata/login"/>
-	    <form-login login-processing-url="/saml/web/login" login-page="/saml/web/metadata/login" default-target-url="/saml/web/metadata"/>
-	     <intercept-url pattern="/saml/**" access="ROLE_ADMIN"/>
-	    <custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
-	</http>
-	
-	<http entry-point-ref="samlEntryPoint"  use-expressions="false">
-        <intercept-url pattern="/saml/**" access="IS_AUTHENTICATED_FULLY"/>
-        <custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
-        <custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
-        <csrf disabled="true"/>
-    </http>
+    
+    <http auto-config="true" use-expressions="true"
+		disable-url-rewriting="true" authentication-manager-ref="simpleAuthenticationManager">
+		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" /> <form-login 
+			login-processing-url="/j_spring_security_check" login-page="/docsolrlogin" 
+			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
+			authentication-failure-url="/docsolrlogin?error=fail" /> <csrf disabled="true" /> <logout 
+			logout-success-url="/docsolrlogin" logout-url="/j_spring_security_logout"/>			
+	</http> 
 	
 	<!-- Filters for processing of SAML messages -->
 	<beans:bean id="samlFilter" class="org.springframework.security.web.FilterChainProxy">
@@ -81,15 +90,6 @@
 	        <filter-chain pattern="/saml/discovery/**" filters="samlIDPDiscovery"/>
     	</filter-chain-map>
 	</beans:bean>
-	
-<!-- 	<http auto-config="true" use-expressions="true"
-		disable-url-rewriting="true" authentication-manager-ref="simpleAuthenticationManager">
-		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" /> <form-login 
-			login-processing-url="/j_spring_security_check" login-page="/docsolrlogin" 
-			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
-			authentication-failure-url="/docsolrlogin?error=fail" /> <csrf disabled="true" /> <logout 
-			logout-success-url="/docsolrlogin" logout-url="/j_spring_security_logout"/>			
-	</http> -->
 
     <!-- Handler deciding where to redirect user after successful login -->
     <beans:bean id="successRedirectHandler"
