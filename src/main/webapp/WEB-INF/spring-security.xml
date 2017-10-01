@@ -69,15 +69,6 @@
 			before="FORM_LOGIN_FILTER" />
 	</http>
     
-    <http auto-config="true" use-expressions="true"
-		disable-url-rewriting="true" authentication-manager-ref="simpleAuthenticationManager">
-		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" /> <form-login 
-			login-processing-url="/j_spring_security_check" login-page="/docsolrlogin" 
-			authentication-success-handler-ref="simpleUrlAuthenticationSuccessHandler" 
-			authentication-failure-url="/docsolrlogin?error=fail" /> <csrf disabled="true" /> <logout 
-			logout-success-url="/docsolrlogin" logout-url="/j_spring_security_logout"/>			
-	</http> 
-	
 	<!-- Filters for processing of SAML messages -->
 	<beans:bean id="samlFilter" class="org.springframework.security.web.FilterChainProxy">
     	<filter-chain-map request-matcher="ant">
