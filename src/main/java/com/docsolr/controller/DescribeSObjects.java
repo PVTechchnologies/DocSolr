@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.docsolr.dto.SalesforceMetadataTree;
+
 import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.Users;
 import com.docsolr.service.common.GenericService;
@@ -35,11 +38,16 @@ public class DescribeSObjects {
 	
 	 public PartnerConnection partnerConnection ;
 	 
+
+	 
 	@RequestMapping(value = "/recieveObjects", method = RequestMethod.GET)
 	@ResponseBody
 	public Object getFieldData() throws RemoteException, Exception {
 		if (login()) {
 
+			/*Users users = CommonUtil.getCurrentSessionUser();
+			System.out.println(users.getAccount().getId());*/
+			
 			// Add calls to the methods in this class.
 			String[] result = retrieveStandardObjects();
 			Object strJsonObj = retireveFields(result);
@@ -91,13 +99,14 @@ public class DescribeSObjects {
 					// the names of the objects to describe.
 
 					DescribeSObjectResult[] describeSObjectResults = partnerConnection.describeSObjects(batchArray);
-
+					
+				
 					// Iterate through the list of describe sObject results
 					for (int i = 0; i < describeSObjectResults.length; i++) {
 						DescribeSObjectResult desObj = describeSObjectResults[i];
 						// Get the name of the sObject
 						String objectName = desObj.getName();
-						System.out.println("sObject name: " + objectName);
+					
 						// For each described sObject, get the fields
 						Field[] fields = desObj.getFields();
 						StringBuilder sb = new StringBuilder();
@@ -109,7 +118,7 @@ public class DescribeSObjects {
 						// field
 						for (int z = 0; z < fields.length; z++) {
 							Field field = fields[z];
-							System.out.println("\tField: " + field.getName());
+							
 							sb.append(field.getName()).append(",");
 						}
 
@@ -153,7 +162,7 @@ public class DescribeSObjects {
 				// Converting to Map.Entry so that we can get key and value
 				// separately
 				Map.Entry entry = (Map.Entry) itr.next();
-				System.out.println(entry.getKey() + " " + entry.getValue());
+				
 				String[] sarray = entry.getValue().toString().split(",");
 				treeMap.put(entry.getKey().toString(), sarray);
 				SalesforceMetadataTree child = null;
@@ -187,7 +196,7 @@ public class DescribeSObjects {
 			}
 
 		}
-		System.out.println(treeMapDataList);
+		
 		return treeMapDataList;
 
 	}
@@ -207,10 +216,10 @@ public class DescribeSObjects {
 			DescribeGlobalSObjectResult[] sobjectResults = describeGlobalResult.getSobjects();
 
 			// Write the name of each sObject to the console
-			listOfStrings.add("MyCustomObject__c");
+			
 			for (int i = 0; i < sobjectResults.length; i++) {
 				listOfStrings.add(sobjectResults[i].getName());
-				System.out.println(sobjectResults[i].getName());
+			
 			}
 
 			arr = listOfStrings.toArray(new String[listOfStrings.size()]);

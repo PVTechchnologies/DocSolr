@@ -167,7 +167,7 @@ public class Users extends BaseEntity {
 		this.profiles = profiles;
 	}
 	
-	@ManyToOne(targetEntity = Account.class)
+	@ManyToOne(targetEntity = Account.class,fetch=FetchType.EAGER)
     @JoinColumn(name = "accountId")
 	public Account getAccount() {
 		return account;
