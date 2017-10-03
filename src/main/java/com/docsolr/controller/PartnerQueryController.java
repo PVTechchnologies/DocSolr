@@ -1,7 +1,9 @@
 package com.docsolr.controller;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,22 +13,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.docsolr.constants.SalesforceConstants;
 import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.Users;
 import com.docsolr.service.common.GenericService;
 import com.docsolr.util.CommonUtil;
-import com.sforce.soap.partner.DescribeSObjectResult;
-import com.sforce.soap.partner.Field;
-import com.sforce.soap.partner.FieldType;
+import com.google.gson.Gson;
 import com.sforce.soap.partner.PartnerConnection;
-import com.sforce.soap.partner.PicklistEntry;
 import com.sforce.soap.partner.QueryResult;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
@@ -108,7 +109,11 @@ public class PartnerQueryController {
 
 				QueryResult qr = partnerConnection.query(soqlQuery);
 				
+				Gson gson = new Gson();
+				String json = gson.toJson(qr);
+				System.out.println(json);
 				boolean done = false;
+				
 				int loopCount = 0;
 				// Loop through the batches of returned results
 				while (!done) {
@@ -151,6 +156,14 @@ public class PartnerQueryController {
 		
 
 		getAttachment(ids);/*Method calling for Attachment*/
+	
+		Gson gson = new Gson();
+		String json = gson.toJson(recordsList);
+		System.out.println(json);
+
+		JSONArray jsonObject = new JSONArray(json);
+		String xml = XML.toString(jsonObject);
+		System.out.println(xml);
 		
 		return recordsList;
 		}
@@ -240,7 +253,7 @@ public class PartnerQueryController {
 			}
       		return ids;
 	   }*/
-	  
+	
 	
 	}
 

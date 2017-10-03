@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+<link rel="stylesheet" href="css/bootstrap.css">
 <link rel="stylesheet" href="css/homepage/home.css">
 <link rel="stylesheet" href="css/homepage/hometheme.css">
 <link rel="stylesheet" href="css/homepage/homefont.css">
@@ -30,7 +30,7 @@
     <a href="#!search" class="w3-bar-item w3-button w3-hide-small w3-hover-white">ShareDrive</a>
     <div class="w3-dropdown-hover w3-hide-small">
    <input id="username" name="username" type="hidden" value="${user.firstName}"/>
-    <button class="w3-button" title="Notifications">${user.firstName} ${user.lastName}  <span class="glyphicon glyphicon-menu-down"></span></button>     
+    <button class="w3-button" title="Notifications">${user.firstName} ${user.lastName}  <span class="glyphicon glyphicon-chevron-down"></span></button>     
     <div class="w3-dropdown-content w3-card-4 w3-bar-block">
     <!--   <a href="tree" class="w3-bar-item w3-button">Tree</a> -->
       <form action="j_spring_security_logout" method="GET" id="logout_form">

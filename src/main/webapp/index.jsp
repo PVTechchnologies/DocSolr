@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
 
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
 <!-- <script src="https://code.angularjs.org/1.3.0-beta.5/angular.js"></script> -->
+
+<link rel="stylesheet" href="css/bootstrap.css">
 <link rel="stylesheet" href="css/homepage/home.css">
 <link rel="stylesheet" href="css/homepage/hometheme.css">
 <link rel="stylesheet" href="css/homepage/homefont.css">

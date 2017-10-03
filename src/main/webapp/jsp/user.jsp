@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
 <head>
-<title>User Profile Page | Beingjavaguys.com</title>
+<title>Docsolr</title>
 
 </head>
 <body>
