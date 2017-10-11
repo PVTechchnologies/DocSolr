@@ -5,7 +5,7 @@
 	pageEncoding="ISO-8859-1"%>
 <%@ page isELIgnored="false"%>
 <!DOCTYPE html>
-<html lang="en">
+<html ng-app="myApp" lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -16,22 +16,39 @@
 	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
 
 </head>
-<body>
-	<div class="jumbotron">
+<body  >
+<div ng-controller="SolrCtrl">
+	<div class="jumbotron"  >
 		<h3>Docsolr</h3>
 		<div class=row>
 			<div class="col-md-2">
 				<span style="font-size: 30px; cursor: pointer" onclick="openNav()">&#9776;</span>
 			</div>
+			
 			<div class="col-md-9">
 
-				<div class="inner-addon right-addon">
-					<i class="glyphicon glyphicon-search"></i><input type="search"
-						class="form-control" placeholder="Search" />
+				<div class="inner-addon right-addon" >
+					<i class="glyphicon glyphicon-search" ng-click="solrRespnseData()"></i><input type="search"
+						class="form-control" placeholder="Search" ng-model="inSearch" />
 				</div>
 			</div>
+			
 		</div>
 	</div>
+
+	<div ng-repeat="company in CompanyList">
+					<br> <br>
+
+						<table align=center>
+							<tr>
+								<td><a href="https://ap5.salesforce.com/{{company.id}}" style="color:white;">{{company.name}}</a></td>
+							</tr>
+						</table>
+	</div>
+
+		
+			</div>	
+				
 	<div id="mySidenav" class="sidenav">
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<div class="inner-addon left-addon">

@@ -390,6 +390,17 @@
 		    <artifactId>httpclient</artifactId>
 		    <version>4.5.2</version>
 		</dependency>	
+		
+		
+<!-- https://mvnrepository.com/artifact/org.apache.solr/solr-solrj -->
+<dependency>
+    <groupId>org.apache.solr</groupId>
+    <artifactId>solr-solrj</artifactId>
+    <version>7.0.1</version>
+</dependency>
+
+
+    
 	</dependencies>
 	<build>
 		<plugins>

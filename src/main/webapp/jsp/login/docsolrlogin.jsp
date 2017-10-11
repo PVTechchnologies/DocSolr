@@ -9,35 +9,27 @@
 
 		<!-- Website CSS style -->
 		<link href="css/registration/register.css" rel="stylesheet">
-	<!-- 
 	
-		<!-- Website Font style -->
 	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
-		<!-- <link rel="stylesheet" href="style.css"> -->
+	
 		<!-- Google Fonts -->
 		<link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
 		<link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 
 		<title>Docsolr</title>
 		
-	<!-- 	<style>
-		body, html{
-     height: 100%;
- 	background-repeat: no-repeat;
- 	background:url(https://i.ytimg.com/vi/4kfXjatgeEU/maxresdefault.jpg);
- 	font-family: 'Oxygen', sans-serif;
-	    background-size: cover;
-}
-
-		</style> -->
-		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+  	<script type="text/javascript" src="js/userlogindropdown.js"></script>
+  	
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   	
-  	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
-<!--   	<script type="text/javascript" src="js/app.js"></script> -->
-  	<script type="text/javascript" src="js/userlogindropdown.js"></script>
-  	<%-- <spring:url value="/js/app.js" var="appJsUrl" htmlEscape="true" /> --%>
+  	
+
+  	
+  	
   	<script src="${appJsUrl}"></script>
 	</head>
 	<body ng-app="MyApp" ng-controller="UserloginController"> 
@@ -117,7 +109,7 @@
 								<i class="fa fa-Salesforce fa-2x">Salesforce</i> <span class="hidden-xs"></span>
 							</button>
 					</form>
-					
+					<br>
 					<form action="saml/login" method="GET">
 							<button class="btn btn-lg btn-block kpx_btn-facebook" type="submit"
 								data-toggle="tooltip" data-placement="top" title="SSO">

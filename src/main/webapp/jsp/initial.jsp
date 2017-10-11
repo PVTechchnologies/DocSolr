@@ -12,11 +12,10 @@
 
 <!-- Website CSS style -->
 <link href="css/registration/register.css" rel="stylesheet">
-
-<!-- Website Font style -->
 <link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
-
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"> 
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  	
 
 </head>
 <body>

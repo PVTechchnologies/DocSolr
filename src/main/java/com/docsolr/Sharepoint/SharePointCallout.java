@@ -73,7 +73,7 @@ public class SharePointCallout {
 	 * @return     void
 	 */
 	public  void getALlSharePointSites(LoginManager.LoginDetail logDetail, DataService.DataWrapper dataWrap )  {
-		String endPoint = "https://pgangparia.sharepoint.com/_api/search/query?querytext=%27contentclass:sts_site%27&amp;Key=SPWebUrl";
+		String endPoint = "https://mtxb2b.sharepoint.com/_api/search/query?querytext=%27contentclass:sts_site%27&amp;Key=SPWebUrl";
 		Map<String,SiteInfo> siteInfoMap = dataWrap.siteInfoMap;
 		try{
 

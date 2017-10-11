@@ -64,6 +64,11 @@ body {
 	font-weight: bold;
 }
 
+.jumbotron h2{
+	color:#66B7E4;
+	font-weight: bold;
+}
+
 
 /* For icon within Any field */
 
@@ -74,20 +79,20 @@ body {
 .inner-addon .glyphicon {
   position: absolute;
   padding: 10px;
-  pointer-events: none;
+  pointer-events: all;
 }
 
 .inner-addon .fa {
   position: absolute;
   padding: 10px;
-  pointer-events: none;
+  pointer-events: all;
 }
 
-.left-addon .glyphicon  { left:  0px;}
-.right-addon .glyphicon { right: 0px;}
+.left-addon .glyphicon  { left:  0px; pointer-events: all;}
+.right-addon .glyphicon { right: 0px; pointer-events: all;}
 
 
-.left-addon input  { padding-left:  30px; }
-.right-addon input { padding-right: 30px; }
+.left-addon input  { padding-left:  30px; pointer-events: all;}
+.right-addon input { padding-right: 30px; pointer-events: all;}
 
 /*  End Here */

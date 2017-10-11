@@ -6,24 +6,26 @@
 </head>
 <body>
 	
-	<div class="container" >
+	<div class="container" ng-controller= "UploadFileController">
 	<br>
 		<div class="row">
-			<form method="POST" action="uploadFile" enctype="multipart/form-data">
+			<form>
 
 				<div class="col-md-6">
-					File to upload: <input type="file" name="file">
+					File to upload: <input type="file" demo-file-model="myFile"  class="form-control" id ="myFileField"/>
 				</div>
 <br>
 				
 				<div class="col-md-6">
-					<input type="submit" value="Upload"> Press here to upload
+					<button ng-click="uploadFile()" class = "btn btn-primary">Upload File</button> Press here to upload
 					the file!
 				</div>
 			</form>
-		</div>		
-		
-		
+		</div>
+		<br>
+		<div>Content of File : <br> {{serverResponse.Contents}}</div>
+		<br>
+		<div>MetaData :<br> {{serverResponse.Meta}}</div>
 	</div>
 </body>
 </html>

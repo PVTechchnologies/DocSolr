@@ -310,6 +310,7 @@ public class SalesforceMetadataController {
 	 public String addObjects(@RequestBody String selecteditem) {
 			      
 		 String key,selected,oldKey="";
+		 String tempKey="";
 		 boolean haveID =false;
 		 StringBuilder result = new StringBuilder();
 		 Long id=null,oldid=null,tempid=null;
@@ -376,9 +377,14 @@ public class SalesforceMetadataController {
 			 key=jsonObject.getString("key");
 			 selected=jsonObject.getString("selected");
 			 idStringvalue=!jsonObject.get("idvalue").equals(null)? ((Integer)jsonObject.get("idvalue")) : null;
+			
 			 if(idStringvalue!=null)
 			 {
 				 id = new Long(idStringvalue.toString());
+				 tempKey=key;
+			 }
+			 if(!tempKey.equalsIgnoreCase(key) && idStringvalue==null){
+				 id=null;
 			 }
 			 
 			if(!key.equalsIgnoreCase(selected))/*only go inside for field name*/
@@ -416,8 +422,10 @@ public class SalesforceMetadataController {
 			}
 			
 		 }
+		  
 		 salesforceSetupDetail.saveUpdateBatchEntity(SalesforceSetupDetail.class, listssd);
 		 System.out.println(selecteditem);
+		  
 		    return null;
 	 }
 

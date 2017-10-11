@@ -1,6 +1,7 @@
 package com.docsolr.controller;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.docsolr.service.common.Impl.DocsolrParser;
 import com.docsolr.service.common.Impl.GiveParserInstance;
@@ -37,13 +39,13 @@ public class FileUploadController {
 	 */
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
 	public @ResponseBody
-	String uploadFileHandler(@RequestParam("file") MultipartFile file) {
-
+	Map<String, Object>  uploadFileHandler(@RequestParam("file") MultipartFile file) {
+		Map<String, Object> meta = null;
 		if (!file.isEmpty()) {
 			
 				try {
 					
-					docsolr.parser(file);
+				meta = docsolr.parser(file);
 				
 					
 				} catch (IOException e) {
@@ -55,7 +57,7 @@ public class FileUploadController {
 				}
 			
 		}
-		return null;
+		return meta;
 	}
 
 }

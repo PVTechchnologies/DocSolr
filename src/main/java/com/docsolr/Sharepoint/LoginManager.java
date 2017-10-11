@@ -33,12 +33,12 @@ public class LoginManager {
 	
 	private final String sts = "https://login.microsoftonline.com/extSTS.srf";
 	private final String loginContextPath = "/_forms/default.aspx?wa=wsignin1.0";
-	private final String sharepointContext = "https://pgangparia.sharepoint.com";
-	private final String reqXML = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:a=\"http://www.w3.org/2005/08/addressing\" xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><s:Header><a:Action s:mustUnderstand=\"1\">http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</a:Action><a:ReplyTo><a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address></a:ReplyTo><a:To s:mustUnderstand=\"1\">https://login.microsoftonline.com/extSTS.srf</a:To><o:Security s:mustUnderstand=\"1\" xmlns:o=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"><o:UsernameToken><o:Username>sharepoint@pgangparia.onmicrosoft.com</o:Username><o:Password>123@topcoder</o:Password></o:UsernameToken></o:Security></s:Header><s:Body><t:RequestSecurityToken xmlns:t=\"http://schemas.xmlsoap.org/ws/2005/02/trust\"><wsp:AppliesTo xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\"><a:EndpointReference><a:Address>https://pgangparia.sharepoint.com</a:Address></a:EndpointReference></wsp:AppliesTo><t:KeyType>http://schemas.xmlsoap.org/ws/2005/05/identity/NoProofKey</t:KeyType><t:RequestType>http://schemas.xmlsoap.org/ws/2005/02/trust/Issue</t:RequestType><t:TokenType>urn:oasis:names:tc:SAML:1.0:assertion</t:TokenType></t:RequestSecurityToken></s:Body></s:Envelope>";
+	private final String sharepointContext = "https://mtxb2b.sharepoint.com";
+	private final String reqXML = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:a=\"http://www.w3.org/2005/08/addressing\" xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><s:Header><a:Action s:mustUnderstand=\"1\">http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</a:Action><a:ReplyTo><a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address></a:ReplyTo><a:To s:mustUnderstand=\"1\">https://login.microsoftonline.com/extSTS.srf</a:To><o:Security s:mustUnderstand=\"1\" xmlns:o=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"><o:UsernameToken><o:Username>harshit@mtxb2b.onmicrosoft.com</o:Username><o:Password>lo9(ki8*</o:Password></o:UsernameToken></o:Security></s:Header><s:Body><t:RequestSecurityToken xmlns:t=\"http://schemas.xmlsoap.org/ws/2005/02/trust\"><wsp:AppliesTo xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\"><a:EndpointReference><a:Address>https://pgangparia.sharepoint.com</a:Address></a:EndpointReference></wsp:AppliesTo><t:KeyType>http://schemas.xmlsoap.org/ws/2005/05/identity/NoProofKey</t:KeyType><t:RequestType>http://schemas.xmlsoap.org/ws/2005/02/trust/Issue</t:RequestType><t:TokenType>urn:oasis:names:tc:SAML:1.0:assertion</t:TokenType></t:RequestSecurityToken></s:Body></s:Envelope>";
 	private String generateSAML() {
 		String saml = reqXML
-				.replace("[username]", "sharepoint@pgangparia.onmicrosoft.com");
-		saml = saml.replace("[password]", "123@topcoder");
+				.replace("[username]", "harshit@mtxb2b.onmicrosoft.com");
+		saml = saml.replace("[password]", "lo9(ki8*");
 		saml = saml.replace("[endpoint]", String.format("https://%s.sharepoint.com/_forms/default.aspx?wa=wsignin1.0", sharepointContext));
 		return saml;
 	}
@@ -60,7 +60,7 @@ public class LoginManager {
 			System.out.println("cookie-->"+logDetail.cookie);
 			logDetail.formDigestValue = getDigestAuth("","",logDetail.cookie);
 			System.out.println(logDetail.formDigestValue);
-			logDetail.userName = "sharepoint@pgangparia.onmicrosoft.com";
+			logDetail.userName = "harshit@mtxb2b.onmicrosoft.com";
 			return logDetail;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -131,7 +131,7 @@ public class LoginManager {
 		//String token = "t=EwBwAk6hBwAUIQT64YiMbkZQLHdw6peopUrQ0O8AAYkt43mh328r0OTpTqSVMQEWGlzlpE906mSyOfU2JgkHQCBz0VBLPKyFEYeCUUqLQ0FmodljevOEceo5L1r+aj207XYvgGl+QBOMxSuNtdbPprICB/+NhRxEynCQe2l1U84a3S20At+OsGorLHKpp1RIfjR6FGGW3ahltWwDvvkcLY5mMtvOHoQx+citNFIvXGY4zzosNgum0OXMlIz26QfODI705ICMV9wmLfbJ4xQjeRAHFrPQxdeQ3mA9tepV9zPKyeAsAmFrMb0/3GUh9GK0jk9O1+N5PZYtL4cKsOrMbGN3Z++IhoTrwLR6/8PJrZNtyKJhv/W35N66THKsKH0DZgAACDKSCSEEFKnaQAEQ+c2vlhFUJ1WBjs9puwnuOFye+J6AvcpFrCaefpBozSYZTQAwJDuHu51xUyrUhrPetgTekrM04m7q6IpqccJBFxTzd3UAkJLgFJQpcerLOFKgYMrVNWOyqEPzn9Zdjv3Xa73HGa36kOUqZeDPcBcxOtMy0I5LmV8tQ4a3Cc302hDax208/eL1fi5xqEiUE89DLEJ8w9KyIWfVUFwvs3r374t/7KJmQH55yZk3p874gNFyToHA4s+0ZuMikRyDTXeYPQ/Jz8rgIYGA+dCwDNb6x+2y26TRX9QiWYvuhcJ8V1xola+Wo6tjHJwon+8QHXLjCiOXkLUvZbjnR2X+UoAnAYNYb5YVeTBqQSO2l19VhK4o5tnHvOhnwVBM8DeGFJSeMChqS7SlPzq/39ntZtPmv9HuvFrP8801pW9KmxgXdoEB&p=";
 		//System.out.println("token-->"+token);
 		String url = String.format("https://%s.sharepoint.com%s", sharepointContext, loginContextPath);
-		url = "https://pgangparia.sharepoint.com/_forms/default.aspx?wa=wsignin1.0";
+		url = "https://mtxb2b.sharepoint.com/_forms/default.aspx?wa=wsignin1.0";
 		URL u = new URL(url);
 		//System.out.println(url);
 		URLConnection uc = u.openConnection();
@@ -205,8 +205,8 @@ public class LoginManager {
 		//System.out.println("--cookie-->"+cookie);
         String requestDigestXml = "";
         token = "";
-        String url = "https://pgangparia.sharepoint.com/_api/contextinfo";
-		URL obj = new URL("https://pgangparia.sharepoint.com/_api/contextinfo");
+        String url = "https://mtxb2b.sharepoint.com/_api/contextinfo";
+		URL obj = new URL("https://mtxb2b.sharepoint.com/_api/contextinfo");
 		HttpURLConnection connection = (HttpURLConnection)obj.openConnection();
 		connection.setRequestMethod("POST");
 		connection.addRequestProperty("Accept","application/json; odata=verbose");

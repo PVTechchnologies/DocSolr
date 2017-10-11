@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="css/tree.css"/>
 <body ng-app="myApp">
 
-<p><a href="#/!">Main</a></p>
+<p><a href="/">Main</a></p>
 
 <!-- Navbar -->
 <div class="w3-top">
@@ -24,10 +24,10 @@
     <div class="barmodule">
     
      <a href="#!userview" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Parser</a>
-    <a href="#!treeview" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SalesdorceMetadata</a>
-    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SharePoint</a>
-    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SSO</a>
-    <a href="#!search" class="w3-bar-item w3-button w3-hide-small w3-hover-white">ShareDrive</a>
+    <a href="#!treeview" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SalesforceMetadata</a>
+    <a href="#!site" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SharePoint</a>
+<!--     <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SSO</a> -->
+    <a href="#!search" class="w3-bar-item w3-button w3-hide-small w3-hover-white">DocSearch</a>
     <div class="w3-dropdown-hover w3-hide-small">
    <input id="username" name="username" type="hidden" value="${user.firstName}"/>
     <button class="w3-button" title="Notifications">${user.firstName} ${user.lastName}  <span class="glyphicon glyphicon-chevron-down"></span></button>     
@@ -65,6 +65,9 @@
   <script src="js/Controllers/treecontroller.js"></script>
   <script src="js/Controllers/fielddatacontroller.js"></script>
   <script src="js/Controllers/homecontroller.js"></script>
+  <script src="js/sites.js"></script>
+  <script src="js/Controllers/sendtosolr.js"></script>
+  <script src="js/Controllers/UploadFileController.js"></script>
 
 
 <script>

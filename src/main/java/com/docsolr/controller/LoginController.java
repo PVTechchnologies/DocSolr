@@ -36,7 +36,7 @@ public class LoginController {
 
 	@RequestMapping(value = { "/", "/home" })
 	public String getUserDefault() {
-		return "docsolrhome";
+		return "dochome";
 	}
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)

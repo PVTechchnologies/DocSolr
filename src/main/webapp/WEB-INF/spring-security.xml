@@ -435,7 +435,7 @@
 		</authentication-provider>
 	</authentication-manager>
 	<beans:bean id="simpleUrlAuthenticationSuccessHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler"> 
-		<beans:property name="defaultTargetUrl" value="/signin" /> <beans:property 
+		<beans:property name="defaultTargetUrl" value="/user" /> <beans:property 
 		name="targetUrlParameter" value="redirect" /> </beans:bean>
 	<beans:bean id="userDetailService" class="com.docsolr.service.UserDetailsServiceImpl" />
 	<!-- For hashing and salting user passwords -->
