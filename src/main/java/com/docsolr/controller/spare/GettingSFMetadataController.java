@@ -1,4 +1,4 @@
-package com.docsolr.controller;
+package com.docsolr.controller.spare;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,6 +32,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.docsolr.common.dao.GenericDAO;
+import com.docsolr.controller.SalesforceController;
 import com.docsolr.dto.SalesforceMetadataTree;
 import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.Users;
@@ -49,12 +49,9 @@ import com.sforce.soap.metadata.RetrieveStatus;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
-/**
- * @author Yadav
- *
- */
-@Controller
-public class SalesforceMetadataController {
+public class GettingSFMetadataController {
+	
+
 	
 
 	@Autowired
@@ -88,7 +85,9 @@ public class SalesforceMetadataController {
         // This is only a sample. Hard coding passwords in source files is a bad practice.
         String PASSWORD = "123456789t"; */
  /*       String URL = "https://login.salesforce.com/services/Soap/u/40.0";*/
-        String URL = "https://ap5.salesforce.com/services/Soap/m/40.0/00D7F000001a7Nw";
+       /* String URL = "https://ap5.salesforce.com/services/Soap/m/40.0/00D7F000001a7Nw";
+        * 
+        * 
         
         @RequestMapping(value = "/recieveZip", method = RequestMethod.GET)
     	@ResponseBody        
@@ -97,7 +96,7 @@ public class SalesforceMetadataController {
     		createMetadataConnection(Accesstoken, URL);
     		Object strJsonObj=retrieveZip();
     		return strJsonObj;
-    	}
+    	}*/
         
     
     private Object retrieveZip() throws RemoteException, Exception
@@ -305,8 +304,8 @@ public class SalesforceMetadataController {
 
     // Method for inserting tree data in database
     
-    @RequestMapping(value = "/addObjects", method = RequestMethod.POST)
-	
+   /* @RequestMapping(value = "/addObjects", method = RequestMethod.POST)
+	*/
 	 public String addObjects(@RequestBody String selecteditem) {
 			      
 		 String key,selected,oldKey="";
@@ -502,5 +501,6 @@ public class SalesforceMetadataController {
 		return treeMapDataList;
 
 	}
-}
 
+
+}

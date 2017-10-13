@@ -21,15 +21,11 @@
 					</div>
 
 				</div>
-				</div>
-<br> <br>
-				<div class="col-md-6">
-					<button type=button>
-						<a href="#!solr">Post Salesforce data to Solr</a>
-					</button>
-				</div>
-
 			</div>
-			
+
+
+		</div>
+	</div>
+
 </body>
 </html>

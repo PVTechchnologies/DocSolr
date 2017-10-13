@@ -17,7 +17,7 @@
 
 </head>
 <body  >
-<div ng-controller="SolrCtrl">
+<div ng-controller="SolrCtrl" class="row">
 	<div class="jumbotron"  >
 		<h3>Docsolr</h3>
 		<div class=row>
@@ -36,14 +36,19 @@
 		</div>
 	</div>
 
-	<div ng-repeat="company in CompanyList">
+	<div ng-repeat="company in CompanyList" class="col-sm-6" style="margin-left: 230px;">
 					<br> <br>
 
-						<table align=center>
-							<tr>
-								<td><a href="https://ap5.salesforce.com/{{company.id}}" style="color:white;">{{company.name}}</a></td>
-							</tr>
-						</table>
+						
+								<h3><a href="https://ap5.salesforce.com/{{company.id}}" style="color:white;">{{company.name}}</a></h3>
+								<div>
+								<div>
+								<a href="https://ap5.salesforce.com/{{company.id}}" style="color:antiquewhite;">https://ap5.salesforce.com/{{company.name}}</a></div>
+								
+								<span style="color:gray;">{{company.description}}</span>
+								</div>
+								
+							
 	</div>
 
 		

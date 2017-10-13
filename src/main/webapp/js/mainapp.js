@@ -26,10 +26,6 @@ angular.module('myApp')
         templateUrl : "jsp/fielddata.jsp",
         controller: 'FieldCtrl'
     })
-    .when("/solr", {
-    	templateUrl : "jsp/SolrResponse.jsp",
-        controller: 'SolrCtrl'
-    })
     .when("/site", {
         templateUrl : "jsp/Sites.jsp",
         controller: 'SiteController'

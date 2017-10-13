@@ -31,7 +31,7 @@ import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
 @Controller
-public class DescribeSObjects {
+public class ObjectFetchController {
 	
 	@Autowired
 	public GenericService<SalesforceSetupDetail> salesforceSetupDetail;
