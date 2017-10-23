@@ -35,12 +35,13 @@ public class SolrQueryController {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery(data);
-
+	
 		query.set("defType", "edismax");
 		query.set("qf",
 				"id _root_ _text_ _version_ billing_address" + " billingcity billingstreet cloud docType email__c"
 						+ " masterrecordid name objectType parentid type" + " type__c zipcode");
-
+		query.set("fl","* score");
+		
 		query.setStart(0);
 
 		QueryResponse response = client.query(query);

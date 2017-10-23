@@ -65,7 +65,7 @@
   <script src="js/Controllers/treecontroller.js"></script>
   <script src="js/Controllers/fielddatacontroller.js"></script>
   <script src="js/Controllers/homecontroller.js"></script>
-  <script src="js/sites.js"></script>
+  <script src="js/Controllers/sites.js"></script>
   <script src="js/Controllers/sendtosolr.js"></script>
   <script src="js/Controllers/UploadFileController.js"></script>
 

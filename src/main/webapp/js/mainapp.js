@@ -22,10 +22,6 @@ angular.module('myApp')
         templateUrl : "jsp/tree.jsp",
         controller: 'TreeCtrl'
     })
-    .when("/field", {
-        templateUrl : "jsp/fielddata.jsp",
-        controller: 'FieldCtrl'
-    })
     .when("/site", {
         templateUrl : "jsp/Sites.jsp",
         controller: 'SiteController'

@@ -50,4 +50,17 @@ angular.module('myApp')
 	     myService.addItem($scope.selectedItemsObject)
 	   };
 
+	   
+	   $scope.fieldRecords = function(){
+			 $http.get("recieveRecord").then(function(response) {
+				 $scope.apiRecordData = response.data;
+				 if($scope.apiRecordData!=null)
+					 {
+					 	$scope.result="Data uploaded";
+					 }
+				 else{
+					 $scope.result="Error in uploading";
+				 }
+			 });
+		 }
   }]);

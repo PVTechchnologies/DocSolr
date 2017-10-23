@@ -9,33 +9,38 @@
  
 </head>
 
-<body  ng-app="myApp">
-<br>
- 
-	
-	<div class="container">
-	<div calss="row">
-	<div class="col-md-6">
-	<p> * All Salesfroce Objects *</p>
-    <ul class="tree">
-        <node-tree children="jsonData"></node-tree>
-    </ul>
-    
-    <button  type="submit"  value = "Submit" id="button" class="btn btn-primary btn-md  login-button" ng-click="getSelected(item)">Save</button>
-    
-    <br/>
-    <br/>
-    Selected: {{selectedItemsObject}}
-    <ul>
-      <li ng-repeat="item in selectedItemsObject">
-      </li>
-    </ul>
-   </div>
-   <div class="col-md-6">
-   <button type=button><a href="#!field" >Retrieve Field Data</a></button>
-   </div>
-   
-   </div>
+<body ng-app="myApp">
+	<br>
+
+
+	<div class="container" ng-controller="TreeCtrl">
+		<div class="row">
+			<div class="col-md-6">
+				<p>* All Salesfroce Objects *</p>
+				<ul class="tree">
+					<node-tree children="jsonData"></node-tree>
+				</ul>
+
+				<button class="btn btn-success" type="submit" value="Submit" id="button"
+					ng-click="getSelected(item)">Save</button>
+
+			</div>
+			<div class="col-md-6">
+				<div>
+					<button ng-click="fieldRecords()" class="btn btn-success">Retrieve
+						field data & send for indexing</button>
+				</div>
+				<br>
+
+				<div>
+					<h3 style="color: white">{{result}}</h3>
+				</div>
+			</div>
+
+
+		</div>
+	</div>
+
 </body>
 
 </html>
