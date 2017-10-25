@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/homepage/homefont.css">
 <link href="css/registration/register.css" rel="stylesheet">
 
+
 <body ng-app="myApp">
 
 	<p>

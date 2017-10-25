@@ -39,7 +39,7 @@ public class SolrQueryController {
 		query.set("defType", "edismax");
 		query.set("qf",
 				"id _root_ _text_ _version_ billing_address" + " billingcity billingstreet cloud docType email__c"
-						+ " masterrecordid name objectType parentid type" + " type__c zipcode");
+						+ " masterrecordid name objectType parentid type billingstate" + " description type__c zipcode");
 		query.set("fl","* score");
 		
 		query.setStart(0);
@@ -51,7 +51,12 @@ public class SolrQueryController {
 		String json = gson.toJson(response.getResults());
 		System.out.println(json);
 
-		return json;
+		String result = json.replace("\\n"," ").replace("[\"","\"").replace("\"]", "\"");
+		System.out.println(result);
+	
+		return result;
 	}
+	
+	
 
 }

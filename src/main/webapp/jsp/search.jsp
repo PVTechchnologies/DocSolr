@@ -36,20 +36,53 @@
 		</div>
 	</div>
 
-	<div ng-repeat="company in CompanyList" class="col-sm-6" style="margin-left: 230px;">
+		<div class="container" style="margin-left: 230px;">
+			<div class="row">
+
+				<div class="col-md-4">
+					<h3>
+						Title
+					</h3>
+					
+				</div>
+				<div class="col-md-3">
+					<h3>
+						Billing Address
+					</h3>
+				</div>
+				<div class="col-md-3"><h3>
+						Score  Customer type
+					</h3>
+					
+				</div>
+				
+			</div>
+			<div style="background-color:black; padding:2px; width:82%;">
+		
+ 			</div> 
+			
+		</div>
+
+		<div ng-repeat="company in CompanyList" class="container" style="margin-left: 230px;">
 					<br> <br>
 
-						
-								<h3><a href="https://ap5.salesforce.com/{{company.id}}" style="color:white;">{{company.name}}</a></h3>
-								<div>
-								<div>
-								<a href="https://ap5.salesforce.com/{{company.id}}" style="color:antiquewhite;">https://ap5.salesforce.com/{{company.name}}</a></div>
+						<div class="row"> 
 								
-								<span style="color:gray;">{{company.description}}</span>
+								<div class="col-md-4">
+								<!-- <div>
+								<a href="https://ap5.salesforce.com/{{company.id}}" style="color:antiquewhite;" target="_blank">https://ap5.salesforce.com/{{company.name}}</a></div> -->
+								<h3><a href="https://ap5.salesforce.com/{{company.id}}"  target="_blank">{{company.name}}</a></h3>
+								<span style="color:gray;">{{company.description}} </span>
 								</div>
-								
+								<div class="col-md-3">
+								{{company.billingstreet}}<br> {{company.billingcity}}<br> {{company.billingstate}}
+								</div>
+								<div class="col-md-3">
+								{{company.score}}  {{company.type__c}}  </div>
+						</div>
 							
 	</div>
+	
 
 		
 			</div>	

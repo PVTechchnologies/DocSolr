@@ -14,7 +14,7 @@ body, html{
      height: 100%;
  	background-repeat: no-repeat;
 /*  	background:url(https://i.ytimg.com/vi/4kfXjatgeEU/maxresdefault.jpg); */
- 	background-color: #66B7E4;
+ 	background-color: #dbe7f9;
  	font-family: 'Oxygen', sans-serif;
 	    background-size: cover;
 }
@@ -31,8 +31,9 @@ h1.title {
 
 hr{
 	width: 10%;
-	color: #fff;
+	color: black;
 }
+
 
 .form-group{
 	margin-bottom: 15px;
