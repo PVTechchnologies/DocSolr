@@ -1,7 +1,6 @@
 package com.docsolr.controller;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.RemoteException;
@@ -14,15 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -36,9 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.Users;
@@ -54,8 +45,6 @@ import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sforce.ws.bind.XmlObject;
 
-
-
 @Controller
 public class RecordsController {
 
@@ -66,7 +55,6 @@ public class RecordsController {
 
 	String urlString = "http://132.148.68.21:8983/solr/Dummydata";
 
-	private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
 	@RequestMapping(value = "/recieveRecord", method = RequestMethod.GET)
 	@ResponseBody
@@ -127,12 +115,13 @@ public class RecordsController {
 
 					QueryResult qr = partnerConnection.query(soqlQuery);
 
-					/*Gson gson = new Gson();
-					String json = gson.toJson(qr);
-					System.out.println(json);*/
+					/*
+					 * Gson gson = new Gson(); String json = gson.toJson(qr);
+					 * System.out.println(json);
+					 */
 					boolean done = false;
 
-					//int loopCount = 0;
+					// int loopCount = 0;
 					// Loop through the batches of returned results
 					while (!done) {
 
@@ -172,22 +161,23 @@ public class RecordsController {
 				}
 			}
 
-			//getAttachment(ids);/* Method calling for Attachment */
+			// getAttachment(ids);/* Method calling for Attachment */
 
 			Gson gson = new Gson();
 			String json = gson.toJson(recordsList);
-		//	System.out.println(json);
+			// System.out.println(json);
 
-			
-			/*Calling function to parse record data and send it to Solr Server*/
+		
+			/*
+			 * Calling function to parse record data and send it to Solr Server
+			 */
 			parseAndSend(json);
-			
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
-		
+
 		return recordsList;
 
 	}
@@ -210,7 +200,7 @@ public class RecordsController {
 		QueryResult qr = partnerConnection.query(soqlQuery);
 		SObject[] records = null;
 		boolean done = false;
-		int loopCount = 0;
+		
 		// Loop through the batches of returned results
 		while (!done) {
 			records = qr.getRecords();
@@ -242,8 +232,6 @@ public class RecordsController {
 
 	}
 
-	
-
 	public void parseAndSend(String json) throws ParserConfigurationException, TransformerException, JsonIOException,
 			JsonSyntaxException, XMLStreamException, IOException, SolrServerException {
 
@@ -255,8 +243,11 @@ public class RecordsController {
 
 		SolrInputDocument firstParentObject = new SolrInputDocument();
 		SolrInputDocument docObject = null;
-		/*"firstParentObject" is used for storing first object of records and rest were its child*/
-		
+		/*
+		 * "firstParentObject" is used for storing first object of records and
+		 * rest were its child
+		 */
+
 		try {
 
 			JSONArray parentArray = new JSONArray(json);
@@ -265,18 +256,18 @@ public class RecordsController {
 					JSONArray childJsonArray = parentArray.optJSONArray(i);
 					if (childJsonArray != null && childJsonArray.length() > 0) {
 						for (int j = 0; j < childJsonArray.length(); j++) {
-							
+
 							JSONObject josnObject = childJsonArray.getJSONObject(j);
 							JSONArray innerChildJsonArray = josnObject.getJSONArray("children");
-							
+
 							if (innerChildJsonArray != null && innerChildJsonArray.length() > 0) {
 
 								docObject = new SolrInputDocument();
 
 								list = new ArrayList<String>();
-								
+
 								boolean isIdFieldExist = false;
-								
+
 								for (int z = 0; z < innerChildJsonArray.length(); z++) {
 									String value = "";
 									JSONObject innerOutputObject = new JSONObject();
@@ -289,24 +280,36 @@ public class RecordsController {
 										value = childJosnObject.getString("value");
 										innerOutputObject.put("name", name);
 										innerOutputObject.put("text", value);
-										if (list.isEmpty()) {		/*when list is empty, run only for once*/ 
+										if (list.isEmpty()) { /*
+																 * when list is
+																 * empty, run
+																 * only for once
+																 */
 											list.add(name);
-											if (i==0 && j == 0) {
+											if (i == 0 && j == 0) {
 												firstParentObject.addField(name, value);
 											} else {
 												docObject.addField(name, value);
 											}
-										} else if (list.contains(name) && name.equalsIgnoreCase("id")) { /*when id was duplicate*/
+										} else if (list.contains(name) && name.equalsIgnoreCase(
+												"id")) { /*
+															 * when id was
+															 * duplicate
+															 */
 											isIdFieldExist = true;
-										} else if (list.contains(name)) { /*when records key value were same*/ 
-											if (i==0 && j == 0) {
+										} else if (list.contains(
+												name)) { /*
+															 * when records key
+															 * value were same
+															 */
+											if (i == 0 && j == 0) {
 												firstParentObject.addField(name + "__c", value);
 											} else {
 												docObject.addField(name + "__c", value);
 											}
 
-										} else {          /*run always with fair data*/
-											if (i==0 && j == 0) {
+										} else { /* run always with fair data */
+											if (i == 0 && j == 0) {
 												firstParentObject.addField(name, value);
 											} else {
 												docObject.addField(name, value);
@@ -318,7 +321,7 @@ public class RecordsController {
 								} /* Z loop Ends here */
 
 							}
-							if (j != 0 || i>0)
+							if (j != 0 || i > 0)
 								firstParentObject.addChildDocument(docObject);
 
 						} /* J Loop Ends here */
@@ -337,7 +340,7 @@ public class RecordsController {
 		}
 
 	}
-	
+
 	/*
 	 * private Set<String> gettingSet(SObject[] records){
 	 * 
@@ -361,8 +364,5 @@ public class RecordsController {
 
 
 	
-	
+
 }
-
-
-	
