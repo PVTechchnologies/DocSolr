@@ -22,7 +22,7 @@
   
  
     <div class="barmodule">
-    
+     <a href="#!keytool" class="w3-bar-item w3-button w3-hide-small w3-hover-white">KeyTool</a>
      <a href="#!userview" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Parser</a>
     <a href="#!treeview" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SalesforceMetadata</a>
     <a href="#!site" class="w3-bar-item w3-button w3-hide-small w3-hover-white">SharePoint</a>
@@ -47,6 +47,7 @@
   <!-- Navbar on small screens -->
   <div id="navDemo" class="w3-bar-block w3-theme-d2 w3-hide w3-hide-large w3-hide-medium">
     <a href="#parser" class="w3-bar-item w3-button">Parser</a>
+   
     <a href="#work" class="w3-bar-item w3-button">SalesdorceMetadata</a>
     <a href="#contact" class="w3-bar-item w3-button">Log out</a>
     <a href="#" class="w3-bar-item w3-button">Search</a>

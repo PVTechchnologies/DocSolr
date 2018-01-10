@@ -29,6 +29,10 @@ angular.module('myApp')
     .when("/search", {
         templateUrl : "jsp/search.jsp",
         
+    })
+    .when("/keytool", {
+        templateUrl : "jsp/KeyToolGenerator.jsp",
+        
     });
 })
 

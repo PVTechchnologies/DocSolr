@@ -100,7 +100,7 @@ public class RecordsController {
 			List<String> query = new ArrayList<String>();
 			for (Map.Entry<String, SalesforceSetupDetail> entrySet : tableData.entrySet()) {
 				SalesforceSetupDetail ssd = entrySet.getValue();
-				query.add("Select " + ssd.getSalesforceFields() + " from " + entrySet.getKey());
+				query.add("Select " + ssd.getSalesforceFields() + " from " + entrySet.getKey() + " limit 10");
 			}
 
 			/* Calling of Queries */
@@ -330,6 +330,7 @@ public class RecordsController {
 				} /* I Loop Ends Here */
 
 				batch.add(firstParentObject);
+				System.out.println(batch);
 				solr.add(batch);
 				solr.commit();
 				System.out.println("Documents Updated");

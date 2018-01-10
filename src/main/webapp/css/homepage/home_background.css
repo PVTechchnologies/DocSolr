@@ -13,8 +13,8 @@
 body, html{
      height: 100%;
  	background-repeat: no-repeat;
-/*  	background:url(https://i.ytimg.com/vi/4kfXjatgeEU/maxresdefault.jpg); */
- 	background-color: #dbe7f9;
+/*  	background:url(https://i.ytimg.com/vi/4kfXjatgeEU/maxresdefault.jpg); #dbe7f9*/
+ 	background-color:#faf9f9;
  	font-family: 'Oxygen', sans-serif;
 	    background-size: cover;
 }
