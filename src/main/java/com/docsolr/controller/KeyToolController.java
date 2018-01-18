@@ -1,10 +1,21 @@
 package com.docsolr.controller;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,40 +26,19 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
-
-import com.docsolr.dto.KeyGeneratorVo;
-import com.docsolr.dto.UserVO;
-import com.docsolr.entity.UserAuthority;
-import com.docsolr.entity.Users;
-import com.docsolr.entity.UserAuthority.Roles;
-import com.docsolr.service.common.GenericService;
-import com.docsolr.util.SecurityUtil;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-import java.util.Date;
 
 import sun.security.tools.keytool.CertAndKeyGen;
 // import sun.security.tools.keytool.CertAndKeyGen; // Use this for Java 8 and above
 import sun.security.x509.X500Name;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.util.Enumeration;
+import com.docsolr.dto.KeyGeneratorVo;
+import com.docsolr.entity.UserAuthority;
+import com.docsolr.entity.Users;
+import com.docsolr.service.common.GenericService;
 
 @Controller
 public class KeyToolController {
@@ -100,7 +90,7 @@ public class KeyToolController {
 
 	        keyStore.setKeyEntry(alias, privKey, keyPass, chain);
 
-	        keyStore.store(new FileOutputStream("D:\\saml.jks"), keyPass);
+	        keyStore.store(new FileOutputStream(System.getenv("CATALINA_HOME")), keyPass);
 
 	        System.out.println("path of keystore");
 		 
@@ -127,8 +117,10 @@ public class KeyToolController {
 			return new RedirectView("/user",true);
 	 }
 	 
-
-	 private void newKeyToolCode() throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException{
+	 @RequestMapping(value = "/updateKey", method = RequestMethod.POST)
+	 @ResponseBody
+	 private RedirectView updateKey(HttpServletRequest request, HttpServletResponse response,
+			 @RequestParam("myKeyStoreField") MultipartFile file,@RequestParam("myCertificateField") MultipartFile certFile) throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException{
 		 
 		//CREATE A KEYSTORE OF TYPE "Java Key Store"
 	    	KeyStore ks = KeyStore.getInstance("JKS");
@@ -143,10 +135,11 @@ public class KeyToolController {
 	    	 * or get certificates (or whatever) you can load it from the
 	    	 * file with your password.
 	    	 */
-	    	InputStream input = new FileInputStream(new File("D:\\saml.jks"));
+
+	    	InputStream input = file.getInputStream();//new FileInputStream(new File("c:\\saml.jks"));
 	    	ks.load(input, keyPass );
 	    	//GET THE FILE CONTAINING YOUR CERTIFICATE
-	    	FileInputStream fis = new FileInputStream( "D:\\apollo.crt" );
+	    	InputStream fis = certFile.getInputStream();//new FileInputStream( "c:\\apollo.crt" );
 	    	BufferedInputStream bis = new BufferedInputStream(fis);
 	    	//I USE x.509 BECAUSE THAT'S WHAT keytool CREATES
 	    	CertificateFactory cf = CertificateFactory.getInstance( "X.509" );
@@ -173,7 +166,7 @@ public class KeyToolController {
 	    	 * to add entries and then not call store. I believe it will update
 	    	 * the existing store you load it from and not just in memory.
 	    	 */
-	    	ks.store( new FileOutputStream( "C:\\saml.jks" ), "MyPass".toCharArray() );
+	    	ks.store( new FileOutputStream( "C:\\saml.jks" ), keyPass );
 	    	Enumeration enumeration = ks.aliases();
 	        while(enumeration.hasMoreElements()) {
 	            String alias = (String)enumeration.nextElement();
@@ -182,6 +175,7 @@ public class KeyToolController {
 	            System.out.println(certificate.toString());
 
 	        }
+	        return new RedirectView("/user",true);
 	 }
 	 
 }

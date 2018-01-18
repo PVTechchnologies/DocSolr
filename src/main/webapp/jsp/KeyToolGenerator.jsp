@@ -2,7 +2,8 @@
 <html lang="en">
     <head> 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
 
 		<!-- Website CSS style -->
 		<link href="css/registration/register.css" rel="stylesheet">
@@ -114,6 +115,24 @@
 				</div>
 			</div>
 		</div>
- 
+ 		<div class="container">
+			<div class="row main">
+				<div class="main-login main-center">
+				
+					<form class="" method="POST" action="updateKey" enctype="multipart/form-data">
+						
+						<div class="col-md-6">Keystore <input type="file" name="myKeyStoreField" id ="myKeyStoreField" />
+						</div>
+						<div class="col-md-6">Certificate <input type="file" name="myCertificateField" id ="myCertificateField"/>
+						</div>
+						<br>
+						<div class="form-group ">
+							<button type="submit"  value = "Submit" type="button" id="button" class="btn btn-primary btn-lg btn-block login-button">Update Keystore</button>
+						</div>
+						<br>
+					</form>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>
