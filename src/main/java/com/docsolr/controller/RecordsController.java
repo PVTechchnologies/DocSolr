@@ -1,10 +1,11 @@
 package com.docsolr.controller;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,11 +18,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AbstractParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.sax.BodyContentHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.docsolr.entity.SalesforceSetupDetail;
 import com.docsolr.entity.Users;
 import com.docsolr.service.common.GenericService;
+import com.docsolr.service.common.Impl.GiveParserInstance;
 import com.docsolr.util.CommonUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -50,10 +55,13 @@ public class RecordsController {
 
 	@Autowired
 	public GenericService<SalesforceSetupDetail> salesforceSetupDetail;
+	
+	@Autowired
+	GiveParserInstance<AbstractParser> abparser;
 
 	public PartnerConnection partnerConnection;
 
-	String urlString = "http://132.148.68.21:8983/solr/Dummydata";
+	String urlString = "http://localhost:8983/solr/pdfcore";
 
 
 	@RequestMapping(value = "/recieveRecord", method = RequestMethod.GET)
@@ -182,6 +190,10 @@ public class RecordsController {
 
 	}
 
+	/**
+	 * @param setOfId
+	 * @throws Exception
+	 */
 	private void getAttachment(Set<String> setOfId) throws Exception {
 
 		partnerConnection.setQueryOptions(250);
@@ -278,8 +290,14 @@ public class RecordsController {
 									if (childJosnObject.has("value")) {
 
 										value = childJosnObject.getString("value");
-										innerOutputObject.put("name", name);
-										innerOutputObject.put("text", value);
+										if(name.equals("versiondata")){
+											JSONObject keyObj = (JSONObject)getKey(innerChildJsonArray, "FileType");
+											String fileType = keyObj.getString("value");
+											value = parseBase64(value.toString(),fileType);
+											name = "content";
+										}
+											innerOutputObject.put("name", name);
+											innerOutputObject.put("text", value);
 										if (list.isEmpty()) { /*
 																 * when list is
 																 * empty, run
@@ -340,6 +358,39 @@ public class RecordsController {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private String parseBase64(String data, String fileType){
+		byte[] bytes = Base64.getDecoder().decode(data);
+		 InputStream myInputStream = new ByteArrayInputStream(bytes);
+	      BodyContentHandler handler = new BodyContentHandler();
+	      Metadata metadata = new Metadata();
+	      ParseContext pcontext = new ParseContext();
+	      
+	      AbstractParser  genericparser = abparser.getInstance(fileType); 
+	      try {
+	    	  genericparser.parse(myInputStream, handler, metadata,pcontext);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      return handler.toString();
+	}
+	
+	private Object getKey(JSONArray array, String key){
+
+	    for (int i = 0; i < array.length(); i++)
+	    {
+	    	JSONObject childJosnObject = array.getJSONObject(i);
+			JSONObject forName = childJosnObject.getJSONObject("name");
+			String name = forName.getString("localPart");
+	        if (key.equalsIgnoreCase(name))
+	        {
+	            return childJosnObject;
+	        }
+	    }
+
+	    return null;
 	}
 
 	/*

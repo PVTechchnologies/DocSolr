@@ -17,7 +17,7 @@ public class GiveParserInstance<T> implements IGiveParserInstance<T> {
 	public T getInstance(String contentType) {
 		// TODO Auto-generated stub
 		AbstractParser ap = null;
-		if("application/pdf".equalsIgnoreCase(contentType)){
+		if("application/pdf".equalsIgnoreCase(contentType) || contentType.contains("PDF")){
 			ap =  new PDFParser();
 		}else if("application/doc".equalsIgnoreCase(contentType)){
 			ap = new OOXMLParser();
