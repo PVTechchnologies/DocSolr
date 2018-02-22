@@ -6,10 +6,8 @@ app.controller('SolrCtrl', ['$window','$scope','$http','myService', function ($w
 		 $scope.inSearch="";
 		 $scope.CompanyList;
 		 
-	
-		 
 		 $scope.solrRespnseData = function() {
-			 console.log("asdlasfjsaflas")
+			 $scope.attachmentcount=0;
 			 	$http({
             	    url: 'SolrSearch', 
             	    method: "POST",
@@ -17,7 +15,20 @@ app.controller('SolrCtrl', ['$window','$scope','$http','myService', function ($w
             	    isArray :  false
                 }).then(function (result) {
                     $scope.CompanyList = result.data;
+                    angular.forEach($scope.CompanyList, function(value, key){
+                        if(value.type === 'ContentVersion')
+                        	$scope.attachmentcount= $scope.attachmentcount+1;
+                     });
                 });
 		 }
+		 
+		 
+		 var searchelement = document.getElementById("searchinput");
+		 searchelement.addEventListener("keydown", function (e) {
+		     if (e.keyCode === 13) {  //checks whether the pressed key is "Enter"
+		    	 $scope.solrRespnseData();
+		     }
+		 });
 		
   }]);
+

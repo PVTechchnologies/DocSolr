@@ -39,7 +39,7 @@ public class SolrQueryController {
 		query.set("defType", "edismax");
 		query.set("qf",
 				"id _root_ _text_ _version_ billing_address" + " billingcity billingstreet cloud docType email__c"
-						+ " masterrecordid name objectType parentid type billingstate" + " description type__c zipcode");
+						+ " masterrecordid name objectType parentid type billingstate" + " description type__c zipcode" + " content filetype");
 		query.set("fl","* score");
 		
 		query.setStart(0);
