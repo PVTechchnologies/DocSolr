@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import com.docsolr.entity.Users;
 import com.docsolr.service.common.GenericService;
 import com.docsolr.service.common.Impl.GiveParserInstance;
 import com.docsolr.util.CommonUtil;
+import com.docsolr.util.SolrSchemaManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -62,6 +64,9 @@ public class RecordsController {
 	public PartnerConnection partnerConnection;
 
 	String urlString = "http://localhost:8983/solr/pdfcore";
+	
+	@Autowired
+	public SolrSchemaManager solrSchemaManager;
 
 
 	@RequestMapping(value = "/recieveRecord", method = RequestMethod.GET)
@@ -346,9 +351,25 @@ public class RecordsController {
 					}
 
 				} /* I Loop Ends Here */
-
+				
 				batch.add(firstParentObject);
 				System.out.println(batch);
+				List<String> existingFields = solrSchemaManager.getAllFields();
+				Set<String> fieldNamesBatch = new LinkedHashSet<String>();
+				for(SolrInputDocument sid:batch){
+					fieldNamesBatch.addAll(sid.getFieldNames());
+					if(sid.getChildDocumentCount()>0){
+						List<SolrInputDocument> childDocs = sid.getChildDocuments();
+						for(SolrInputDocument sidChild:childDocs){
+							fieldNamesBatch.addAll(sidChild.getFieldNames());
+						}
+					}
+				}
+				for(String field:fieldNamesBatch){
+					if(!existingFields.contains(field)){
+						solrSchemaManager.addField(field, "string", false);
+					}
+				}
 				solr.add(batch);
 				solr.commit();
 				System.out.println("Documents Updated");
