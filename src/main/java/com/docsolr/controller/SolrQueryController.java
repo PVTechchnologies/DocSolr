@@ -1,25 +1,31 @@
 package com.docsolr.controller;
 
 import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.docsolr.util.SolrSchemaManager;
 import com.google.gson.Gson;
 
 @Controller
 public class SolrQueryController {
+	
+	@Autowired
+	public SolrSchemaManager solrSchemaManager;
 
 	@RequestMapping(value = "/SolrSearch", method = RequestMethod.POST)
 	@ResponseBody
@@ -37,10 +43,12 @@ public class SolrQueryController {
 		query.setQuery(data);
 	
 		query.set("defType", "edismax");
-		query.set("qf",
-				"id _root_ _text_ _version_ billing_address" + " billingcity billingstreet cloud docType email__c"
-						+ " masterrecordid name objectType parentid type billingstate" + " description type__c zipcode" + " content filetype");
+		//query.set("qf",
+		//		"id _root_ _text_ _version_ billing_address" + " billingcity billingstreet cloud docType email__c"
+		//				+ " masterrecordid name objectType parentid type billingstate" + " description type__c zipcode" + " content filetype");
 		query.set("fl","* score");
+		String fieldNames = String.join(",", solrSchemaManager.getAllFields());
+		query.setFields(fieldNames);
 		
 		query.setStart(0);
 
