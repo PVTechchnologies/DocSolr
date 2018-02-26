@@ -17,6 +17,7 @@ import org.apache.tika.parser.AbstractParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
@@ -26,7 +27,7 @@ import org.xml.sax.SAXException;
 public class DocsolrParser {
 	@Autowired
 	GiveParserInstance<AbstractParser> abparser;
-	
+	private @Value("#{solrProperties['TARGET_SCHEMA_URL']}") String urlString;
 	
 	 public Map<String, Object> parser( MultipartFile file) throws IOException, TikaException {
 	      Map<String, Object> response= new HashMap<>();
@@ -60,8 +61,7 @@ public class DocsolrParser {
 	      return response;
 	   }
 	 
-	 private static void indexDocument(Metadata meta, String pathfilename, BodyContentHandler handler)  {
-		 	String urlString = "http://132.148.68.21:8983/solr/Dummydata";
+	 private void indexDocument(Metadata meta, String pathfilename, BodyContentHandler handler)  {
 		 	SolrClient solr = new HttpSolrClient.Builder(urlString).build();  
 		 	UUID guid = java.util.UUID.randomUUID();
 			String docid = guid.toString();

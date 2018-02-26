@@ -21,9 +21,6 @@
 
 	<context:property-placeholder
 		properties-ref="deployProperties" />
-	<bean id="mailProperties"
-		class="org.springframework.beans.factory.config.PropertiesFactoryBean"
-		p:location="classpath:mail.properties" />
 
 	<mvc:resources mapping="/app/**" location="/app/" />
 	<mvc:resources mapping="/css/**" location="/css/" />
@@ -69,6 +66,12 @@
 		p:location="/WEB-INF/spring.properties" />
 
 
+		<bean id="mailProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+		p:location="classpath:mail.properties" />
+		
+		<bean id="solrProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+        p:location="classpath:solr.properties" />
        
        	<bean id="salesforceProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean"
        p:location="classpath:salesforce.properties" />

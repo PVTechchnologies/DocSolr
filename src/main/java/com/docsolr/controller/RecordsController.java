@@ -30,6 +30,7 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,7 +64,11 @@ public class RecordsController {
 
 	public PartnerConnection partnerConnection;
 
-	String urlString = "http://localhost:8983/solr/pdfcore";
+	 private @Value("#{solrProperties['TARGET_SCHEMA_URL']}") String urlString;
+	 private @Value("#{salesforceProperties['ServiceEndpoint']}") String serviceEndpoint;
+	 private @Value("#{salesforceProperties['ServiceEndpointVersion']}") String serviceEndpointVersion;
+	 //TODO: This organization id needs to be dynamic in future
+	 private @Value("#{salesforceProperties['ServiceOrgId']}") String serviceOrgId;
 	
 	@Autowired
 	public SolrSchemaManager solrSchemaManager;
@@ -89,8 +94,8 @@ public class RecordsController {
 
 		String token = SalesforceController.acctoken;
 		final ConnectorConfig metadataConfig = new ConnectorConfig();
-
-		metadataConfig.setServiceEndpoint("https://ap5.salesforce.com/services/Soap/u/40/00D7F000001a7Nw");
+		//TODO: This organization id needs to be dynamic in future
+		metadataConfig.setServiceEndpoint(serviceEndpoint+serviceEndpointVersion+"/"+serviceOrgId);
 		metadataConfig.setSessionId(token);
 		this.partnerConnection = new PartnerConnection(metadataConfig);
 
@@ -255,7 +260,6 @@ public class RecordsController {
 		List<String> list = new ArrayList<String>();
 		Collection<SolrInputDocument> batch = new ArrayList<SolrInputDocument>();
 
-		String urlString = "http://132.148.68.21:8983/solr/Dummydata";
 		SolrClient solr = new HttpSolrClient.Builder(urlString).build();
 
 		SolrInputDocument firstParentObject = new SolrInputDocument();

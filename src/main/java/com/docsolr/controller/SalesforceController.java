@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,16 +45,18 @@ import com.docsolr.util.SecurityUtil;
 
 @Controller
 public class SalesforceController  {
+	
+	
 	private static final String ACCESS_TOKEN = "ACCESS_TOKEN";
 	private static final String INSTANCE_URL = "INSTANCE_URL";
 
 	// clientId is 'Consumer Key' in the Remote Access UI
-	private static String clientId = "3MVG9d8..z.hDcPKJEqG974zEN__uVDhGsy1pvPoRh.91X4Kj3iyIiphkDtc7eTgPY4PkTwko_06e5MwmfJ4z";
+	private @Value("#{salesforceProperties['clientId']}") String clientId;
 	// clientSecret is 'Consumer Secret' in the Remote Access UI
-	private static String clientSecret = "3749580945705226921";
+	private @Value("#{salesforceProperties['clientSecret']}") String clientSecret;
 	// This must be identical to 'Callback URL' in the Remote Access UI
-	private static String redirectUri = "http://localhost:8080/docsolr/auth/salesforce/callback";
-	private static String environment = "https://login.salesforce.com";
+	private @Value("#{salesforceProperties['redirectUri']}") String redirectUri;
+	private @Value("#{salesforceProperties['environment']}") String environment;
 	private String authUrl = null;
 	private String tokenUrl = null;
 	public static String acctoken;
@@ -310,6 +313,8 @@ public class SalesforceController  {
 			List<UserConnection> connections= userConnectionService.findEntityByRestriction(UserConnection.class, restrictionMap);
 			if(connections != null && connections.size() == 1){
 				userConnection = connections.get(0);
+				userConnection.setAccessToken(response.getString("access_token"));
+				userConnectionService.updateEntity(userConnection);
 			}else{
 				userConnection = null;
 			}

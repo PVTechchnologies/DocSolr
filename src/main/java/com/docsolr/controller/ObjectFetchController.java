@@ -11,6 +11,7 @@ import java.util.Set;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,6 +40,12 @@ public class ObjectFetchController {
 	 public PartnerConnection partnerConnection ;
 	 
 
+	 private @Value("#{salesforceProperties['ServiceEndpoint']}") String serviceEndpoint;
+	 private @Value("#{salesforceProperties['ServiceEndpointVersion']}") String serviceEndpointVersion;
+	 //TODO: This organization id needs to be dynamic in future
+	 private @Value("#{salesforceProperties['ServiceOrgId']}") String serviceOrgId;
+	 
+	 
 	 
 	@RequestMapping(value = "/recieveObjects", method = RequestMethod.GET)
 	@ResponseBody
@@ -63,7 +70,8 @@ public class ObjectFetchController {
 		String token = SalesforceController.acctoken;
 		final ConnectorConfig metadataConfig = new ConnectorConfig();
 
-		metadataConfig.setServiceEndpoint("https://ap5.salesforce.com/services/Soap/u/40/00D7F000001a7Nw");
+		//TODO: This organization id needs to be dynamic in future
+		metadataConfig.setServiceEndpoint(serviceEndpoint+serviceEndpointVersion+"/"+serviceOrgId);
 		metadataConfig.setSessionId(token);
 		this.partnerConnection = new PartnerConnection(metadataConfig);
 

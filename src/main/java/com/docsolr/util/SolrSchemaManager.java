@@ -11,6 +11,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.client.solrj.response.schema.SchemaResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +20,7 @@ public class SolrSchemaManager {
 
 
     private SolrClient solrClient;
-
+    
     private static Map<String, String> dataTypeMapping = new HashMap<String, String>();
     static {
         dataTypeMapping.put("integer", "int");
@@ -26,8 +28,9 @@ public class SolrSchemaManager {
 
     private List<String> fieldBlackList = new ArrayList<String>();
 
-    public SolrSchemaManager() {
-        solrClient = new HttpSolrClient.Builder("http://132.148.68.21:8983/solr/Dummydata").build();
+    @Autowired
+    public SolrSchemaManager(@Value("#{solrProperties['TARGET_SCHEMA_URL']}") String urlString) {
+        solrClient = new HttpSolrClient.Builder(urlString).build();
         fieldBlackList.add("_text_");
         fieldBlackList.add("_version_");
         fieldBlackList.add("id");
