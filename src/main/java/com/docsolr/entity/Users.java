@@ -49,6 +49,8 @@ public class Users extends BaseEntity {
 	
 	private boolean SocialSalesforce;
 	
+	private boolean solrShardExists;
+	
 	public Users() {
 		super();
 	}
@@ -191,5 +193,13 @@ public class Users extends BaseEntity {
 
 	public void setSocialSalesforce(boolean socialSales) {
 		SocialSalesforce = socialSales;
+	}
+
+	public boolean isSolrShardExists() {
+		return solrShardExists;
+	}
+
+	public void setSolrShardExists(boolean solrShardExists) {
+		this.solrShardExists = solrShardExists;
 	}
 }

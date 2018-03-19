@@ -21,7 +21,13 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest.Create;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest.CreateShard;
+import org.apache.solr.client.solrj.request.ConfigSetAdminRequest;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AbstractParser;
@@ -72,6 +78,9 @@ public class RecordsController {
 	
 	@Autowired
 	public SolrSchemaManager solrSchemaManager;
+	
+	@Autowired
+	public GenericService<Users> userService;
 
 
 	@RequestMapping(value = "/recieveRecord", method = RequestMethod.GET)
@@ -260,10 +269,37 @@ public class RecordsController {
 		List<String> list = new ArrayList<String>();
 		Collection<SolrInputDocument> batch = new ArrayList<SolrInputDocument>();
 
-		SolrClient solr = new HttpSolrClient.Builder(urlString).build();
+		SolrClient solr ;
+		
+		if(urlString.contains("2181")){
+			solr =  new CloudSolrClient.Builder().withZkHost("localhost:2181").build();
+		}else{
+			solr = new HttpSolrClient.Builder(urlString).build();
+		}
 
 		SolrInputDocument firstParentObject = new SolrInputDocument();
 		SolrInputDocument docObject = null;
+		
+		Users users = new Users();
+		users = CommonUtil.getCurrentSessionUser();
+		
+		if(solr instanceof CloudSolrClient){
+			List<String> collections = solrSchemaManager.getCollections((CloudSolrClient) solr);
+			if(null == collections || !collections.contains("newcollection")){
+				ConfigSetAdminRequest.List list1 = new ConfigSetAdminRequest.List();
+				List<String> av=list1.process(solr).getConfigSets();
+				Create create = CollectionAdminRequest.createCollectionWithImplicitRouter("newcollection", "mynewcollection", users.getFirstName(), 1);
+				create.setMaxShardsPerNode(20);
+				solr.request(create);
+				users.setSolrShardExists(true);
+				userService.saveUpdateEntity(users);
+			}
+			
+			if(!users.isSolrShardExists()){
+				CreateShard shard = CollectionAdminRequest.createShard("newcollection", users.getFirstName());
+				shard.process(solr);
+			}
+		}	
 		/*
 		 * "firstParentObject" is used for storing first object of records and
 		 * rest were its child
@@ -374,8 +410,22 @@ public class RecordsController {
 						solrSchemaManager.addField(field, "string", false);
 					}
 				}
-				solr.add(batch);
-				solr.commit();
+				if(solr instanceof CloudSolrClient){
+					UpdateRequest add = new UpdateRequest();
+					add.add(batch);
+					add.setParam("collection", "newcollection");
+					add.setParam("shard", users.getFirstName());
+					add.process(solr);
+
+					UpdateRequest commit = new UpdateRequest();
+					commit.setAction(UpdateRequest.ACTION.COMMIT, true, true);
+					commit.setParam("collection", "newcollection");
+					commit.setParam("shard", users.getFirstName());
+					commit.process(solr);
+				}else {
+					solr.add(batch);
+					solr.commit();
+				}
 				System.out.println("Documents Updated");
 				/* Last OutPut Here */
 			}
