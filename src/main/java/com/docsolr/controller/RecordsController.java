@@ -272,7 +272,7 @@ public class RecordsController {
 		SolrClient solr ;
 		
 		if(urlString.contains("2181")){
-			solr =  new CloudSolrClient.Builder().withZkHost("localhost:2181").build();
+			solr =  new CloudSolrClient.Builder().withZkHost(urlString).build();
 		}else{
 			solr = new HttpSolrClient.Builder(urlString).build();
 		}

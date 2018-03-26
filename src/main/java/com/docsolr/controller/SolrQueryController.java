@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.JSONObject;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.docsolr.entity.Users;
+import com.docsolr.util.CommonUtil;
 import com.docsolr.util.SolrSchemaManager;
 import com.google.gson.Gson;
 
@@ -37,11 +40,17 @@ public class SolrQueryController {
 
 		JSONObject searchdata = new JSONObject(jsonReqData);
 		String data = searchdata.getString("name");
-
-		SolrClient client = new HttpSolrClient.Builder(urlString).build();
-
+		SolrClient client;
+		Users users = new Users();
+		users = CommonUtil.getCurrentSessionUser();
 		SolrQuery query = new SolrQuery();
-
+		if(urlString.contains("2181")){
+			client =  new CloudSolrClient.Builder().withZkHost(urlString).build();
+			query.setParam("collection", "newcollection");
+			query.setParam("shards", users.getFirstName());
+		}else{
+			client = new HttpSolrClient.Builder(urlString).build();
+		}
 		query.setQuery(data);
 	
 		query.set("defType", "edismax");
